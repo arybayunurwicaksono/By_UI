@@ -1,0 +1,10 @@
+name: by_ui_monorepo
+description: "Monorepo workspace for ByUI Flutter UI Component Library and Showcase"
+publish_to: "none"
+
+environment:
+  sdk: ^3.12.0
+
+workspace:
+  - packages/core
+  - apps/sample

@@ -1,0 +1,25 @@
+name: by_ui
+description: A modern, highly customizable Flutter UI component library featuring fluid spatial animations, interactive toasts, and shrink-wrap dialogs
+version: 0.1.0
+homepage: https://github.com/arybayunurwicaksono/By_UI
+repository: https://github.com/arybayunurwicaksono/By_UI
+issue_tracker: https://github.com/arybayunurwicaksono/By_UI/issues
+topics:
+  - toast
+  - notification
+  - dialog
+  - ui
+  - animation
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
