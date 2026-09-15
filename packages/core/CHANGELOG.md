@@ -5,6 +5,21 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.2
+
+### Added
+* **ByDialog**:
+  * Comprehensive button customization in `ByDialog.confirm`:
+    * `buttonBorderRadius`: Customizable button corner radius.
+    * `reverseButtonOrder`: Option to reverse button positions (Confirm left, Cancel right).
+    * `cancelColor`: Option to convert cancel button into a solid filled button.
+    * `cancelBorderColor` and `cancelTextColor`: Fine-grained negative button color tuning.
+    * `confirmTextColor`: Customizable positive button text color.
+    * `onConfirm` and `onCancel`: Direct lifecycle callbacks before modal dismiss.
+  * Added `buttonTextColor` and `buttonBorderRadius` customization in `ByDialog.alert` and all presets (`success`, `error`, `warning`, `info`).
+* **Documentation & Media**:
+  * Added visual animated GIF previews for stacked cards, drag-to-dialog, and standalone modal dialogs.
+
 ## 0.1.1
 
 ### Added

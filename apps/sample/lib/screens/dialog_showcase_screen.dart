@@ -39,6 +39,12 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
   Duration _selectedDuration = const Duration(milliseconds: 320);
   bool _barrierDismissible = true;
 
+  // Button Customization & Actions
+  double _buttonCornerRadius = 12.0;
+  bool _reverseButtonOrder = false;
+  int _cancelStyleIndex = 0; // 0: Outline, 1: Solid Fill, 2: Danger Tint
+  bool _customConfirmTextColor = false;
+
   // Available Theme Colors
   final List<Map<String, dynamic>> _themePresets = [
     {
@@ -141,6 +147,25 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         ? Border.all(color: accentColor.withValues(alpha: 0.8), width: 1.2)
         : null;
 
+    final BorderRadius buttonRadius = BorderRadius.circular(_buttonCornerRadius);
+
+    Color? cancelColor;
+    Color? cancelTextColor;
+    Color? cancelBorderColor;
+    if (_cancelStyleIndex == 1) {
+      // Solid filled button
+      cancelColor = isDark ? colors.surfaceVariant : colors.chipBg;
+      cancelTextColor = colors.textPrimary;
+    } else if (_cancelStyleIndex == 2) {
+      // Danger Tint
+      cancelBorderColor = AppColors.error.withValues(alpha: 0.6);
+      cancelTextColor = AppColors.error;
+    }
+
+    final Color? confirmTextColor = _customConfirmTextColor
+        ? (isDark ? Colors.black : Colors.white)
+        : null;
+
     if (_selectedDialogType == 0) {
       // Alert Dialog
       ByDialog.alert(
@@ -151,6 +176,8 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         icon: icon,
         iconColor: accentColor,
         buttonColor: accentColor,
+        buttonTextColor: confirmTextColor,
+        buttonBorderRadius: buttonRadius,
         buttonText: 'Got It',
         backgroundColor: bgColor,
         gradient: gradient,
@@ -178,6 +205,12 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         icon: icon ?? Icons.help_outline_rounded,
         iconColor: accentColor,
         confirmColor: accentColor,
+        confirmTextColor: confirmTextColor,
+        cancelColor: cancelColor,
+        cancelBorderColor: cancelBorderColor,
+        cancelTextColor: cancelTextColor,
+        buttonBorderRadius: buttonRadius,
+        reverseButtonOrder: _reverseButtonOrder,
         confirmText: 'Void Transaction',
         cancelText: 'Keep Transaction',
         backgroundColor: bgColor,
@@ -795,6 +828,118 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
               ),
             ],
           ),
+
+          const SizedBox(height: 14),
+
+          // Control Section 5: Button Customization & Actions
+          _buildControlCard(
+            title: '5. BUTTON ACTIONS & STYLING',
+            icon: Icons.smart_button_rounded,
+            children: [
+              Text(
+                'Button Corner Radius:',
+                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildChoiceChip(
+                      label: '6px (Sharp)',
+                      isSelected: _buttonCornerRadius == 6.0,
+                      onTap: () => setState(() => _buttonCornerRadius = 6.0),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildChoiceChip(
+                      label: '12px (Standard)',
+                      isSelected: _buttonCornerRadius == 12.0,
+                      onTap: () => setState(() => _buttonCornerRadius = 12.0),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildChoiceChip(
+                      label: '24px (Pill)',
+                      isSelected: _buttonCornerRadius == 24.0,
+                      onTap: () => setState(() => _buttonCornerRadius = 24.0),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'Negative (Cancel) Button Style:',
+                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildChoiceChip(
+                      label: 'Outline',
+                      isSelected: _cancelStyleIndex == 0,
+                      onTap: () => setState(() => _cancelStyleIndex = 0),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildChoiceChip(
+                      label: 'Solid Fill',
+                      isSelected: _cancelStyleIndex == 1,
+                      onTap: () => setState(() => _cancelStyleIndex = 1),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildChoiceChip(
+                      label: 'Danger Tint',
+                      isSelected: _cancelStyleIndex == 2,
+                      onTap: () => setState(() => _cancelStyleIndex = 2),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeThumbColor: Colors.white,
+                  activeTrackColor: AppColors.primary,
+                  title: Text(
+                    'Reverse Button Order',
+                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
+                  ),
+                  subtitle: Text(
+                    'Places Confirm on the left and Cancel on the right',
+                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                  ),
+                  value: _reverseButtonOrder,
+                  onChanged: (val) => setState(() => _reverseButtonOrder = val),
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeThumbColor: Colors.white,
+                  activeTrackColor: AppColors.primary,
+                  title: Text(
+                    'High-Contrast Confirm Text',
+                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
+                  ),
+                  subtitle: Text(
+                    'Switches confirm button text color between dark and white',
+                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                  ),
+                  value: _customConfirmTextColor,
+                  onChanged: (val) => setState(() => _customConfirmTextColor = val),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       bottomNavigationBar: AnimatedContainer(
@@ -1038,6 +1183,11 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           _buildSummaryRow(
             'Dismissible',
             _barrierDismissible ? 'Yes (Backdrop Tap)' : 'No (Modal Locked)',
+          ),
+          const SizedBox(height: 6),
+          _buildSummaryRow(
+            'Buttons & Order',
+            '${_buttonCornerRadius.toInt()}px • ${_reverseButtonOrder ? "Reversed" : "Standard"} • ${_cancelStyleIndex == 0 ? "Outline" : _cancelStyleIndex == 1 ? "Solid" : "Danger"}',
           ),
         ],
       ),

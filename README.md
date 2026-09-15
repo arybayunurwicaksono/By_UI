@@ -8,6 +8,14 @@ A modern, highly customizable Flutter UI component library featuring fluid spati
 
 ---
 
+## 🎬 Preview
+
+| Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
+| :---: | :---: | :---: |
+| <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="240" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="240" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="240" alt="ByDialog Standalone Alert and Confirm" /> |
+
+---
+
 ## ✨ Highlights
 
 * 🔔 **ByToast**:
@@ -54,7 +62,6 @@ By_UI/
 │   └── sample/         # Full-featured interactive showcase & playground application
 │       ├── lib/        # Showcase screens (Toast, Dialog, Drawer, Theme tokens)
 │       └── test/       # Showcase widget test suite
-└── rules.md            # Development standards, styling conventions & workflow rules
 ```
 
 ---
@@ -67,7 +74,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.1
+  by_ui: ^0.1.2
 ```
 
 Or run:
@@ -128,12 +135,6 @@ flutter test
 cd ../../apps/sample
 flutter test
 ```
-
----
-
-## 📜 Development Guidelines
-
-Please refer to [**`rules.md`**](rules.md) for architectural guidelines, theming conventions (`apps/sample/lib/theme`), testing protocols, and Git workflows.
 
 ---
 

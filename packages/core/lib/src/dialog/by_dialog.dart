@@ -62,9 +62,12 @@ abstract class ByDialog {
     Duration transitionDuration = const Duration(milliseconds: 320),
     Curve enterCurve = Curves.easeOutCubic,
     Color? buttonColor,
+    Color? buttonTextColor,
+    BorderRadius? buttonBorderRadius,
     VoidCallback? onConfirm,
   }) {
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(22);
+    final effectiveButtonRadius = buttonBorderRadius ?? BorderRadius.circular(12);
 
     return show(
       context,
@@ -145,10 +148,10 @@ abstract class ByDialog {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: buttonColor ?? const Color(0xFF6366F1),
-                    foregroundColor: Colors.white,
+                    foregroundColor: buttonTextColor ?? Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 13),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: effectiveButtonRadius,
                     ),
                   ),
                   onPressed: () {
@@ -157,7 +160,10 @@ abstract class ByDialog {
                   },
                   child: Text(
                     buttonText,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: buttonTextColor ?? Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -178,6 +184,14 @@ abstract class ByDialog {
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
     Color confirmColor = const Color(0xFF6366F1),
+    Color? confirmTextColor,
+    Color? cancelColor,
+    Color? cancelBorderColor,
+    Color? cancelTextColor,
+    BorderRadius? buttonBorderRadius,
+    bool reverseButtonOrder = false,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
     Color backgroundColor = const Color(0xFF0F172A),
     Gradient? gradient,
     Color textColor = Colors.white,
@@ -193,6 +207,7 @@ abstract class ByDialog {
     Curve enterCurve = Curves.easeOutCubic,
   }) async {
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(22);
+    final effectiveButtonRadius = buttonBorderRadius ?? BorderRadius.circular(12);
 
     final result = await show<bool>(
       context,
@@ -263,45 +278,95 @@ abstract class ByDialog {
                 ),
               ),
               const SizedBox(height: 22),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: textColor.withValues(alpha: 0.7),
-                        side: BorderSide(
-                          color: textColor.withValues(alpha: 0.2),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () =>
-                          Navigator.of(ctx, rootNavigator: true).pop(false),
-                      child: Text(cancelText),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
+              Builder(
+                builder: (ctx) {
+                  final effectiveCancelBorder = cancelBorderColor ??
+                      (cancelColor != null
+                          ? Colors.transparent
+                          : textColor.withValues(alpha: 0.2));
+                  final effectiveCancelText = cancelTextColor ??
+                      (cancelColor != null
+                          ? Colors.white
+                          : textColor.withValues(alpha: 0.7));
+
+                  final Widget cancelButton = Expanded(
+                    child: cancelColor != null
+                        ? ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: cancelColor,
+                              foregroundColor: effectiveCancelText,
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: effectiveButtonRadius,
+                                side: cancelBorderColor != null
+                                    ? BorderSide(color: cancelBorderColor)
+                                    : BorderSide.none,
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(ctx, rootNavigator: true).pop(false);
+                              onCancel?.call();
+                            },
+                            child: Text(
+                              cancelText,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: effectiveCancelText,
+                              ),
+                            ),
+                          )
+                        : OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: effectiveCancelText,
+                              side: BorderSide(
+                                color: effectiveCancelBorder,
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: effectiveButtonRadius,
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(ctx, rootNavigator: true).pop(false);
+                              onCancel?.call();
+                            },
+                            child: Text(
+                              cancelText,
+                              style: TextStyle(color: effectiveCancelText),
+                            ),
+                          ),
+                  );
+
+                  final Widget confirmButton = Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: confirmColor,
-                        foregroundColor: Colors.white,
+                        foregroundColor: confirmTextColor ?? Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: effectiveButtonRadius,
                         ),
                       ),
-                      onPressed: () =>
-                          Navigator.of(ctx, rootNavigator: true).pop(true),
+                      onPressed: () {
+                        Navigator.of(ctx, rootNavigator: true).pop(true);
+                        onConfirm?.call();
+                      },
                       child: Text(
                         confirmText,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: confirmTextColor ?? Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  );
+
+                  return Row(
+                    children: reverseButtonOrder
+                        ? [confirmButton, const SizedBox(width: 10), cancelButton]
+                        : [cancelButton, const SizedBox(width: 10), confirmButton],
+                  );
+                },
               ),
             ],
           ),
@@ -318,6 +383,8 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'Done',
+    Color? buttonTextColor,
+    BorderRadius? buttonBorderRadius,
     int? messageMaxLines,
     TextOverflow? messageOverflow,
     int? titleMaxLines,
@@ -332,6 +399,8 @@ abstract class ByDialog {
       iconColor: const Color(0xFF10B981),
       buttonColor: const Color(0xFF10B981),
       buttonText: buttonText,
+      buttonTextColor: buttonTextColor,
+      buttonBorderRadius: buttonBorderRadius,
       messageMaxLines: messageMaxLines,
       messageOverflow: messageOverflow,
       titleMaxLines: titleMaxLines,
@@ -346,6 +415,8 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'Dismiss',
+    Color? buttonTextColor,
+    BorderRadius? buttonBorderRadius,
     int? messageMaxLines,
     TextOverflow? messageOverflow,
     int? titleMaxLines,
@@ -360,6 +431,8 @@ abstract class ByDialog {
       iconColor: const Color(0xFFEF4444),
       buttonColor: const Color(0xFFEF4444),
       buttonText: buttonText,
+      buttonTextColor: buttonTextColor,
+      buttonBorderRadius: buttonBorderRadius,
       messageMaxLines: messageMaxLines,
       messageOverflow: messageOverflow,
       titleMaxLines: titleMaxLines,
@@ -374,6 +447,8 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'Understood',
+    Color? buttonTextColor,
+    BorderRadius? buttonBorderRadius,
     int? messageMaxLines,
     TextOverflow? messageOverflow,
     int? titleMaxLines,
@@ -388,6 +463,8 @@ abstract class ByDialog {
       iconColor: const Color(0xFFF59E0B),
       buttonColor: const Color(0xFFF59E0B),
       buttonText: buttonText,
+      buttonTextColor: buttonTextColor,
+      buttonBorderRadius: buttonBorderRadius,
       messageMaxLines: messageMaxLines,
       messageOverflow: messageOverflow,
       titleMaxLines: titleMaxLines,
@@ -402,6 +479,8 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'OK',
+    Color? buttonTextColor,
+    BorderRadius? buttonBorderRadius,
     int? messageMaxLines,
     TextOverflow? messageOverflow,
     int? titleMaxLines,
@@ -416,6 +495,8 @@ abstract class ByDialog {
       iconColor: const Color(0xFF3B82F6),
       buttonColor: const Color(0xFF3B82F6),
       buttonText: buttonText,
+      buttonTextColor: buttonTextColor,
+      buttonBorderRadius: buttonBorderRadius,
       messageMaxLines: messageMaxLines,
       messageOverflow: messageOverflow,
       titleMaxLines: titleMaxLines,

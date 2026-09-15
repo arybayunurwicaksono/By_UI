@@ -7,6 +7,14 @@ A modern, highly customizable Flutter UI component library featuring fluid spati
 
 ---
 
+## Preview
+
+| Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
+| :---: | :---: | :---: |
+| <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="240" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="240" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="240" alt="ByDialog Standalone Alert and Confirm" /> |
+
+---
+
 ## Features
 
 * **ByToast**:
@@ -39,7 +47,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.1
+  by_ui: ^0.1.2
 ```
 
 Or run:
@@ -144,17 +152,20 @@ ByToast.show(
 );
 ```
 
-### 6. Standalone Modal Dialogs
+### 6. Standalone Modal Dialogs & Button Customization
 
 ```dart
-// Confirm Dialog
+// Confirm Dialog with customized buttons
 final confirmed = await ByDialog.confirm(
   context,
   title: 'Void Transaction?',
   message: 'This will reverse ledger balance for transaction #1042.',
   confirmText: 'Void Now',
-  cancelText: 'Cancel',
+  cancelText: 'Keep',
   confirmColor: const Color(0xFFEF4444),
+  buttonBorderRadius: BorderRadius.circular(16), // Rounded or Pill buttons
+  reverseButtonOrder: false,                     // true to place Confirm on the left
+  cancelColor: const Color(0xFF1E293B),         // Optional solid fill for Cancel
 );
 
 if (confirmed == true) {

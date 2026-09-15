@@ -182,6 +182,46 @@ void main() {
     expect(find.text('Expand to Dialog'), findsOneWidget);
     expect(find.text('Text Clamp'), findsOneWidget);
   });
+
+  testWidgets('Dialog showcase displays button customization controls and updates preview',
+      (tester) async {
+    await tester.pumpWidget(const ByUISampleApp());
+    await tester.pumpAndSettle();
+
+    // Switch to ByDialog showcase
+    await tester.tap(find.byIcon(Icons.menu_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ByDialog'));
+    await tester.pumpAndSettle();
+
+    // Verify summary card has Buttons & Order row
+    expect(find.text('Buttons & Order'), findsOneWidget);
+
+    // Scroll to Section 5: BUTTON ACTIONS & STYLING
+    final section5Finder = find.text('5. BUTTON ACTIONS & STYLING');
+    await tester.scrollUntilVisible(section5Finder, 300);
+    await tester.pumpAndSettle();
+    expect(section5Finder, findsOneWidget);
+
+    // Test button corner radius selection
+    final pillFinder = find.text('24px (Pill)');
+    expect(pillFinder, findsOneWidget);
+    await tester.tap(pillFinder);
+    await tester.pumpAndSettle();
+
+    // Test reverse button order switch
+    final reverseFinder = find.text('Reverse Button Order');
+    expect(reverseFinder, findsOneWidget);
+    await tester.tap(reverseFinder);
+    await tester.pumpAndSettle();
+
+    // Scroll back to preview card to check updated summary
+    final previewFinder = find.text('ACTIVE CONFIGURATION PREVIEW');
+    await tester.scrollUntilVisible(previewFinder, -300);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('24px • Reversed'), findsOneWidget);
+  });
 }
 
 
