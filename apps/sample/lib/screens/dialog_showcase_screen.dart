@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:by_ui/by_ui.dart';
+import '../models/app_theme_store.dart';
 import '../models/toast_config_store.dart';
+import '../theme/app_theme.dart';
 import '../widgets/by_drawer.dart';
 import 'toast_showcase_screen.dart';
 
@@ -16,6 +18,10 @@ class DialogShowcaseScreen extends StatefulWidget {
 }
 
 class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
+  bool get isDark => AppThemeStore.instance.isDarkMode(context);
+  AppColorPalette get colors => AppColors.of(context);
+  Color get labelTextColor => colors.textSecondary;
+
   // Dialog Type: 0: Alert (Single Action), 1: Confirm (Two Actions), 2: Custom Receipt
   int _selectedDialogType = 0;
 
@@ -39,8 +45,20 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
       'name': 'Indigo Modern',
       'color': const Color(0xFF0F172A),
       'accent': const Color(0xFF6366F1),
+      'textColor': Colors.white,
       'gradient': const LinearGradient(
         colors: [Color(0xFF1E1B4B), Color(0xFF0F172A)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    },
+    {
+      'name': 'Pure White',
+      'color': Colors.white,
+      'accent': const Color(0xFF6366F1),
+      'textColor': const Color(0xFF0F172A),
+      'gradient': const LinearGradient(
+        colors: [Colors.white, Color(0xFFF8FAFC)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -113,6 +131,8 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     final theme = _themePresets[_selectedThemeIndex];
     final Color bgColor = theme['color'] as Color;
     final Color accentColor = theme['accent'] as Color;
+    final Color textColor = (theme['textColor'] as Color?) ?? Colors.white;
+    final bool isDarkSurface = bgColor != Colors.white;
     final Gradient? gradient = _useGradient ? theme['gradient'] as Gradient : null;
     final IconData? icon = _iconPresets[_selectedIconIndex]['icon'] as IconData?;
     final BorderRadius radius = BorderRadius.circular(_selectedCornerRadius);
@@ -134,6 +154,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         buttonText: 'Got It',
         backgroundColor: bgColor,
         gradient: gradient,
+        textColor: textColor,
         borderRadius: radius,
         border: border,
         barrierDismissible: _barrierDismissible,
@@ -161,6 +182,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         cancelText: 'Keep Transaction',
         backgroundColor: bgColor,
         gradient: gradient,
+        textColor: textColor,
         borderRadius: radius,
         border: border,
         barrierDismissible: _barrierDismissible,
@@ -190,6 +212,8 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           final screenSize = MediaQuery.of(ctx).size;
           final double cardWidth = min(screenSize.width - 40.0, 380.0);
 
+          final surfacePalette = AppColors.fromBrightness(isDarkSurface);
+
           return Container(
             width: cardWidth,
             padding: const EdgeInsets.all(22),
@@ -199,12 +223,14 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
               borderRadius: radius,
               border: border ??
                   Border.all(
-                    color: Colors.white.withValues(alpha: 0.12),
+                    color: isDarkSurface
+                        ? Colors.white.withValues(alpha: 0.12)
+                        : surfacePalette.border,
                     width: 1.2,
                   ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.45),
+                  color: Colors.black.withValues(alpha: isDarkSurface ? 0.45 : 0.15),
                   blurRadius: 32,
                   offset: const Offset(0, 14),
                 ),
@@ -229,23 +255,21 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Cashier Receipt #1042',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
+                            style: AppTextStyle.bodyMedium.copyWith(
+                              color: surfacePalette.textPrimary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           Text(
                             'Payment: QRIS Dynamic',
-                            style: TextStyle(
-                              color: Color(0xFF94A3B8),
-                              fontSize: 12,
+                            style: AppTextStyle.caption.copyWith(
+                              color: surfacePalette.textMuted,
                             ),
                           ),
                         ],
@@ -256,12 +280,12 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
                         onTap: () => Navigator.of(ctx, rootNavigator: true).pop(),
-                        child: const Padding(
-                          padding: EdgeInsets.all(6.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
                           child: Icon(
                             Icons.close_rounded,
                             size: 20,
-                            color: Color(0xFF94A3B8),
+                            color: surfacePalette.textMuted,
                           ),
                         ),
                       ),
@@ -269,36 +293,40 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                const Divider(color: Color(0xFF1E293B), height: 1),
+                Divider(
+                  color: surfacePalette.border,
+                  height: 1,
+                ),
                 const SizedBox(height: 14),
-                _buildReceiptRow('Robusta Latte x2', 'Rp 50.000'),
+                _buildReceiptRow('Robusta Latte x2', 'Rp 50.000', isDarkSurface: isDarkSurface),
                 const SizedBox(height: 8),
-                _buildReceiptRow('Caramel Croissant x1', 'Rp 28.000'),
+                _buildReceiptRow('Caramel Croissant x1', 'Rp 28.000', isDarkSurface: isDarkSurface),
                 const SizedBox(height: 8),
-                _buildReceiptRow('Mineral Water x1', 'Rp 10.000'),
+                _buildReceiptRow('Mineral Water x1', 'Rp 10.000', isDarkSurface: isDarkSurface),
                 const SizedBox(height: 14),
-                const Divider(color: Color(0xFF1E293B), height: 1),
+                Divider(
+                  color: surfacePalette.border,
+                  height: 1,
+                ),
                 const SizedBox(height: 14),
-                _buildReceiptRow('Subtotal', 'Rp 88.000', isBold: true),
+                _buildReceiptRow('Subtotal', 'Rp 88.000', isBold: true, isDarkSurface: isDarkSurface),
                 const SizedBox(height: 6),
-                _buildReceiptRow('Tax (11%)', 'Rp 9.680'),
+                _buildReceiptRow('Tax (11%)', 'Rp 9.680', isDarkSurface: isDarkSurface),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'TOTAL',
-                      style: TextStyle(
+                      style: AppTextStyle.sectionLabel.copyWith(
                         color: accentColor,
-                        fontSize: 15,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     Text(
                       'Rp 97.680',
-                      style: TextStyle(
+                      style: AppTextStyle.bodyMedium.copyWith(
                         color: accentColor,
-                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -317,9 +345,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                       ),
                     ),
                     icon: const Icon(Icons.print_rounded, size: 18),
-                    label: const Text(
+                    label: Text(
                       'Print Thermal Receipt',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                      style: AppTextStyle.buttonPrimary,
                     ),
                     onPressed: () {
                       Navigator.of(ctx, rootNavigator: true).pop();
@@ -339,23 +367,27 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     }
   }
 
-  Widget _buildReceiptRow(String item, String price, {bool isBold = false}) {
+  Widget _buildReceiptRow(
+    String item,
+    String price, {
+    bool isBold = false,
+    bool isDarkSurface = true,
+  }) {
+    final surfacePalette = AppColors.fromBrightness(isDarkSurface);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           item,
-          style: TextStyle(
-            color: isBold ? Colors.white : const Color(0xFFCBD5E1),
-            fontSize: 13,
+          style: (isBold ? AppTextStyle.bodyMedium : AppTextStyle.caption).copyWith(
+            color: isBold ? surfacePalette.textPrimary : surfacePalette.textSecondary,
             fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
         Text(
           price,
-          style: TextStyle(
-            color: isBold ? Colors.white : const Color(0xFF94A3B8),
-            fontSize: 13,
+          style: (isBold ? AppTextStyle.bodyMedium : AppTextStyle.caption).copyWith(
+            color: isBold ? surfacePalette.textPrimary : surfacePalette.textMuted,
             fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
@@ -365,14 +397,20 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF090D16),
+    return ListenableBuilder(
+      listenable: AppThemeStore.instance,
+      builder: (context, _) {
+        return Scaffold(
+      backgroundColor: colors.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: colors.cardBg,
         elevation: 0,
         leading: Builder(
           builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu_rounded, color: Colors.white),
+            icon: Icon(
+              Icons.menu_rounded,
+              color: colors.textPrimary,
+            ),
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
@@ -382,25 +420,20 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                  colors: [AppColors.primary, AppColors.primaryAccent],
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'ByDialog',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 14,
-                ),
+                style: AppTextStyle.buttonPrimary.copyWith(color: Colors.white),
               ),
             ),
             const SizedBox(width: 10),
-            const Text(
+            Text(
               'Showcase',
-              style: TextStyle(
-                color: Color(0xFF94A3B8),
-                fontSize: 14,
+              style: AppTextStyle.bodyMedium.copyWith(
+                color: colors.textMuted,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -432,39 +465,33 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+              color: colors.bannerBg,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.35),
-              ),
+              border: Border.all(color: colors.bannerBorder),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.auto_awesome_rounded,
-                  color: Color(0xFFA5B4FC),
+                  color: AppColors.primary,
                   size: 24,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Integrated with ByToast',
-                        style: TextStyle(
-                          color: Colors.white,
+                        style: AppTextStyle.bodyMedium.copyWith(
+                          color: colors.bannerText,
                           fontWeight: FontWeight.w700,
-                          fontSize: 13,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         'ByDialog can also be opened seamlessly by tapping the text of a ByToast notification card!',
-                        style: TextStyle(
-                          color: Color(0xFFCBD5E1),
-                          fontSize: 12,
-                        ),
+                        style: AppTextStyle.caption.copyWith(color: colors.textMuted),
                       ),
                     ],
                   ),
@@ -485,9 +512,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             title: '1. DIALOG TYPE & LAYOUT MODE',
             icon: Icons.dashboard_customize_rounded,
             children: [
-              const Text(
+              Text(
                 'Select Dialog Template:',
-                style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 13, fontWeight: FontWeight.w600),
+                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
               ),
               const SizedBox(height: 8),
               Row(
@@ -527,9 +554,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             title: '2. COLOR THEME & SURFACE STYLING',
             icon: Icons.palette_rounded,
             children: [
-              const Text(
+              Text(
                 'Preset Color Palette:',
-                style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 13, fontWeight: FontWeight.w600),
+                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
               ),
               const SizedBox(height: 10),
               Wrap(
@@ -546,14 +573,14 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   activeThumbColor: Colors.white,
-                  activeTrackColor: const Color(0xFF6366F1),
-                  title: const Text(
+                  activeTrackColor: AppColors.primary,
+                  title: Text(
                     'Gradient Surface Background',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
                   ),
-                  subtitle: const Text(
+                  subtitle: Text(
                     'Switches from deep solid color to rich multi-hue linear gradient',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
                   ),
                   value: _useGradient,
                   onChanged: (val) => setState(() => _useGradient = val),
@@ -564,23 +591,23 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   activeThumbColor: Colors.white,
-                  activeTrackColor: const Color(0xFF6366F1),
-                  title: const Text(
+                  activeTrackColor: AppColors.primary,
+                  title: Text(
                     'Outline Glow Border',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
                   ),
-                  subtitle: const Text(
+                  subtitle: Text(
                     'Adds a subtle high-contrast border matching the accent color',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
                   ),
                   value: _useOutlineBorder,
                   onChanged: (val) => setState(() => _useOutlineBorder = val),
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Corner Radius:',
-                style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 13, fontWeight: FontWeight.w600),
+                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
               ),
               const SizedBox(height: 8),
               Row(
@@ -597,7 +624,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     child: _buildChoiceChip(
                       label: '22px (Standard)',
                       isSelected: _selectedCornerRadius == 22.0,
-                      onTap: () => setState(() => _selectedCornerRadius = 22.0),
+                      onTap: () => setState(() => _selectedCornerRadius == 22.0),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -620,9 +647,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             title: '3. HEADER ICON & ACCENT BADGE',
             icon: Icons.star_border_rounded,
             children: [
-              const Text(
+              Text(
                 'Select Header Icon:',
-                style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 13, fontWeight: FontWeight.w600),
+                style: TextStyle(color: labelTextColor, fontSize: 13, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
               Wrap(
@@ -631,42 +658,42 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 children: List.generate(_iconPresets.length, (index) {
                   final item = _iconPresets[index];
                   final bool isSelected = _selectedIconIndex == index;
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () => setState(() => _selectedIconIndex = index),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFF6366F1)
-                            : const Color(0xFF1E293B),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFF818CF8)
-                              : const Color(0xFF334155),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (item['icon'] != null) ...[
-                            Icon(
-                              item['icon'] as IconData,
-                              size: 15,
-                              color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
-                            ),
-                            const SizedBox(width: 6),
-                          ],
-                          Text(
-                            item['name'] as String,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
-                              fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                            ),
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () => setState(() => _selectedIconIndex = index),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: isSelected ? colors.chipSelectedBg : colors.chipBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : colors.borderSubtle,
+                            width: 1.2,
                           ),
-                        ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (item['icon'] != null) ...[
+                              Icon(
+                                item['icon'] as IconData,
+                                size: 15,
+                                color: isSelected ? AppColors.primary : colors.textMuted,
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            Text(
+                              item['name'] as String,
+                              style: (isSelected ? AppTextStyle.chipSelected : AppTextStyle.chipUnselected).copyWith(
+                                color: isSelected ? (isDark ? Colors.white : AppColors.primaryDark) : colors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -682,9 +709,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             title: '4. ANIMATION & INTERACTION BEHAVIOR',
             icon: Icons.motion_photos_on_rounded,
             children: [
-              const Text(
+              Text(
                 'Entrance Animation Curve:',
-                style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 13, fontWeight: FontWeight.w600),
+                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
               ),
               const SizedBox(height: 8),
               Row(
@@ -715,9 +742,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 ],
               ),
               const SizedBox(height: 14),
-              const Text(
+              Text(
                 'Transition Duration:',
-                style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 13, fontWeight: FontWeight.w600),
+                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
               ),
               const SizedBox(height: 8),
               Row(
@@ -753,14 +780,14 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   activeThumbColor: Colors.white,
-                  activeTrackColor: const Color(0xFF6366F1),
-                  title: const Text(
+                  activeTrackColor: AppColors.primary,
+                  title: Text(
                     'Barrier Dismissible',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
                   ),
-                  subtitle: const Text(
+                  subtitle: Text(
                     'Allows closing the dialog by clicking on the dark backdrop scrim',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
                   ),
                   value: _barrierDismissible,
                   onChanged: (val) => setState(() => _barrierDismissible = val),
@@ -770,14 +797,21 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         decoration: BoxDecoration(
-          color: const Color(0xFF0F172A),
-          border: const Border(top: BorderSide(color: Color(0xFF1E293B))),
+          color: colors.cardBg,
+          border: Border(
+            top: BorderSide(
+              color: colors.border,
+              width: 1,
+            ),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.35),
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
@@ -790,7 +824,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 flex: 3,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -799,9 +833,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     elevation: 3,
                   ),
                   icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                  label: const Text(
+                  label: Text(
                     'Trigger Dialog',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                    style: AppTextStyle.buttonPrimary,
                   ),
                   onPressed: _triggerDialog,
                 ),
@@ -811,17 +845,17 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 flex: 2,
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF38BDF8),
-                    side: const BorderSide(color: Color(0xFF38BDF8), width: 1.2),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.2),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   icon: const Icon(Icons.help_outline_rounded, size: 18),
-                  label: const Text(
+                  label: Text(
                     'Confirm Flow',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                    style: AppTextStyle.buttonSecondary.copyWith(color: AppColors.primary),
                   ),
                   onPressed: () {
                     setState(() => _selectedDialogType = 1);
@@ -834,32 +868,38 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         ),
       ),
     );
-  }
+  },
+);
+}
 
   Widget _buildPresetPills() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: colors.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF1E293B)),
+        border: Border.all(color: colors.border),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'QUICK PRESETS (1-CLICK TEST)',
-            style: TextStyle(
-              color: Color(0xFF64748B),
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.8,
-            ),
+            style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              _buildPresetBtn('Success', const Color(0xFF10B981), () {
+              _buildPresetBtn('Success', AppColors.success, () {
                 ByDialog.success(
                   context,
                   title: 'Transaction Successful',
@@ -867,7 +907,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 );
               }),
               const SizedBox(width: 6),
-              _buildPresetBtn('Error', const Color(0xFFEF4444), () {
+              _buildPresetBtn('Error', AppColors.error, () {
                 ByDialog.error(
                   context,
                   title: 'Printer Connection Failed',
@@ -875,7 +915,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 );
               }),
               const SizedBox(width: 6),
-              _buildPresetBtn('Warning', const Color(0xFFF59E0B), () {
+              _buildPresetBtn('Warning', AppColors.warning, () {
                 ByDialog.warning(
                   context,
                   title: 'Inventory Threshold Alert',
@@ -883,7 +923,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 );
               }),
               const SizedBox(width: 6),
-              _buildPresetBtn('Info', const Color(0xFF3B82F6), () {
+              _buildPresetBtn('Info', AppColors.info, () {
                 ByDialog.info(
                   context,
                   title: 'Cloud Sync in Progress',
@@ -914,11 +954,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             alignment: Alignment.center,
             child: Text(
               label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTextStyle.pillButton.copyWith(color: color),
             ),
           ),
         ),
@@ -937,12 +973,21 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: colors.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: (theme['accent'] as Color).withValues(alpha: 0.4),
+          color: (theme['accent'] as Color).withValues(alpha: isDark ? 0.4 : 0.3),
           width: 1.2,
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -950,15 +995,15 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'ACTIVE CONFIGURATION PREVIEW',
-                style: TextStyle(
-                  color: Color(0xFF94A3B8),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
+              Flexible(
+                child: Text(
+                  'ACTIVE CONFIGURATION PREVIEW',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -967,11 +1012,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 ),
                 child: Text(
                   typeName,
-                  style: TextStyle(
-                    color: theme['accent'] as Color,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTextStyle.badgeSmall.copyWith(color: theme['accent'] as Color),
                 ),
               ),
             ],
@@ -1009,14 +1050,16 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+          style: AppTextStyle.caption.copyWith(color: colors.textMuted),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.specValue.copyWith(color: colors.textPrimary),
           ),
         ),
       ],
@@ -1031,9 +1074,18 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: colors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF1E293B)),
+        border: Border.all(color: colors.border),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: AnimatedSize(
         duration: const Duration(milliseconds: 280),
@@ -1043,17 +1095,12 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           children: [
             Row(
               children: [
-                Icon(icon, size: 16, color: const Color(0xFF6366F1)),
+                Icon(icon, size: 16, color: AppColors.primary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
-                      color: Color(0xFF94A3B8),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.6,
-                    ),
+                    style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
                   ),
                 ),
               ],
@@ -1081,11 +1128,11 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           curve: Curves.easeInOut,
           padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF6366F1) : const Color(0xFF1E293B),
+            color: isSelected ? colors.chipSelectedBg : colors.chipBg,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected ? const Color(0xFF818CF8) : const Color(0xFF334155),
-              width: 1,
+              color: isSelected ? AppColors.primary : colors.borderSubtle,
+              width: 1.2,
             ),
           ),
           alignment: Alignment.center,
@@ -1094,10 +1141,8 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            style: (isSelected ? AppTextStyle.chipSelected : AppTextStyle.chipUnselected).copyWith(
+              color: isSelected ? (isDark ? Colors.white : AppColors.primaryDark) : colors.textMuted,
             ),
           ),
         ),
@@ -1107,42 +1152,60 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
 
   Widget _buildThemeColorChip(int index, Map<String, dynamic> theme) {
     final bool isSelected = _selectedThemeIndex == index;
+    final Color color = theme['color'] as Color;
     final Color accent = theme['accent'] as Color;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: () => setState(() => _selectedThemeIndex = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected ? accent.withValues(alpha: 0.2) : const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? accent : const Color(0xFF334155),
-            width: isSelected ? 1.5 : 1,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () => setState(() => _selectedThemeIndex = index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (color == Colors.white
+                    ? colors.chipSelectedBg
+                    : accent.withValues(alpha: isDark ? 0.2 : 0.12))
+                : colors.chipBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected
+                  ? (color == Colors.white
+                      ? (isDark ? Colors.white : colors.textMuted)
+                      : accent)
+                  : colors.borderSubtle,
+              width: 1.2,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: accent,
-                shape: BoxShape.circle,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: color == Colors.white
+                        ? colors.borderSubtle
+                        : Colors.white.withValues(alpha: 0.3),
+                    width: 0.8,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 7),
-            Text(
-              theme['name'] as String,
-              style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              const SizedBox(width: 7),
+              Text(
+                theme['name'] as String,
+                style: (isSelected ? AppTextStyle.chipSelected : AppTextStyle.chipUnselected).copyWith(
+                  color: isSelected ? colors.textPrimary : colors.textSecondary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

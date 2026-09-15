@@ -306,5 +306,327 @@ void main() {
       ByToast.clear();
       await tester.pumpAndSettle();
     });
+
+    testWidgets(
+      'ByToast message defaults to maxLines = 3 and overflow = TextOverflow.ellipsis',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5',
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        final textFinder =
+            find.text('Line 1\nLine 2\nLine 3\nLine 4\nLine 5');
+        expect(textFinder, findsOneWidget);
+
+        final textWidget = tester.widget<Text>(textFinder);
+        expect(textWidget.maxLines, 3);
+        expect(textWidget.overflow, TextOverflow.ellipsis);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToast supports customizable maxLines, overflow, and titleMaxLines',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      title: 'My Custom Title\nSecond Title Line',
+                      message: 'Custom message line 1\nLine 2',
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      titleMaxLines: 1,
+                      titleOverflow: TextOverflow.fade,
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        final titleWidget = tester.widget<Text>(
+          find.text('My Custom Title\nSecond Title Line'),
+        );
+        expect(titleWidget.maxLines, 1);
+        expect(titleWidget.overflow, TextOverflow.fade);
+
+        final msgWidget = tester.widget<Text>(
+          find.text('Custom message line 1\nLine 2'),
+        );
+        expect(msgWidget.maxLines, 1);
+        expect(msgWidget.overflow, TextOverflow.clip);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToast long message with default settings opens dialog showing full text on tap',
+      (WidgetTester tester) async {
+        const longMessage =
+            'Order #1042 has been placed successfully with 3 items. Receipt sent to thermal printer.';
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      title: 'Order Completed',
+                      message: longMessage,
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        // Toast card has maxLines 3 and ellipsis
+        final cardTextWidget =
+            tester.widget<Text>(find.text(longMessage));
+        expect(cardTextWidget.maxLines, 3);
+        expect(cardTextWidget.overflow, TextOverflow.ellipsis);
+
+        // Tap the message text to open the dialog
+        await tester.tap(find.text(longMessage));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 450));
+
+        // In the dialog, the full message is displayed and ByToastMorphDialog is present
+        expect(find.byType(ByToastMorphDialog), findsOneWidget);
+        expect(find.text('Order Completed'), findsOneWidget);
+        expect(find.text(longMessage), findsOneWidget);
+
+        // Close dialog
+        await tester.tap(find.byKey(const Key('by_toast_dialog_close')));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(ByToastMorphDialog), findsNothing);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToast backgroundOpacity reduces background surface alpha while leaving foreground text color untouched',
+      (WidgetTester tester) async {
+        const testBgColor = Color(0xFF10B981);
+        const testTextColor = Colors.white;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Translucent Background',
+                      backgroundColor: testBgColor,
+                      textColor: testTextColor,
+                      backgroundOpacity: 0.6,
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        // Find the card container decoration
+        final containerFinder = find.descendant(
+          of: find.byType(ByToastCard),
+          matching: find.byType(Container),
+        );
+        expect(containerFinder, findsWidgets);
+
+        // Find the specific container with BoxDecoration
+        bool foundDecoratedCard = false;
+        for (final element in containerFinder.evaluate()) {
+          final widget = element.widget as Container;
+          final decoration = widget.decoration;
+          if (decoration is BoxDecoration && decoration.color != null) {
+            // Verify background opacity has been multiplied (1.0 * 0.6 = 0.6)
+            expect(decoration.color!.a, closeTo(0.6, 0.01));
+            foundDecoratedCard = true;
+            break;
+          }
+        }
+        expect(foundDecoratedCard, isTrue);
+
+        // Verify text color is untouched (still full opacity 1.0)
+        final textWidget =
+            tester.widget<Text>(find.text('Translucent Background'));
+        expect(textWidget.style?.color?.a ?? 1.0, closeTo(1.0, 0.01));
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToastMorphDialog maintains fully solid background even when toast backgroundOpacity is reduced',
+      (WidgetTester tester) async {
+        const testBgColor = Color(0xFF10B981);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Tap to Morph',
+                      backgroundColor: testBgColor,
+                      backgroundOpacity: 0.4,
+                      enableTapToExpand: true,
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        // Tap the message to expand into dialog
+        await tester.tap(find.text('Tap to Morph'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 450));
+
+        expect(find.byType(ByToastMorphDialog), findsOneWidget);
+
+        // Verify the dialog card maintains full solid alpha (1.0)
+        final dialogContainerFinder = find.descendant(
+          of: find.byType(ByToastMorphDialog),
+          matching: find.byType(Container),
+        );
+        bool foundSolidDialog = false;
+        for (final element in dialogContainerFinder.evaluate()) {
+          final widget = element.widget as Container;
+          final decoration = widget.decoration;
+          if (decoration is BoxDecoration && decoration.color == testBgColor) {
+            expect(decoration.color!.a, 1.0);
+            foundSolidDialog = true;
+            break;
+          }
+        }
+        expect(foundSolidDialog, isTrue);
+
+        // Dismiss dialog
+        await tester.tap(find.byKey(const Key('by_toast_dialog_close')));
+        await tester.pumpAndSettle();
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToast supports corner positions (topRight, topLeft, bottomRight, bottomLeft)',
+      (WidgetTester tester) async {
+        expect(ByToastPosition.topLeft.isTop, isTrue);
+        expect(ByToastPosition.topLeft.isLeft, isTrue);
+        expect(ByToastPosition.topLeft.isRight, isFalse);
+        expect(ByToastPosition.topLeft.isCenter, isFalse);
+
+        expect(ByToastPosition.topRight.isTop, isTrue);
+        expect(ByToastPosition.topRight.isRight, isTrue);
+
+        expect(ByToastPosition.bottomLeft.isBottom, isTrue);
+        expect(ByToastPosition.bottomLeft.isLeft, isTrue);
+
+        expect(ByToastPosition.bottomRight.isBottom, isTrue);
+        expect(ByToastPosition.bottomRight.isRight, isTrue);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Desktop Corner Notification',
+                      position: ByToastPosition.topRight,
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('Desktop Corner Notification'), findsOneWidget);
+
+        final animatedPosFinder = find.byType(AnimatedPositioned);
+        expect(animatedPosFinder, findsWidgets);
+
+        final animatedPos = tester.widget<AnimatedPositioned>(animatedPosFinder.first);
+        expect(animatedPos.right, 16.0);
+        expect(animatedPos.left, isNull);
+        expect(animatedPos.width, 400.0);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
   });
 }
+

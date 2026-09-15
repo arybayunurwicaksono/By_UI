@@ -46,6 +46,12 @@ class ByToastModel {
   /// Optional gradient background. When provided, takes precedence over solid [backgroundColor].
   final Gradient? gradient;
 
+  /// Opacity multiplier applied strictly to the background surface (0.0 to 1.0).
+  ///
+  /// Defaults to 1.0 (fully opaque). Foreground elements (text, icons, buttons)
+  /// preserve their original opacity and clarity.
+  final double backgroundOpacity;
+
   /// Text color for the message and default tint for icons.
   final Color textColor;
 
@@ -54,6 +60,18 @@ class ByToastModel {
 
   /// Custom typography style for the optional [title].
   final TextStyle? titleStyle;
+
+  /// Maximum number of lines for the message text. Defaults to 3.
+  final int? maxLines;
+
+  /// How visual overflow should be handled for the message text. Defaults to [TextOverflow.ellipsis].
+  final TextOverflow? overflow;
+
+  /// Optional maximum number of lines for the optional [title].
+  final int? titleMaxLines;
+
+  /// Optional overflow behavior for the optional [title].
+  final TextOverflow? titleOverflow;
 
   /// Optional outline border around the toast card.
   final Border? border;
@@ -131,14 +149,69 @@ class ByToastModel {
   /// Whether tap-to-expand gesture is active on this toast.
   bool get canTapToExpand =>
       enableTapToExpand ??
-      enableDragToExpand ??
-      (detailBuilder != null || detailMessage != null || detailTitle != null);
+      (onTap != null
+          ? (detailBuilder != null ||
+              detailMessage != null ||
+              detailTitle != null)
+          : (enableDragToExpand ?? true));
 
   /// Whether drag-to-expand gesture is active on this toast.
   bool get canDragToExpand =>
-      enableDragToExpand ??
-      enableTapToExpand ??
-      (detailBuilder != null || detailMessage != null || detailTitle != null);
+      enableDragToExpand ?? enableTapToExpand ?? true;
+
+  /// Effective background color with [backgroundOpacity] applied.
+  Color get effectiveBackgroundColor {
+    final opacity = backgroundOpacity.clamp(0.0, 1.0);
+    if (opacity >= 1.0) return backgroundColor;
+    return backgroundColor.withValues(alpha: backgroundColor.a * opacity);
+  }
+
+  /// Effective gradient with [backgroundOpacity] applied to each color stop.
+  Gradient? get effectiveGradient {
+    final grad = gradient;
+    if (grad == null) return null;
+    final opacity = backgroundOpacity.clamp(0.0, 1.0);
+    if (opacity >= 1.0) return grad;
+
+    if (grad is LinearGradient) {
+      return LinearGradient(
+        begin: grad.begin,
+        end: grad.end,
+        colors: grad.colors
+            .map((c) => c.withValues(alpha: c.a * opacity))
+            .toList(),
+        stops: grad.stops,
+        tileMode: grad.tileMode,
+        transform: grad.transform,
+      );
+    } else if (grad is RadialGradient) {
+      return RadialGradient(
+        center: grad.center,
+        radius: grad.radius,
+        colors: grad.colors
+            .map((c) => c.withValues(alpha: c.a * opacity))
+            .toList(),
+        stops: grad.stops,
+        tileMode: grad.tileMode,
+        focal: grad.focal,
+        focalRadius: grad.focalRadius,
+        transform: grad.transform,
+      );
+    } else if (grad is SweepGradient) {
+      return SweepGradient(
+        center: grad.center,
+        startAngle: grad.startAngle,
+        endAngle: grad.endAngle,
+        colors: grad.colors
+            .map((c) => c.withValues(alpha: c.a * opacity))
+            .toList(),
+        stops: grad.stops,
+        tileMode: grad.tileMode,
+        transform: grad.transform,
+      );
+    }
+    return grad;
+  }
 
   const ByToastModel({
     required this.id,
@@ -155,9 +228,14 @@ class ByToastModel {
     this.onTap,
     required this.backgroundColor,
     this.gradient,
+    this.backgroundOpacity = 1.0,
     required this.textColor,
     this.textStyle,
     this.titleStyle,
+    this.maxLines = 3,
+    this.overflow = TextOverflow.ellipsis,
+    this.titleMaxLines,
+    this.titleOverflow,
     this.border,
     this.boxShadow,
     this.borderRadius,

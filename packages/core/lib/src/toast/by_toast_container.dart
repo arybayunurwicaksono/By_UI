@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'by_toast.dart';
 import 'by_toast_card.dart';
-import 'by_toast_enums.dart';
 import 'by_toast_model.dart';
 import 'by_toast_morph_dialog.dart';
 
@@ -87,13 +86,16 @@ class ByToastContainerState extends State<ByToastContainer> {
     }
   }
 
-  /// Calculates dynamic cumulative offset for an item at [index].
+  /// Calculates dynamic cumulative offset for an item at [index] among items sharing the same anchor position.
   double _calculateOffset(int index) {
+    final currentPos = _currentItems[index].position;
     double totalOffset = 0.0;
     for (int i = 0; i < index; i++) {
-      final prevId = _currentItems[i].id;
-      final prevHeight = _itemHeights[prevId] ?? _defaultItemHeight;
-      totalOffset += prevHeight + widget.itemSpacing;
+      if (_currentItems[i].position == currentPos) {
+        final prevId = _currentItems[i].id;
+        final prevHeight = _itemHeights[prevId] ?? _defaultItemHeight;
+        totalOffset += prevHeight + widget.itemSpacing;
+      }
     }
     return totalOffset;
   }
@@ -137,6 +139,7 @@ class ByToastContainerState extends State<ByToastContainer> {
             index: i,
             baseTop: baseTop,
             baseBottom: baseBottom,
+            screenWidth: mediaQuery.size.width,
           ),
         ],
 
@@ -156,10 +159,22 @@ class ByToastContainerState extends State<ByToastContainer> {
     required int index,
     required double baseTop,
     required double baseBottom,
+    required double screenWidth,
   }) {
     final double stackOffset = _calculateOffset(index);
     final double targetOpacity = index >= widget.maxVisibleItems ? 0.0 : 1.0;
-    final bool isTop = item.position == ByToastPosition.top;
+    final bool isTop = item.position.isTop;
+    final bool isLeft = item.position.isLeft;
+    final bool isRight = item.position.isRight;
+
+    // Corner toasts on desktop/web have a neat capped width (e.g. up to 400px),
+    // or capped at available screen width minus horizontal margins.
+    final double maxCornerWidth =
+        (screenWidth - (item.horizontalMargin * 2)).clamp(0.0, 400.0);
+
+    final double? left = isRight ? null : item.horizontalMargin;
+    final double? right = isLeft ? null : item.horizontalMargin;
+    final double? width = (isLeft || isRight) ? maxCornerWidth : null;
 
     return AnimatedPositioned(
       key: ValueKey('pos_${item.id}'),
@@ -167,8 +182,9 @@ class ByToastContainerState extends State<ByToastContainer> {
       curve: Curves.easeInOutCubic,
       top: isTop ? baseTop + stackOffset : null,
       bottom: !isTop ? baseBottom + stackOffset : null,
-      left: item.horizontalMargin,
-      right: item.horizontalMargin,
+      left: left,
+      right: right,
+      width: width,
       child: AnimatedOpacity(
         opacity: targetOpacity,
         duration: const Duration(milliseconds: 300),

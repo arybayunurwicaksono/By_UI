@@ -27,11 +27,13 @@ class _ByToastMorphDialogState extends State<ByToastMorphDialog>
   late Animation<double> _enterAnim;
   late Animation<double> _exitFadeAnim;
   late Animation<double> _exitScaleAnim;
+  late final ScrollController _scrollController;
   bool _isClosing = false;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     _enterController = AnimationController(
       vsync: this,
       duration: widget.item.dialogAnimationDuration,
@@ -77,6 +79,7 @@ class _ByToastMorphDialogState extends State<ByToastMorphDialog>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _enterController.dispose();
     _exitController.dispose();
     super.dispose();
@@ -202,14 +205,14 @@ class _ByToastMorphDialogState extends State<ByToastMorphDialog>
         item.detailTitle ?? item.title ?? 'Notification Details';
     final String detailBody = item.detailMessage ?? item.message;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header: Icon + Title + Close Button ('X')
-          Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Header: Icon + Title + Close Button ('X')
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+          child: Row(
             children: [
               if (item.icon != null) ...[
                 Container(
@@ -257,28 +260,39 @@ class _ByToastMorphDialogState extends State<ByToastMorphDialog>
               ),
             ],
           ),
+        ),
 
-          const SizedBox(height: 14),
-          Divider(color: item.textColor.withValues(alpha: 0.15), height: 1),
-          const SizedBox(height: 14),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 0),
+          child: Divider(color: item.textColor.withValues(alpha: 0.15), height: 1),
+        ),
 
-          // Scrollable Detail Message Body
-          Flexible(
+        // Scrollable Detail Message Body spanning full width to the right edge of dialog
+        Flexible(
+          child: Scrollbar(
+            controller: _scrollController,
+            radius: const Radius.circular(8),
+            thickness: 4.0,
             child: SingleChildScrollView(
+              controller: _scrollController,
               physics: const BouncingScrollPhysics(),
-              child: Text(
-                detailBody,
-                style: TextStyle(
-                  color: item.textColor.withValues(alpha: 0.9),
-                  fontSize: 14,
-                  height: 1.55,
-                  fontWeight: FontWeight.w400,
+              padding: const EdgeInsets.fromLTRB(18, 14, 18, 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  detailBody,
+                  style: TextStyle(
+                    color: item.textColor.withValues(alpha: 0.9),
+                    fontSize: 14,
+                    height: 1.55,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

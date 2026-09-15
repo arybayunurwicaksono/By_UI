@@ -53,6 +53,10 @@ abstract class ByDialog {
     Color textColor = Colors.white,
     Border? border,
     BorderRadius? borderRadius,
+    int? messageMaxLines,
+    TextOverflow? messageOverflow,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x99000000),
     Duration transitionDuration = const Duration(milliseconds: 320),
@@ -115,6 +119,8 @@ abstract class ByDialog {
               Text(
                 title,
                 textAlign: TextAlign.center,
+                maxLines: titleMaxLines,
+                overflow: titleOverflow,
                 style: TextStyle(
                   color: textColor,
                   fontSize: 17,
@@ -125,6 +131,8 @@ abstract class ByDialog {
               Text(
                 message,
                 textAlign: TextAlign.center,
+                maxLines: messageMaxLines,
+                overflow: messageOverflow,
                 style: TextStyle(
                   color: textColor.withValues(alpha: 0.8),
                   fontSize: 13,
@@ -175,6 +183,10 @@ abstract class ByDialog {
     Color textColor = Colors.white,
     Border? border,
     BorderRadius? borderRadius,
+    int? messageMaxLines,
+    TextOverflow? messageOverflow,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x99000000),
     Duration transitionDuration = const Duration(milliseconds: 320),
@@ -230,6 +242,8 @@ abstract class ByDialog {
               Text(
                 title,
                 textAlign: TextAlign.center,
+                maxLines: titleMaxLines,
+                overflow: titleOverflow,
                 style: TextStyle(
                   color: textColor,
                   fontSize: 17,
@@ -240,6 +254,8 @@ abstract class ByDialog {
               Text(
                 message,
                 textAlign: TextAlign.center,
+                maxLines: messageMaxLines,
+                overflow: messageOverflow,
                 style: TextStyle(
                   color: textColor.withValues(alpha: 0.8),
                   fontSize: 13,
@@ -302,6 +318,10 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'Done',
+    int? messageMaxLines,
+    TextOverflow? messageOverflow,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     VoidCallback? onConfirm,
   }) {
     return alert(
@@ -312,6 +332,10 @@ abstract class ByDialog {
       iconColor: const Color(0xFF10B981),
       buttonColor: const Color(0xFF10B981),
       buttonText: buttonText,
+      messageMaxLines: messageMaxLines,
+      messageOverflow: messageOverflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       onConfirm: onConfirm,
     );
   }
@@ -322,6 +346,10 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'Dismiss',
+    int? messageMaxLines,
+    TextOverflow? messageOverflow,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     VoidCallback? onConfirm,
   }) {
     return alert(
@@ -332,6 +360,10 @@ abstract class ByDialog {
       iconColor: const Color(0xFFEF4444),
       buttonColor: const Color(0xFFEF4444),
       buttonText: buttonText,
+      messageMaxLines: messageMaxLines,
+      messageOverflow: messageOverflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       onConfirm: onConfirm,
     );
   }
@@ -342,6 +374,10 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'Understood',
+    int? messageMaxLines,
+    TextOverflow? messageOverflow,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     VoidCallback? onConfirm,
   }) {
     return alert(
@@ -352,6 +388,10 @@ abstract class ByDialog {
       iconColor: const Color(0xFFF59E0B),
       buttonColor: const Color(0xFFF59E0B),
       buttonText: buttonText,
+      messageMaxLines: messageMaxLines,
+      messageOverflow: messageOverflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       onConfirm: onConfirm,
     );
   }
@@ -362,6 +402,10 @@ abstract class ByDialog {
     required String title,
     required String message,
     String buttonText = 'OK',
+    int? messageMaxLines,
+    TextOverflow? messageOverflow,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     VoidCallback? onConfirm,
   }) {
     return alert(
@@ -372,6 +416,10 @@ abstract class ByDialog {
       iconColor: const Color(0xFF3B82F6),
       buttonColor: const Color(0xFF3B82F6),
       buttonText: buttonText,
+      messageMaxLines: messageMaxLines,
+      messageOverflow: messageOverflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       onConfirm: onConfirm,
     );
   }

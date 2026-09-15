@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'models/app_theme_store.dart';
 import 'screens/toast_showcase_screen.dart';
+import 'theme/app_theme.dart';
+import 'widgets/web_mobile_layout.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,20 +14,23 @@ class ByUISampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ByUI Showcase',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF090D16),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF6366F1),
-          surface: Color(0xFF0F172A),
-          onSurface: Colors.white,
-        ),
-      ),
-      home: const ToastShowcaseScreen(),
+    return ListenableBuilder(
+      listenable: AppThemeStore.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'ByUI Showcase',
+          debugShowCheckedModeBanner: false,
+          themeMode: AppThemeStore.instance.themeMode,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          builder: (context, child) {
+            return WebMobileLayout(
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          home: const ToastShowcaseScreen(),
+        );
+      },
     );
   }
 }

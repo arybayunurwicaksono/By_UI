@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../models/app_theme_store.dart';
+import '../theme/app_theme.dart';
 
 /// Modern and aesthetic navigation drawer showcasing ByUI components.
+/// Includes dynamic theme selection (System / Light / Dark) at the bottom.
 class ByDrawer extends StatelessWidget {
   final String activeComponent;
   final ValueChanged<String>? onSelectComponent;
@@ -13,112 +16,133 @@ class ByDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: const Color(0xFF0B0F19),
-      surfaceTintColor: Colors.transparent,
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Drawer Header with ByUI Brand Styling
-            _buildDrawerHeader(),
+    return ListenableBuilder(
+      listenable: AppThemeStore.instance,
+      builder: (context, _) {
+        final colors = AppColors.of(context);
 
-            const SizedBox(height: 12),
-            const Divider(color: Color(0xFF1E293B), height: 1),
-
-            // Drawer Content List
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        return Drawer(
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            color: colors.drawerBg,
+            child: SafeArea(
+              child: Column(
                 children: [
-                  // Active Components Section
-                  _buildSectionHeader('AVAILABLE COMPONENTS (2)'),
-                  const SizedBox(height: 8),
+                  // Drawer Header Card with ByUI Brand Styling
+                  _buildDrawerHeader(colors),
 
-                  _buildDrawerItem(
-                    title: 'ByToast',
-                    subtitle: 'Stacked toast & banner overlay',
-                    icon: Icons.notifications_active_rounded,
-                    isActive: activeComponent == 'ByToast',
-                    badgeText: 'READY',
-                    badgeColor: const Color(0xFF10B981),
-                    onTap: () {
-                      Navigator.pop(context);
-                      onSelectComponent?.call('ByToast');
-                    },
-                  ),
-                  const SizedBox(height: 6),
+                  // Drawer Content List
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      children: [
+                        // Active Components Section
+                        _buildSectionHeader('AVAILABLE COMPONENTS (2)', colors),
+                        const SizedBox(height: 8),
 
-                  _buildDrawerItem(
-                    title: 'ByDialog',
-                    subtitle: 'Modal alerts, confirms & dialogs',
-                    icon: Icons.chat_bubble_outline_rounded,
-                    isActive: activeComponent == 'ByDialog',
-                    badgeText: 'READY',
-                    badgeColor: const Color(0xFF10B981),
-                    onTap: () {
-                      Navigator.pop(context);
-                      onSelectComponent?.call('ByDialog');
-                    },
+                        _buildDrawerItem(
+                          title: 'ByToast',
+                          subtitle: 'Stacked toast & banner overlay',
+                          icon: Icons.notifications_active_rounded,
+                          isActive: activeComponent == 'ByToast',
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
+                          colors: colors,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onSelectComponent?.call('ByToast');
+                          },
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByDialog',
+                          subtitle: 'Animated shrink-wrap modal',
+                          icon: Icons.layers_rounded,
+                          isActive: activeComponent == 'ByDialog',
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
+                          colors: colors,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onSelectComponent?.call('ByDialog');
+                          },
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // Upcoming Roadmap Section
+                        _buildSectionHeader('ROADMAP COMPONENTS', colors),
+                        const SizedBox(height: 8),
+
+                        _buildDrawerItem(
+                          title: 'ByBottomSheet',
+                          subtitle: 'Fluid draggable modal sheets',
+                          icon: Icons.vertical_align_bottom_rounded,
+                          isActive: false,
+                          isUpcoming: true,
+                          badgeText: 'SOON',
+                          badgeColor: AppColors.warning,
+                          colors: colors,
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByDropdown',
+                          subtitle: 'Searchable spatial dropdowns',
+                          icon: Icons.arrow_drop_down_circle_outlined,
+                          isActive: false,
+                          isUpcoming: true,
+                          badgeText: 'SOON',
+                          badgeColor: AppColors.warning,
+                          colors: colors,
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByAvatarBadge',
+                          subtitle: 'Online presence avatar clusters',
+                          icon: Icons.account_circle_outlined,
+                          isActive: false,
+                          isUpcoming: true,
+                          badgeText: 'PLANNED',
+                          badgeColor: colors.textMuted,
+                          colors: colors,
+                        ),
+                      ],
+                    ),
                   ),
 
-                  const SizedBox(height: 24),
+                  // Bottom Theme Mode Switcher
+                  _buildThemeSelector(context, colors),
 
-                  // Upcoming Components Roadmap Section
-                  _buildSectionHeader('ROADMAP COMPONENTS'),
-                  const SizedBox(height: 8),
-
-                  _buildDrawerItem(
-                    title: 'ByButton',
-                    subtitle: 'Haptic & fluid press states',
-                    icon: Icons.smart_button_rounded,
-                    isActive: false,
-                    isUpcoming: true,
-                    badgeText: 'SOON',
-                    badgeColor: const Color(0xFF64748B),
-                  ),
-                  const SizedBox(height: 6),
-                  _buildDrawerItem(
-                    title: 'ByCard',
-                    subtitle: 'Bento & glassmorphic surfaces',
-                    icon: Icons.dashboard_customize_rounded,
-                    isActive: false,
-                    isUpcoming: true,
-                    badgeText: 'SOON',
-                    badgeColor: const Color(0xFF64748B),
-                  ),
-                  const SizedBox(height: 6),
-                  _buildDrawerItem(
-                    title: 'ByBottomSheet',
-                    subtitle: 'Draggable spring bottom sheet',
-                    icon: Icons.vertical_align_bottom_rounded,
-                    isActive: false,
-                    isUpcoming: true,
-                    badgeText: 'SOON',
-                    badgeColor: const Color(0xFF64748B),
-                  ),
+                  // Drawer Footer
+                  _buildDrawerFooter(colors),
                 ],
               ),
             ),
-
-            // Drawer Footer
-            _buildDrawerFooter(),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildDrawerHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 20, 18, 16),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF1E1B4B),
-            Color(0xFF0F172A),
-          ],
+  Widget _buildDrawerHeader(AppColorPalette colors) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colors.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colors.border,
+          width: 1,
         ),
       ),
       child: Column(
@@ -132,14 +156,14 @@ class ByDrawer extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                    colors: [AppColors.primary, AppColors.primaryAccent],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.35),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: AppColors.primary.withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -154,51 +178,45 @@ class ByDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           'ByUI',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 19,
+                          style: AppTextStyle.appBarTitle.copyWith(
+                            color: colors.textPrimary,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                            color: colors.badgeBg,
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
-                              color: const Color(0xFF6366F1).withValues(alpha: 0.4),
+                              color: colors.badgeBorder,
                               width: 1,
                             ),
                           ),
-                          child: const Text(
-                            'v0.1.0',
-                            style: TextStyle(
-                              color: Color(0xFFA5B4FC),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
+                          child: Text(
+                            'v0.1.1',
+                            style: AppTextStyle.badgeSmall.copyWith(
+                              color: colors.badgeText,
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 3),
-                    const Text(
+                    Text(
                       'Core Component Library',
-                      style: TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 12,
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textMuted,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -207,25 +225,29 @@ class ByDrawer extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Container(
+          const SizedBox(height: 12),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.25),
+              color: colors.surfaceVariant,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.hub_rounded, size: 13, color: Color(0xFF38BDF8)),
-                SizedBox(width: 6),
-                Text(
-                  'Monorepo: packages/core',
-                  style: TextStyle(
-                    color: Color(0xFFCBD5E1),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'monospace',
+                const Icon(Icons.hub_rounded, size: 13, color: AppColors.primary),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    'packages/core',
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyle.code.copyWith(
+                      color: colors.textSecondary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -236,15 +258,14 @@ class ByDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, AppColorPalette colors) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 4),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Color(0xFF64748B),
+        style: AppTextStyle.sectionHeader.copyWith(
+          color: colors.textSubtle,
           fontSize: 11,
-          fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
         ),
       ),
@@ -259,17 +280,20 @@ class ByDrawer extends StatelessWidget {
     bool isUpcoming = false,
     required String badgeText,
     required Color badgeColor,
+    required AppColorPalette colors,
     VoidCallback? onTap,
   }) {
-    final activeBg = const Color(0xFF6366F1).withValues(alpha: 0.15);
-    final activeBorder = const Color(0xFF6366F1).withValues(alpha: 0.5);
+    final activeBg = AppColors.primary.withValues(alpha: colors.isDark ? 0.15 : 0.10);
+    final activeBorder = AppColors.primary.withValues(alpha: 0.5);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: isUpcoming ? null : onTap,
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: isActive ? activeBg : Colors.transparent,
@@ -281,22 +305,22 @@ class ByDrawer extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? const Color(0xFF6366F1).withValues(alpha: 0.25)
-                      : const Color(0xFF1E293B),
+                      ? AppColors.primary.withValues(alpha: colors.isDark ? 0.25 : 0.15)
+                      : colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   icon,
                   color: isActive
-                      ? const Color(0xFFA5B4FC)
-                      : (isUpcoming
-                          ? const Color(0xFF475569)
-                          : const Color(0xFF94A3B8)),
+                      ? (colors.isDark ? AppColors.primaryTextLight : AppColors.primaryDark)
+                      : (isUpcoming ? colors.textMuted : colors.textSubtle),
                   size: 20,
                 ),
               ),
@@ -307,30 +331,28 @@ class ByDrawer extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: AppTextStyle.body.copyWith(
                         color: isUpcoming
-                            ? const Color(0xFF64748B)
-                            : (isActive ? Colors.white : const Color(0xFFE2E8F0)),
-                        fontSize: 14,
-                        fontWeight:
-                            isActive ? FontWeight.w700 : FontWeight.w600,
+                            ? colors.textMuted
+                            : (isActive ? colors.textPrimary : colors.textSecondary),
+                        fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
                       ),
                     ),
                     Text(
                       subtitle,
-                      style: TextStyle(
+                      style: AppTextStyle.caption.copyWith(
                         color: isUpcoming
-                            ? const Color(0xFF475569)
-                            : const Color(0xFF94A3B8),
-                        fontSize: 11,
+                            ? colors.textMuted
+                            : (isActive
+                                ? (colors.isDark ? AppColors.primaryTextLight : AppColors.primaryDark)
+                                : colors.textSubtle),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
                   color: badgeColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
@@ -341,11 +363,9 @@ class ByDrawer extends StatelessWidget {
                 ),
                 child: Text(
                   badgeText,
-                  style: TextStyle(
+                  style: AppTextStyle.badgeSmall.copyWith(
                     color: badgeColor,
                     fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
                   ),
                 ),
               ),
@@ -356,13 +376,225 @@ class ByDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerFooter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
+  /// Theme Mode Selector situated at the bottom of the drawer.
+  Widget _buildThemeSelector(BuildContext context, AppColorPalette colors) {
+    final themeStore = AppThemeStore.instance;
+    final currentMode = themeStore.themeMode;
+
+    String currentModeLabel;
+    if (themeStore.isSystem) {
+      currentModeLabel = 'Auto (${colors.isDark ? 'Dark' : 'Light'})';
+    } else if (themeStore.isLight) {
+      currentModeLabel = 'Light';
+    } else {
+      currentModeLabel = 'Dark';
+    }
+
+    final int activeIndex = currentMode == ThemeMode.system
+        ? 0
+        : (currentMode == ThemeMode.light ? 1 : 2);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colors.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colors.border,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.palette_outlined,
+                      size: 14,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        'THEME MODE',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyle.sectionHeader.copyWith(
+                          color: colors.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: colors.badgeBg,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  currentModeLabel,
+                  style: AppTextStyle.badgeSmall.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          RepaintBoundary(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: colors.surfaceVariant,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Stack(
+                children: [
+                  // High-performance GPU sliding indicator
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: AnimatedSlide(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        offset: Offset(activeIndex.toDouble(), 0.0),
+                        child: FractionallySizedBox(
+                          widthFactor: 1 / 3,
+                          heightFactor: 1.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.35),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Button options layer
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildThemeOptionButton(
+                          mode: ThemeMode.system,
+                          label: 'System',
+                          icon: Icons.brightness_auto_rounded,
+                          isSelected: currentMode == ThemeMode.system,
+                          colors: colors,
+                          onTap: () => themeStore.setThemeMode(ThemeMode.system),
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildThemeOptionButton(
+                          mode: ThemeMode.light,
+                          label: 'Light',
+                          icon: Icons.light_mode_rounded,
+                          isSelected: currentMode == ThemeMode.light,
+                          colors: colors,
+                          onTap: () => themeStore.setThemeMode(ThemeMode.light),
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildThemeOptionButton(
+                          mode: ThemeMode.dark,
+                          label: 'Dark',
+                          icon: Icons.dark_mode_rounded,
+                          isSelected: currentMode == ThemeMode.dark,
+                          colors: colors,
+                          onTap: () => themeStore.setThemeMode(ThemeMode.dark),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThemeOptionButton({
+    required ThemeMode mode,
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required AppColorPalette colors,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 7),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    size: 13,
+                    color: isSelected ? Colors.white : colors.textMuted,
+                  ),
+                  const SizedBox(width: 4),
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 200),
+                    style: AppTextStyle.badge.copyWith(
+                      color: isSelected ? Colors.white : colors.textSecondary,
+                      fontSize: 11,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    ),
+                    child: Text(label),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerFooter(AppColorPalette colors) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      decoration: BoxDecoration(
+        color: colors.cardBg,
         border: Border(
-          top: BorderSide(color: Color(0xFF1E293B), width: 1),
+          top: BorderSide(
+            color: colors.border,
+            width: 1,
+          ),
         ),
       ),
       child: Row(
@@ -371,26 +603,25 @@ class ByDrawer extends StatelessWidget {
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: Color(0xFF10B981),
+              color: AppColors.success,
               shape: BoxShape.circle,
             ),
           ),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
               'Sample App • Ready to test',
-              style: TextStyle(
-                color: Color(0xFF94A3B8),
+              style: AppTextStyle.caption.copyWith(
+                color: colors.textMuted,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          const Text(
+          Text(
             'ByUI',
-            style: TextStyle(
-              color: Color(0xFF6366F1),
-              fontSize: 12,
+            style: AppTextStyle.fieldLabel.copyWith(
+              color: AppColors.primary,
               fontWeight: FontWeight.w800,
             ),
           ),

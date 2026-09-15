@@ -14,9 +14,14 @@ class ToastConfigStore {
 
   // Theme & Surface Appearance
   int selectedColorIndex = 0;
+  double backgroundOpacity = 1.0;
   bool showCloseButton = true;
   bool useOutlineBorder = false;
   bool isMultiLine = false;
+
+  // Text Truncation & Overflow
+  int? maxLines = 3;
+  TextOverflow overflow = TextOverflow.ellipsis;
 
   // Prefix & Suffix Icon Selection
   int selectedLeftIconIndex = 1;
@@ -32,6 +37,12 @@ class ToastConfigStore {
       'name': 'Dark Slate (Solid)',
       'color': const Color(0xFF0F172A),
       'textColor': Colors.white,
+      'gradient': null,
+    },
+    {
+      'name': 'Pure White (Solid)',
+      'color': Colors.white,
+      'textColor': const Color(0xFF0F172A),
       'gradient': null,
     },
     {
@@ -118,6 +129,8 @@ class ToastConfigStore {
           ? Curves.easeOutBack
           : Curves.easeOutCubic,
       duration: duration,
+      maxLines: maxLines,
+      overflow: overflow,
     );
   }
 }

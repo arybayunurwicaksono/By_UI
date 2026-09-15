@@ -1,6 +1,6 @@
 # ByUI
 
-A modern, highly customizable Flutter UI component library featuring fluid spatial animations, interactive toasts, and shrink-wrap dialogs.
+A modern, highly customizable Flutter UI component library featuring fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
 
 [![pub package](https://img.shields.io/pub/v/by_ui.svg)](https://pub.dev/packages/by_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -10,21 +10,25 @@ A modern, highly customizable Flutter UI component library featuring fluid spati
 ## Features
 
 * **ByToast**:
-  * **Top & Bottom Screen Anchors**: Anchor to top app bar or bottom bar seamlessly.
-  * **Multi-directional Slide**: Entrance animations from top, bottom, left, or right.
-  * **Rich Animations**: Supports `slideAndFade`, `bounce`, `scaleAndFade`, `slideOnly`, and `fadeOnly`.
-  * **Surfaces**: Solid colors, multi-hue linear gradients, and customizable borders/shadows.
-  * **Interactive Gestures**: Swipe to dismiss away from center, or drag towards screen center to expand into a modal dialog.
+  * **Multi-Anchor Screen Positioning**: Supports standard mobile positions (`top`, `bottom`) and desktop/web corner anchors (`topRight`, `topLeft`, `bottomRight`, `bottomLeft`).
+  * **Surface Opacity Control**: Fine-tune `backgroundOpacity` (0.0 to 1.0) for sleek translucent/glassmorphic cards while keeping foreground text, icons, and buttons at 100% crisp contrast.
+  * **Configurable Text Clamping**: Built-in `maxLines` (defaults to 3) and `overflow` (`TextOverflow.ellipsis`) for tidy compact cards, plus optional `titleMaxLines`.
+  * **Multi-directional Slide**: Inward slide entrance animations from top, bottom, left, or right with auto-detection for corner anchors.
+  * **Rich Animation Styles**: Supports `slideAndFade`, `bounce`, `scaleAndFade`, `slideOnly`, and `fadeOnly`.
+  * **Surfaces**: Solid colors, multi-hue linear gradients, thin borders, and customizable drop shadows.
+  * **Interactive Gestures**: Swipe to dismiss away from center, or drag towards screen center to expand into a detail modal dialog.
   * **1-Click Presets**: `ByToast.showSuccess`, `ByToast.showError`, `ByToast.showWarning`, `ByToast.showInfo`.
 
 * **Morphing Dialog (Toast-to-Dialog)**:
-  * **Dual Interaction**: Tap the message text or pull/drag the toast towards the center of the screen to open an expanded detail dialog.
-  * **Natural Shrink-Wrap**: Dialog dynamically adjusts height to fit content without awkward blank space.
-  * **Interactive Physics**: If pulled slightly and released, it springs back smoothly.
+  * **Dual Interaction**: Tap the message text or pull/drag the toast towards the center of the screen to smoothly expand into a modal dialog.
+  * **Smooth Scrollbar & Long Text**: Integrated dedicated `ScrollController` with custom styled scrollbars for long notification details.
+  * **Shrink-Wrap Layout**: Dialog dynamically adjusts height to fit content without awkward empty space.
+  * **Resilient Surface**: Dialog maintains solid contrast even when the initiating toast uses reduced background opacity.
 
 * **ByDialog**:
-  * Standalone modal dialog system matching ByToast styling.
+  * Standalone modal dialog system sharing ByToast's sleek slate aesthetic.
   * Presets for single-button `ByDialog.alert` and two-button `ByDialog.confirm`.
+  * Configurable text clamping (`messageMaxLines`, `titleMaxLines`, `overflow`).
   * Fully customizable barrier colors, gradients, button colors, and entry curves.
 
 ---
@@ -35,7 +39,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.0
+  by_ui: ^0.1.1
 ```
 
 Or run:
@@ -68,7 +72,38 @@ ByToast.show(
 );
 ```
 
-### 2. Preset Toasts
+### 2. Corner Positioning (Desktop & Web)
+
+Ideal for desktop and web layouts where notifications belong in the corner:
+
+```dart
+ByToast.show(
+  context,
+  title: 'Build Finished',
+  message: 'Artifacts uploaded to production server.',
+  position: ByToastPosition.topRight, // or topLeft, bottomRight, bottomLeft
+  backgroundColor: const Color(0xFF0F172A),
+  icon: Icons.cloud_done_rounded,
+);
+```
+
+### 3. Background Opacity & Text Clamping
+
+Create translucent floating toasts while keeping text crisp and readable:
+
+```dart
+ByToast.show(
+  context,
+  title: 'New Notification',
+  message: 'This is a compact notification with a subtle translucent background.',
+  backgroundOpacity: 0.85, // 85% opacity on surface, 100% on text/icon
+  maxLines: 2,             // Clamped to 2 lines with ellipsis
+  overflow: TextOverflow.ellipsis,
+  backgroundColor: const Color(0xFF1E1B4B),
+);
+```
+
+### 4. 1-Click Presets
 
 ```dart
 // Success preset
@@ -77,7 +112,7 @@ ByToast.showSuccess(
   message: 'Order #1042 processed successfully.',
 );
 
-// Error preset
+// Error preset at the bottom
 ByToast.showError(
   context,
   message: 'Printer connection timed out.',
@@ -85,9 +120,9 @@ ByToast.showError(
 );
 ```
 
-### 3. Tap & Drag to Expand into Dialog
+### 5. Tap & Drag to Expand into Dialog
 
-Users can tap the message text or drag the toast towards the center of the screen to reveal full details:
+Users can tap the message text or drag the toast towards the center of the screen to reveal full scrollable details:
 
 ```dart
 ByToast.show(
@@ -98,15 +133,18 @@ ByToast.show(
   detailTitle: 'Transaction #1042 Details',
   detailMessage:
       '• Order ID: #TRX-1042\n'
+      '• Cashier: Sarah W.\n'
       '• Items: Double Latte x2, Croissant x1\n'
       '• Total: Rp 78.000\n'
-      '• Payment: QRIS Verified',
+      '• Payment: QRIS Verified\n'
+      '• Timestamp: 2026-09-15 14:32:10 WIB\n'
+      '• Terminal: POS-01 (Offline Synced)',
   enableTapToExpand: true,
   enableDragToExpand: true,
 );
 ```
 
-### 4. Standalone Modal Dialogs
+### 6. Standalone Modal Dialogs
 
 ```dart
 // Confirm Dialog
@@ -120,7 +158,7 @@ final confirmed = await ByDialog.confirm(
 );
 
 if (confirmed == true) {
-  // Handle confirm action
+  // Handle confirmed action
 }
 ```
 

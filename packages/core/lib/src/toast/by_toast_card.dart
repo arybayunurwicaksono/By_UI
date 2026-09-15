@@ -182,7 +182,7 @@ class _ByToastCardState extends State<ByToastCard>
   void _onPanUpdate(DragUpdateDetails details) {
     if (_isDismissing || _hasTriggeredExpand) return;
 
-    final isTop = widget.item.position == ByToastPosition.top;
+    final isTop = widget.item.position.isTop;
     final canExpand = widget.item.canDragToExpand;
     final dy = details.delta.dy;
     final dx = details.delta.dx;
@@ -212,7 +212,7 @@ class _ByToastCardState extends State<ByToastCard>
     if (_isDismissing || _hasTriggeredExpand) return;
     _isDragging = false;
 
-    final isTop = widget.item.position == ByToastPosition.top;
+    final isTop = widget.item.position.isTop;
     final canExpand = widget.item.canDragToExpand;
     final double centerDragDistance = isTop ? _dragOffset.dy : -_dragOffset.dy;
     final double velocityY = details.velocity.pixelsPerSecond.dy;
@@ -289,8 +289,8 @@ class _ByToastCardState extends State<ByToastCard>
       padding: item.padding ??
           const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: item.gradient == null ? item.backgroundColor : null,
-        gradient: item.gradient,
+        color: item.gradient == null ? item.effectiveBackgroundColor : null,
+        gradient: item.effectiveGradient,
         borderRadius: item.borderRadius ?? BorderRadius.circular(14),
         border: item.border,
         boxShadow: item.boxShadow ??
@@ -355,6 +355,8 @@ class _ByToastCardState extends State<ByToastCard>
                       if (item.title != null && item.title!.isNotEmpty) ...[
                         Text(
                           item.title!,
+                          maxLines: item.titleMaxLines,
+                          overflow: item.titleOverflow,
                           style: item.titleStyle ??
                               TextStyle(
                                 fontSize: 13,
@@ -366,6 +368,8 @@ class _ByToastCardState extends State<ByToastCard>
                       ],
                       Text(
                         item.message,
+                        maxLines: item.maxLines,
+                        overflow: item.overflow,
                         style: item.textStyle ??
                             TextStyle(
                               fontSize: 13,

@@ -5,6 +5,25 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.1
+
+### Added
+* **ByToast**:
+  * Multi-anchor desktop & web corner positioning (`topLeft`, `topRight`, `bottomLeft`, `bottomRight`) alongside full-width `top` and `bottom`, with intelligent auto slide directions and per-anchor stack offsets.
+  * Configurable background surface opacity (`backgroundOpacity`) for solid and gradient surfaces while keeping foreground text and icons at 100% clarity.
+  * Configurable text truncation controls (`maxLines` defaults to 3, `overflow` defaults to `TextOverflow.ellipsis`).
+  * Configurable title truncation options (`titleMaxLines` and `titleOverflow`).
+  * Intelligent tap-to-expand fallback allowing standard toasts with long text to seamlessly morph into dialog view.
+* **ByToastMorphDialog**:
+  * Integrated dedicated `ScrollController` with custom scrollbar styling for long notification details.
+  * Layout enhancements with edge-to-edge content scrolling and polished dividers.
+* **ByDialog**:
+  * Added text truncation controls (`messageMaxLines`, `messageOverflow`, `titleMaxLines`, `titleOverflow`) across `alert`, `confirm`, and presets (`success`, `error`, `warning`, `info`).
+
+### Fixed
+* Fixed toast tap gesture detection when expanding messages into dialogs without custom `onTap` handlers.
+* Fixed scroll controller disposal and viewport constraints in `ByToastMorphDialog`.
+
 ## 0.1.0
 
 ### Added

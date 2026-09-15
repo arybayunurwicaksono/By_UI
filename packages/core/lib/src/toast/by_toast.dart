@@ -50,9 +50,14 @@ abstract class ByToast {
     VoidCallback? onTap,
     Color backgroundColor = const Color(0xFF0F172A),
     Gradient? gradient,
+    double backgroundOpacity = 1.0,
     Color textColor = Colors.white,
     TextStyle? textStyle,
     TextStyle? titleStyle,
+    int? maxLines = 3,
+    TextOverflow? overflow = TextOverflow.ellipsis,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     Border? border,
     List<BoxShadow>? boxShadow,
     BorderRadius? borderRadius,
@@ -85,9 +90,20 @@ abstract class ByToast {
 
     // Resolve default slide direction based on screen anchor position
     final effectiveSlideDirection = slideDirection ??
-        (position == ByToastPosition.top
-            ? ByToastSlideDirection.fromTop
-            : ByToastSlideDirection.fromBottom);
+        () {
+          switch (position) {
+            case ByToastPosition.topLeft:
+            case ByToastPosition.bottomLeft:
+              return ByToastSlideDirection.fromLeft;
+            case ByToastPosition.topRight:
+            case ByToastPosition.bottomRight:
+              return ByToastSlideDirection.fromRight;
+            case ByToastPosition.bottom:
+              return ByToastSlideDirection.fromBottom;
+            case ByToastPosition.top:
+              return ByToastSlideDirection.fromTop;
+          }
+        }();
 
     final effectiveLeading = prefix ?? leading;
     final effectiveIcon = prefixIcon ?? icon;
@@ -110,9 +126,14 @@ abstract class ByToast {
       onTap: onTap,
       backgroundColor: backgroundColor,
       gradient: gradient,
+      backgroundOpacity: backgroundOpacity,
       textColor: textColor,
       textStyle: textStyle,
       titleStyle: titleStyle,
+      maxLines: maxLines,
+      overflow: overflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       border: border,
       boxShadow: boxShadow,
       borderRadius: borderRadius,
@@ -172,6 +193,7 @@ abstract class ByToast {
     String? title,
     Color backgroundColor = const Color(0xFF10B981),
     Gradient? gradient,
+    double backgroundOpacity = 1.0,
     Color textColor = Colors.white,
     IconData? icon = Icons.check_circle_rounded,
     IconData? prefixIcon,
@@ -192,6 +214,10 @@ abstract class ByToast {
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    int? maxLines = 3,
+    TextOverflow? overflow = TextOverflow.ellipsis,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     String? detailTitle,
     String? detailMessage,
     WidgetBuilder? detailBuilder,
@@ -205,6 +231,7 @@ abstract class ByToast {
       title: title,
       backgroundColor: backgroundColor,
       gradient: gradient,
+      backgroundOpacity: backgroundOpacity,
       textColor: textColor,
       icon: icon,
       prefixIcon: prefixIcon,
@@ -225,6 +252,10 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      maxLines: maxLines,
+      overflow: overflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       detailTitle: detailTitle,
       detailMessage: detailMessage,
       detailBuilder: detailBuilder,
@@ -240,6 +271,7 @@ abstract class ByToast {
     String? title,
     Color backgroundColor = const Color(0xFFEF4444),
     Gradient? gradient,
+    double backgroundOpacity = 1.0,
     Color textColor = Colors.white,
     IconData? icon = Icons.error_rounded,
     IconData? prefixIcon,
@@ -260,6 +292,10 @@ abstract class ByToast {
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    int? maxLines = 3,
+    TextOverflow? overflow = TextOverflow.ellipsis,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     String? detailTitle,
     String? detailMessage,
     WidgetBuilder? detailBuilder,
@@ -273,6 +309,7 @@ abstract class ByToast {
       title: title,
       backgroundColor: backgroundColor,
       gradient: gradient,
+      backgroundOpacity: backgroundOpacity,
       textColor: textColor,
       icon: icon,
       prefixIcon: prefixIcon,
@@ -293,6 +330,10 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      maxLines: maxLines,
+      overflow: overflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       detailTitle: detailTitle,
       detailMessage: detailMessage,
       detailBuilder: detailBuilder,
@@ -308,6 +349,7 @@ abstract class ByToast {
     String? title,
     Color backgroundColor = const Color(0xFF3B82F6),
     Gradient? gradient,
+    double backgroundOpacity = 1.0,
     Color textColor = Colors.white,
     IconData? icon = Icons.info_rounded,
     IconData? prefixIcon,
@@ -328,6 +370,10 @@ abstract class ByToast {
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    int? maxLines = 3,
+    TextOverflow? overflow = TextOverflow.ellipsis,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     String? detailTitle,
     String? detailMessage,
     WidgetBuilder? detailBuilder,
@@ -341,6 +387,7 @@ abstract class ByToast {
       title: title,
       backgroundColor: backgroundColor,
       gradient: gradient,
+      backgroundOpacity: backgroundOpacity,
       textColor: textColor,
       icon: icon,
       prefixIcon: prefixIcon,
@@ -361,6 +408,10 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      maxLines: maxLines,
+      overflow: overflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       detailTitle: detailTitle,
       detailMessage: detailMessage,
       detailBuilder: detailBuilder,
@@ -376,6 +427,7 @@ abstract class ByToast {
     String? title,
     Color backgroundColor = const Color(0xFFF59E0B),
     Gradient? gradient,
+    double backgroundOpacity = 1.0,
     Color textColor = Colors.white,
     IconData? icon = Icons.warning_amber_rounded,
     IconData? prefixIcon,
@@ -396,6 +448,10 @@ abstract class ByToast {
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    int? maxLines = 3,
+    TextOverflow? overflow = TextOverflow.ellipsis,
+    int? titleMaxLines,
+    TextOverflow? titleOverflow,
     String? detailTitle,
     String? detailMessage,
     WidgetBuilder? detailBuilder,
@@ -409,6 +465,7 @@ abstract class ByToast {
       title: title,
       backgroundColor: backgroundColor,
       gradient: gradient,
+      backgroundOpacity: backgroundOpacity,
       textColor: textColor,
       icon: icon,
       prefixIcon: prefixIcon,
@@ -429,6 +486,10 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      maxLines: maxLines,
+      overflow: overflow,
+      titleMaxLines: titleMaxLines,
+      titleOverflow: titleOverflow,
       detailTitle: detailTitle,
       detailMessage: detailMessage,
       detailBuilder: detailBuilder,
