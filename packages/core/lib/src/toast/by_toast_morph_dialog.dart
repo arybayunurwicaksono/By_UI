@@ -264,7 +264,8 @@ class _ByToastMorphDialogState extends State<ByToastMorphDialog>
 
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 0),
-          child: Divider(color: item.textColor.withValues(alpha: 0.15), height: 1),
+          child:
+              Divider(color: item.textColor.withValues(alpha: 0.15), height: 1),
         ),
 
         // Scrollable Detail Message Body spanning full width to the right edge of dialog

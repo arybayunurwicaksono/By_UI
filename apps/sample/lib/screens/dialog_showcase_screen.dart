@@ -5,7 +5,9 @@ import '../models/app_theme_store.dart';
 import '../models/toast_config_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/by_drawer.dart';
+import '../widgets/widget_params_dialog.dart';
 import 'toast_showcase_screen.dart';
+import 'card_showcase_screen.dart';
 
 /// Highly customizable interactive showcase screen for ByDialog components.
 /// Features live controls matching ByToast: Theme colors, gradients, borders,
@@ -46,92 +48,10 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
   bool _customConfirmTextColor = false;
 
   // Available Theme Colors
-  final List<Map<String, dynamic>> _themePresets = [
-    {
-      'name': 'Indigo Modern',
-      'color': const Color(0xFF0F172A),
-      'accent': const Color(0xFF6366F1),
-      'textColor': Colors.white,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF1E1B4B), Color(0xFF0F172A)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Pure White',
-      'color': Colors.white,
-      'accent': const Color(0xFF6366F1),
-      'textColor': const Color(0xFF0F172A),
-      'gradient': const LinearGradient(
-        colors: [Colors.white, Color(0xFFF8FAFC)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Emerald Success',
-      'color': const Color(0xFF064E3B),
-      'accent': const Color(0xFF10B981),
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF064E3B), Color(0xFF022C22)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Crimson Danger',
-      'color': const Color(0xFF7F1D1D),
-      'accent': const Color(0xFFEF4444),
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF7F1D1D), Color(0xFF450A0A)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Amber Warning',
-      'color': const Color(0xFF78350F),
-      'accent': const Color(0xFFF59E0B),
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF78350F), Color(0xFF451A03)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Sky Minimalist',
-      'color': const Color(0xFF0C4A6E),
-      'accent': const Color(0xFF0EA5E9),
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF0C4A6E), Color(0xFF082F49)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Purple Violet',
-      'color': const Color(0xFF3B0764),
-      'accent': const Color(0xFF8B5CF6),
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF3B0764), Color(0xFF1E0A3C)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-  ];
+  final List<ShowcaseThemePreset> _themePresets = AppColors.dialogThemePresets;
 
   // Available Icons
-  final List<Map<String, dynamic>> _iconPresets = [
-    {'name': 'None', 'icon': null},
-    {'name': 'Info', 'icon': Icons.info_outline_rounded},
-    {'name': 'Success', 'icon': Icons.check_circle_outline_rounded},
-    {'name': 'Warning', 'icon': Icons.warning_amber_rounded},
-    {'name': 'Help', 'icon': Icons.help_outline_rounded},
-    {'name': 'Shield', 'icon': Icons.verified_user_outlined},
-    {'name': 'Receipt', 'icon': Icons.receipt_long_rounded},
-    {'name': 'Flame', 'icon': Icons.local_fire_department_outlined},
-  ];
+  final List<ShowcaseIconOption> _iconPresets = AppIcons.dialogIconPresets;
 
   void _triggerDialog() {
     final theme = _themePresets[_selectedThemeIndex];
@@ -139,15 +59,20 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     final Color accentColor = theme['accent'] as Color;
     final Color textColor = (theme['textColor'] as Color?) ?? Colors.white;
     final bool isDarkSurface = bgColor != Colors.white;
-    final Gradient? gradient = _useGradient ? theme['gradient'] as Gradient : null;
-    final IconData? icon = _iconPresets[_selectedIconIndex]['icon'] as IconData?;
+    final Gradient? gradient = _useGradient
+        ? theme['gradient'] as Gradient
+        : null;
+    final IconData? icon =
+        _iconPresets[_selectedIconIndex]['icon'] as IconData?;
     final BorderRadius radius = BorderRadius.circular(_selectedCornerRadius);
 
     final Border? border = _useOutlineBorder
         ? Border.all(color: accentColor.withValues(alpha: 0.8), width: 1.2)
         : null;
 
-    final BorderRadius buttonRadius = BorderRadius.circular(_buttonCornerRadius);
+    final BorderRadius buttonRadius = BorderRadius.circular(
+      _buttonCornerRadius,
+    );
 
     Color? cancelColor;
     Color? cancelTextColor;
@@ -191,7 +116,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           ToastConfigStore.instance.showFeedback(
             context,
             message: 'Alert acknowledged.',
-            icon: Icons.check_circle_rounded,
+            icon: AppIcons.successFilled,
           );
         },
       );
@@ -202,7 +127,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         title: 'Void Transaction #1042?',
         message:
             'This action will reverse the transaction and update the inventory ledger accordingly. Do you wish to continue?',
-        icon: icon ?? Icons.help_outline_rounded,
+        icon: icon ?? AppIcons.help,
         iconColor: accentColor,
         confirmColor: accentColor,
         confirmTextColor: confirmTextColor,
@@ -228,9 +153,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             message: confirmed
                 ? 'Transaction #1042 was voided.'
                 : 'Action canceled by user.',
-            icon: confirmed
-                ? Icons.delete_forever_rounded
-                : Icons.close_rounded,
+            icon: confirmed ? AppIcons.delete : AppIcons.close,
           );
         }
       });
@@ -254,7 +177,8 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
               color: gradient == null ? bgColor : null,
               gradient: gradient,
               borderRadius: radius,
-              border: border ??
+              border:
+                  border ??
                   Border.all(
                     color: isDarkSurface
                         ? Colors.white.withValues(alpha: 0.12)
@@ -263,7 +187,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDarkSurface ? 0.45 : 0.15),
+                  color: Colors.black.withValues(
+                    alpha: isDarkSurface ? 0.45 : 0.15,
+                  ),
                   blurRadius: 32,
                   offset: const Offset(0, 14),
                 ),
@@ -282,7 +208,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
-                        icon ?? Icons.receipt_long_rounded,
+                        icon ?? AppIcons.receipt,
                         color: accentColor,
                         size: 22,
                       ),
@@ -312,11 +238,12 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
-                        onTap: () => Navigator.of(ctx, rootNavigator: true).pop(),
+                        onTap: () =>
+                            Navigator.of(ctx, rootNavigator: true).pop(),
                         child: Padding(
                           padding: const EdgeInsets.all(6.0),
                           child: Icon(
-                            Icons.close_rounded,
+                            AppIcons.close,
                             size: 20,
                             color: surfacePalette.textMuted,
                           ),
@@ -326,25 +253,40 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Divider(
-                  color: surfacePalette.border,
-                  height: 1,
+                Divider(color: surfacePalette.border, height: 1),
+                const SizedBox(height: 14),
+                _buildReceiptRow(
+                  'Robusta Latte x2',
+                  'Rp 50.000',
+                  isDarkSurface: isDarkSurface,
+                ),
+                const SizedBox(height: 8),
+                _buildReceiptRow(
+                  'Caramel Croissant x1',
+                  'Rp 28.000',
+                  isDarkSurface: isDarkSurface,
+                ),
+                const SizedBox(height: 8),
+                _buildReceiptRow(
+                  'Mineral Water x1',
+                  'Rp 10.000',
+                  isDarkSurface: isDarkSurface,
                 ),
                 const SizedBox(height: 14),
-                _buildReceiptRow('Robusta Latte x2', 'Rp 50.000', isDarkSurface: isDarkSurface),
-                const SizedBox(height: 8),
-                _buildReceiptRow('Caramel Croissant x1', 'Rp 28.000', isDarkSurface: isDarkSurface),
-                const SizedBox(height: 8),
-                _buildReceiptRow('Mineral Water x1', 'Rp 10.000', isDarkSurface: isDarkSurface),
+                Divider(color: surfacePalette.border, height: 1),
                 const SizedBox(height: 14),
-                Divider(
-                  color: surfacePalette.border,
-                  height: 1,
+                _buildReceiptRow(
+                  'Subtotal',
+                  'Rp 88.000',
+                  isBold: true,
+                  isDarkSurface: isDarkSurface,
                 ),
-                const SizedBox(height: 14),
-                _buildReceiptRow('Subtotal', 'Rp 88.000', isBold: true, isDarkSurface: isDarkSurface),
                 const SizedBox(height: 6),
-                _buildReceiptRow('Tax (11%)', 'Rp 9.680', isDarkSurface: isDarkSurface),
+                _buildReceiptRow(
+                  'Tax (11%)',
+                  'Rp 9.680',
+                  isDarkSurface: isDarkSurface,
+                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -377,7 +319,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    icon: const Icon(Icons.print_rounded, size: 18),
+                    icon: const Icon(AppIcons.print, size: 18),
                     label: Text(
                       'Print Thermal Receipt',
                       style: AppTextStyle.buttonPrimary,
@@ -387,7 +329,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                       ToastConfigStore.instance.showFeedback(
                         context,
                         message: 'Printing thermal receipt...',
-                        icon: Icons.print_rounded,
+                        icon: AppIcons.print,
                       );
                     },
                   ),
@@ -412,17 +354,193 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
       children: [
         Text(
           item,
-          style: (isBold ? AppTextStyle.bodyMedium : AppTextStyle.caption).copyWith(
-            color: isBold ? surfacePalette.textPrimary : surfacePalette.textSecondary,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-          ),
+          style: (isBold ? AppTextStyle.bodyMedium : AppTextStyle.caption)
+              .copyWith(
+                color: isBold
+                    ? surfacePalette.textPrimary
+                    : surfacePalette.textSecondary,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+              ),
         ),
         Text(
           price,
-          style: (isBold ? AppTextStyle.bodyMedium : AppTextStyle.caption).copyWith(
-            color: isBold ? surfacePalette.textPrimary : surfacePalette.textMuted,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-          ),
+          style: (isBold ? AppTextStyle.bodyMedium : AppTextStyle.caption)
+              .copyWith(
+                color: isBold
+                    ? surfacePalette.textPrimary
+                    : surfacePalette.textMuted,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+              ),
+        ),
+      ],
+    );
+  }
+
+  void _resetToDefaults() {
+    setState(() {
+      _selectedDialogType = 0;
+      _selectedThemeIndex = 0;
+      _useGradient = false;
+      _useOutlineBorder = true;
+      _selectedCornerRadius = 22.0;
+      _selectedIconIndex = 1;
+      _selectedCurve = Curves.easeOutCubic;
+      _selectedDuration = const Duration(milliseconds: 320);
+      _barrierDismissible = true;
+      _buttonCornerRadius = 12.0;
+      _reverseButtonOrder = false;
+      _cancelStyleIndex = 0;
+      _customConfirmTextColor = false;
+    });
+  }
+
+  void _showByDialogParams(BuildContext context) {
+    showWidgetParametersDialog(
+      context,
+      parameters: const [
+        WidgetParamInfo(
+          name: 'title',
+          type: 'String?',
+          description:
+              'Main title text displayed at the top of the dialog (optional).',
+        ),
+        WidgetParamInfo(
+          name: 'message',
+          type: 'String?',
+          description:
+              'Body message explaining the dialog purpose (optional if using content).',
+        ),
+        WidgetParamInfo(
+          name: 'content',
+          type: 'Widget?',
+          description:
+              'Custom body widget displayed in the dialog body replacing message.',
+        ),
+        WidgetParamInfo(
+          name: 'icon',
+          type: 'IconData?',
+          description: 'Accent header icon displayed in the top container.',
+          defaultValue: 'Icons.info_outline_rounded',
+        ),
+        WidgetParamInfo(
+          name: 'iconColor',
+          type: 'Color?',
+          description: 'Color tint for the accent header icon.',
+        ),
+        WidgetParamInfo(
+          name: 'buttonText / confirmText',
+          type: 'String',
+          description: 'Text label for the primary action / confirm button.',
+          defaultValue: "'OK' / 'Confirm'",
+        ),
+        WidgetParamInfo(
+          name: 'buttonColor / confirmColor',
+          type: 'Color?',
+          description: 'Background fill color for the primary action button.',
+        ),
+        WidgetParamInfo(
+          name: 'buttonTextColor / confirmTextColor',
+          type: 'Color?',
+          description: 'Text color for the primary action button.',
+        ),
+        WidgetParamInfo(
+          name: 'cancelText',
+          type: 'String',
+          description:
+              'Text label for the secondary / cancel button in ByDialog.confirm.',
+          defaultValue: "'Cancel'",
+        ),
+        WidgetParamInfo(
+          name: 'cancelColor',
+          type: 'Color?',
+          description: 'Background fill color for filled cancel button style.',
+        ),
+        WidgetParamInfo(
+          name: 'cancelTextColor',
+          type: 'Color?',
+          description: 'Text color for the cancel button.',
+        ),
+        WidgetParamInfo(
+          name: 'cancelBorderColor',
+          type: 'Color?',
+          description: 'Border stroke color for outlined cancel button style.',
+        ),
+        WidgetParamInfo(
+          name: 'reverseButtonOrder',
+          type: 'bool',
+          description:
+              'Swaps the visual position of confirm and cancel buttons.',
+          defaultValue: 'false',
+        ),
+        WidgetParamInfo(
+          name: 'onConfirm',
+          type: 'VoidCallback?',
+          description: 'Callback executed when the confirm button is tapped.',
+        ),
+        WidgetParamInfo(
+          name: 'onCancel',
+          type: 'VoidCallback?',
+          description: 'Callback executed when the cancel button is tapped.',
+        ),
+        WidgetParamInfo(
+          name: 'backgroundColor',
+          type: 'Color',
+          description: 'Background fill color of the dialog card.',
+          defaultValue: '#0F172A',
+        ),
+        WidgetParamInfo(
+          name: 'gradient',
+          type: 'Gradient?',
+          description:
+              'Optional surface gradient decoration for the dialog card.',
+        ),
+        WidgetParamInfo(
+          name: 'textColor',
+          type: 'Color',
+          description: 'Default text color for title and message content.',
+          defaultValue: 'Colors.white',
+        ),
+        WidgetParamInfo(
+          name: 'border',
+          type: 'Border?',
+          description: 'Outer outline border stroke around the dialog card.',
+        ),
+        WidgetParamInfo(
+          name: 'borderRadius',
+          type: 'BorderRadius?',
+          description: 'Corner radius geometry for the dialog card.',
+          defaultValue: '22.0',
+        ),
+        WidgetParamInfo(
+          name: 'buttonBorderRadius',
+          type: 'BorderRadius?',
+          description: 'Corner radius geometry for dialog action buttons.',
+          defaultValue: '12.0',
+        ),
+        WidgetParamInfo(
+          name: 'barrierDismissible',
+          type: 'bool',
+          description:
+              'Whether the dialog can be dismissed by tapping the backdrop.',
+          defaultValue: 'true',
+        ),
+        WidgetParamInfo(
+          name: 'barrierColor',
+          type: 'Color',
+          description: 'Color tint for the modal backdrop overlay.',
+          defaultValue: 'Color(0x99000000)',
+        ),
+        WidgetParamInfo(
+          name: 'transitionDuration',
+          type: 'Duration',
+          description: 'Duration of the entry scale and fade animation.',
+          defaultValue: 'Duration(milliseconds: 320)',
+        ),
+        WidgetParamInfo(
+          name: 'enterCurve',
+          type: 'Curve',
+          description: 'Easing curve for the entry modal animation.',
+          defaultValue: 'Curves.easeOutCubic',
         ),
       ],
     );
@@ -434,588 +552,679 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
       listenable: AppThemeStore.instance,
       builder: (context, _) {
         return Scaffold(
-      backgroundColor: colors.scaffoldBg,
-      appBar: AppBar(
-        backgroundColor: colors.cardBg,
-        elevation: 0,
-        leading: Builder(
-          builder: (ctx) => IconButton(
-            icon: Icon(
-              Icons.menu_rounded,
-              color: colors.textPrimary,
-            ),
-            onPressed: () => Scaffold.of(ctx).openDrawer(),
-          ),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryAccent],
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'ByDialog',
-                style: AppTextStyle.buttonPrimary.copyWith(color: Colors.white),
+          backgroundColor: colors.scaffoldBg,
+          appBar: AppBar(
+            backgroundColor: colors.cardBg,
+            elevation: 0,
+            titleSpacing: 4.0,
+            leading: Builder(
+              builder: (ctx) => IconButton(
+                icon: Icon(AppIcons.menu, color: colors.textPrimary),
+                onPressed: () => Scaffold.of(ctx).openDrawer(),
               ),
             ),
-            const SizedBox(width: 10),
-            Text(
-              'Showcase',
-              style: AppTextStyle.bodyMedium.copyWith(
-                color: colors.textMuted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-      drawer: ByDrawer(
-        activeComponent: 'ByDialog',
-        onSelectComponent: (comp) {
-          if (comp == 'ByToast') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ToastShowcaseScreen(),
-              ),
-            );
-          }
-        },
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: [
-          // Quick Preset Bar (1-Click Test)
-          _buildPresetPills(),
-
-          const SizedBox(height: 18),
-
-          // Integrated Feature Hint
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: colors.bannerBg,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: colors.bannerBorder),
-            ),
-            child: Row(
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.auto_awesome_rounded,
-                  color: AppColors.primary,
-                  size: 24,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 3.5,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryAccent],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'ByDialog',
+                    style: AppTextStyle.buttonPrimary.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Integrated with ByToast',
-                        style: AppTextStyle.bodyMedium.copyWith(
-                          color: colors.bannerText,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'ByDialog can also be opened seamlessly by tapping the text of a ByToast notification card!',
-                        style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                      ),
-                    ],
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'Showcase',
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyle.bodyMedium.copyWith(
+                      color: colors.textMuted,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Live Configuration Summary Card
-          _buildConfigSummaryCard(),
-
-          const SizedBox(height: 18),
-
-          // Control Section 1: Dialog Type
-          _buildControlCard(
-            title: '1. DIALOG TYPE & LAYOUT MODE',
-            icon: Icons.dashboard_customize_rounded,
-            children: [
-              Text(
-                'Select Dialog Template:',
-                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
+            actions: [
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: 'Reset to Defaults',
+                icon: const Icon(AppIcons.reset, color: AppColors.primary),
+                onPressed: _resetToDefaults,
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Alert (Single)',
-                      isSelected: _selectedDialogType == 0,
-                      onTap: () => setState(() => _selectedDialogType = 0),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Confirm (Dual)',
-                      isSelected: _selectedDialogType == 1,
-                      onTap: () => setState(() => _selectedDialogType = 1),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Custom Receipt',
-                      isSelected: _selectedDialogType == 2,
-                      onTap: () => setState(() => _selectedDialogType = 2),
-                    ),
-                  ),
-                ],
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: 'Widget Parameters',
+                icon: const Icon(AppIcons.help, color: AppColors.primary),
+                onPressed: () => _showByDialogParams(context),
               ),
+              const SizedBox(width: 8),
             ],
           ),
-
-          const SizedBox(height: 14),
-
-          // Control Section 2: Color Theme & Appearance
-          _buildControlCard(
-            title: '2. COLOR THEME & SURFACE STYLING',
-            icon: Icons.palette_rounded,
-            children: [
-              Text(
-                'Preset Color Palette:',
-                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: List.generate(
-                  _themePresets.length,
-                  (index) => _buildThemeColorChip(index, _themePresets[index]),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: AppColors.primary,
-                  title: Text(
-                    'Gradient Surface Background',
-                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
+          drawer: ByDrawer(
+            activeComponent: 'ByDialog',
+            onSelectComponent: (comp) {
+              if (comp == 'ByToast') {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ToastShowcaseScreen(),
                   ),
-                  subtitle: Text(
-                    'Switches from deep solid color to rich multi-hue linear gradient',
-                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                  ),
-                  value: _useGradient,
-                  onChanged: (val) => setState(() => _useGradient = val),
-                ),
-              ),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: AppColors.primary,
-                  title: Text(
-                    'Outline Glow Border',
-                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    'Adds a subtle high-contrast border matching the accent color',
-                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                  ),
-                  value: _useOutlineBorder,
-                  onChanged: (val) => setState(() => _useOutlineBorder = val),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Corner Radius:',
-                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: '16px (Subtle)',
-                      isSelected: _selectedCornerRadius == 16.0,
-                      onTap: () => setState(() => _selectedCornerRadius = 16.0),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: '22px (Standard)',
-                      isSelected: _selectedCornerRadius == 22.0,
-                      onTap: () => setState(() => _selectedCornerRadius == 22.0),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: '28px (Soft)',
-                      isSelected: _selectedCornerRadius == 28.0,
-                      onTap: () => setState(() => _selectedCornerRadius = 28.0),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                );
+              } else if (comp == 'ByCard') {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CardShowcaseScreen()),
+                );
+              }
+            },
           ),
-
-          const SizedBox(height: 14),
-
-          // Control Section 3: Icon & Badge
-          _buildControlCard(
-            title: '3. HEADER ICON & ACCENT BADGE',
-            icon: Icons.star_border_rounded,
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 20),
             children: [
-              Text(
-                'Select Header Icon:',
-                style: TextStyle(color: labelTextColor, fontSize: 13, fontWeight: FontWeight.w600),
-              ),
+              // Quick Preset Bar (1-Click Test)
+              _buildPresetPills(),
+
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: List.generate(_iconPresets.length, (index) {
-                  final item = _iconPresets[index];
-                  final bool isSelected = _selectedIconIndex == index;
-                  return Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(10),
-                      onTap: () => setState(() => _selectedIconIndex = index),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: isSelected ? colors.chipSelectedBg : colors.chipBg,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isSelected ? AppColors.primary : colors.borderSubtle,
-                            width: 1.2,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (item['icon'] != null) ...[
-                              Icon(
-                                item['icon'] as IconData,
-                                size: 15,
-                                color: isSelected ? AppColors.primary : colors.textMuted,
-                              ),
-                              const SizedBox(width: 6),
-                            ],
-                            Text(
-                              item['name'] as String,
-                              style: (isSelected ? AppTextStyle.chipSelected : AppTextStyle.chipUnselected).copyWith(
-                                color: isSelected ? (isDark ? Colors.white : AppColors.primaryDark) : colors.textMuted,
-                              ),
+
+              // Integrated Feature Hint
+              Container(
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  color: colors.bannerBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colors.bannerBorder),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      AppIcons.sparkle,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Integrated with ByToast',
+                            style: AppTextStyle.bodyMedium.copyWith(
+                              color: colors.bannerText,
+                              fontWeight: FontWeight.w700,
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'ByDialog can also be opened seamlessly by tapping the text of a ByToast notification card!',
+                            style: AppTextStyle.caption.copyWith(
+                              color: colors.textMuted,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Live Configuration Summary Card
+              _buildConfigSummaryCard(),
+
+              const SizedBox(height: 10),
+
+              // Control Section 1: Dialog Type
+              _buildControlCard(
+                title: '1. DIALOG TYPE & LAYOUT MODE',
+                icon: AppIcons.dashboard,
+                children: [
+                  Text(
+                    'Select Dialog Template:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChoiceChip(
+                          label: 'Alert (Single)',
+                          isSelected: _selectedDialogType == 0,
+                          onTap: () => setState(() => _selectedDialogType = 0),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Confirm (Dual)',
+                          isSelected: _selectedDialogType == 1,
+                          onTap: () => setState(() => _selectedDialogType = 1),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Custom Receipt',
+                          isSelected: _selectedDialogType == 2,
+                          onTap: () => setState(() => _selectedDialogType = 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              // Control Section 2: Color Theme & Appearance
+              _buildControlCard(
+                title: '2. COLOR THEME & SURFACE STYLING',
+                icon: AppIcons.palette,
+                children: [
+                  Text(
+                    'Preset Color Palette:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(_themePresets.length, (index) {
+                        final isSelected = _selectedThemeIndex == index;
+                        final theme = _themePresets[index];
+                        final Color color = theme['color'] as Color;
+                        final Gradient? gradient = _useGradient
+                            ? theme['gradient'] as Gradient?
+                            : null;
+                        final Color accent = theme['accent'] as Color;
+                        final bool isWhite = color == Colors.white;
+
+                        return Tooltip(
+                          message: theme['name'] as String,
+                          child: GestureDetector(
+                            key: ValueKey('theme_${theme['name']}'),
+                            onTap: () =>
+                                setState(() => _selectedThemeIndex = index),
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: gradient == null ? color : null,
+                                gradient: gradient,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? (isWhite && !isDark
+                                            ? AppColors.primary
+                                            : accent)
+                                      : colors.borderSubtle,
+                                  width: isSelected ? 2.5 : 1.0,
+                                ),
+                              ),
+                              child: isSelected
+                                  ? Icon(
+                                      AppIcons.checkRaw,
+                                      size: 18,
+                                      color: isWhite
+                                          ? const Color(0xFF0F172A)
+                                          : Colors.white,
+                                    )
+                                  : null,
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: AppColors.primary,
+                      title: Text(
+                        'Gradient Surface Background',
+                        style: AppTextStyle.sectionLabel.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Switches from deep solid color to rich multi-hue linear gradient',
+                        style: AppTextStyle.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
+                      ),
+                      value: _useGradient,
+                      onChanged: (val) => setState(() => _useGradient = val),
+                    ),
+                  ),
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: AppColors.primary,
+                      title: Text(
+                        'Outline Glow Border',
+                        style: AppTextStyle.sectionLabel.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Adds a subtle high-contrast border matching the accent color',
+                        style: AppTextStyle.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
+                      ),
+                      value: _useOutlineBorder,
+                      onChanged: (val) =>
+                          setState(() => _useOutlineBorder = val),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Corner Radius:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChoiceChip(
+                          label: '16px (Subtle)',
+                          isSelected: _selectedCornerRadius == 16.0,
+                          onTap: () =>
+                              setState(() => _selectedCornerRadius = 16.0),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: '22px (Standard)',
+                          isSelected: _selectedCornerRadius == 22.0,
+                          onTap: () =>
+                              setState(() => _selectedCornerRadius = 22.0),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: '28px (Soft)',
+                          isSelected: _selectedCornerRadius == 28.0,
+                          onTap: () =>
+                              setState(() => _selectedCornerRadius = 28.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              // Control Section 3: Icon & Badge
+              _buildControlCard(
+                title: '3. HEADER ICON & ACCENT BADGE',
+                icon: AppIcons.star,
+                children: [
+                  Text(
+                    'Select Header Icon:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(_iconPresets.length, (index) {
+                        final item = _iconPresets[index];
+                        final bool isSelected = _selectedIconIndex == index;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: _buildChoiceChip(
+                            label: item['name'] as String,
+                            icon: item['icon'] != null
+                                ? Icon(item['icon'] as IconData, size: 14)
+                                : null,
+                            isSelected: isSelected,
+                            onTap: () =>
+                                setState(() => _selectedIconIndex = index),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              // Control Section 4: Animation & Behavior
+              _buildControlCard(
+                title: '4. ANIMATION & INTERACTION BEHAVIOR',
+                icon: AppIcons.motion,
+                children: [
+                  Text(
+                    'Entrance Animation Curve:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChoiceChip(
+                          label: 'Cubic (Smooth)',
+                          isSelected: _selectedCurve == Curves.easeOutCubic,
+                          onTap: () => setState(
+                            () => _selectedCurve = Curves.easeOutCubic,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Back (Bouncy)',
+                          isSelected: _selectedCurve == Curves.easeOutBack,
+                          onTap: () => setState(
+                            () => _selectedCurve = Curves.easeOutBack,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Linear',
+                          isSelected: _selectedCurve == Curves.linear,
+                          onTap: () =>
+                              setState(() => _selectedCurve = Curves.linear),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Transition Duration:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChoiceChip(
+                          label: 'Fast (200ms)',
+                          isSelected: _selectedDuration.inMilliseconds == 200,
+                          onTap: () => setState(
+                            () => _selectedDuration = const Duration(
+                              milliseconds: 200,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Normal (320ms)',
+                          isSelected: _selectedDuration.inMilliseconds == 320,
+                          onTap: () => setState(
+                            () => _selectedDuration = const Duration(
+                              milliseconds: 320,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Slow (550ms)',
+                          isSelected: _selectedDuration.inMilliseconds == 550,
+                          onTap: () => setState(
+                            () => _selectedDuration = const Duration(
+                              milliseconds: 550,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: AppColors.primary,
+                      title: Text(
+                        'Barrier Dismissible',
+                        style: AppTextStyle.sectionLabel.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Allows closing the dialog by clicking on the dark backdrop scrim',
+                        style: AppTextStyle.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
+                      ),
+                      value: _barrierDismissible,
+                      onChanged: (val) =>
+                          setState(() => _barrierDismissible = val),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              // Control Section 5: Button Customization & Actions
+              _buildControlCard(
+                title: '5. BUTTON ACTIONS & STYLING',
+                icon: AppIcons.button,
+                children: [
+                  Text(
+                    'Button Corner Radius:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChoiceChip(
+                          label: '6px (Sharp)',
+                          isSelected: _buttonCornerRadius == 6.0,
+                          onTap: () =>
+                              setState(() => _buttonCornerRadius = 6.0),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: '12px (Standard)',
+                          isSelected: _buttonCornerRadius == 12.0,
+                          onTap: () =>
+                              setState(() => _buttonCornerRadius = 12.0),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: '24px (Pill)',
+                          isSelected: _buttonCornerRadius == 24.0,
+                          onTap: () =>
+                              setState(() => _buttonCornerRadius = 24.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Negative (Cancel) Button Style:',
+                    style: AppTextStyle.sectionLabel.copyWith(
+                      color: labelTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChoiceChip(
+                          label: 'Outline',
+                          isSelected: _cancelStyleIndex == 0,
+                          onTap: () => setState(() => _cancelStyleIndex = 0),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Solid Fill',
+                          isSelected: _cancelStyleIndex == 1,
+                          onTap: () => setState(() => _cancelStyleIndex = 1),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildChoiceChip(
+                          label: 'Danger Tint',
+                          isSelected: _cancelStyleIndex == 2,
+                          onTap: () => setState(() => _cancelStyleIndex = 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: AppColors.primary,
+                      title: Text(
+                        'Reverse Button Order',
+                        style: AppTextStyle.sectionLabel.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Places Confirm on the left and Cancel on the right',
+                        style: AppTextStyle.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
+                      ),
+                      value: _reverseButtonOrder,
+                      onChanged: (val) =>
+                          setState(() => _reverseButtonOrder = val),
+                    ),
+                  ),
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: AppColors.primary,
+                      title: Text(
+                        'High-Contrast Confirm Text',
+                        style: AppTextStyle.sectionLabel.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Switches confirm button text color between dark and white',
+                        style: AppTextStyle.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
+                      ),
+                      value: _customConfirmTextColor,
+                      onChanged: (val) =>
+                          setState(() => _customConfirmTextColor = val),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-
-          const SizedBox(height: 14),
-
-          // Control Section 4: Animation & Behavior
-          _buildControlCard(
-            title: '4. ANIMATION & INTERACTION BEHAVIOR',
-            icon: Icons.motion_photos_on_rounded,
-            children: [
-              Text(
-                'Entrance Animation Curve:',
-                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Cubic (Smooth)',
-                      isSelected: _selectedCurve == Curves.easeOutCubic,
-                      onTap: () => setState(() => _selectedCurve = Curves.easeOutCubic),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Back (Bouncy)',
-                      isSelected: _selectedCurve == Curves.easeOutBack,
-                      onTap: () => setState(() => _selectedCurve = Curves.easeOutBack),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Linear',
-                      isSelected: _selectedCurve == Curves.linear,
-                      onTap: () => setState(() => _selectedCurve = Curves.linear),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Text(
-                'Transition Duration:',
-                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Fast (200ms)',
-                      isSelected: _selectedDuration.inMilliseconds == 200,
-                      onTap: () => setState(() => _selectedDuration = const Duration(milliseconds: 200)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Normal (320ms)',
-                      isSelected: _selectedDuration.inMilliseconds == 320,
-                      onTap: () => setState(() => _selectedDuration = const Duration(milliseconds: 320)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Slow (550ms)',
-                      isSelected: _selectedDuration.inMilliseconds == 550,
-                      onTap: () => setState(() => _selectedDuration = const Duration(milliseconds: 550)),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: AppColors.primary,
-                  title: Text(
-                    'Barrier Dismissible',
-                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    'Allows closing the dialog by clicking on the dark backdrop scrim',
-                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                  ),
-                  value: _barrierDismissible,
-                  onChanged: (val) => setState(() => _barrierDismissible = val),
+          bottomNavigationBar: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            decoration: BoxDecoration(
+              color: colors.cardBg,
+              border: Border(top: BorderSide(color: colors.border, width: 1)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
                 ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          // Control Section 5: Button Customization & Actions
-          _buildControlCard(
-            title: '5. BUTTON ACTIONS & STYLING',
-            icon: Icons.smart_button_rounded,
-            children: [
-              Text(
-                'Button Corner Radius:',
-                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
-              ),
-              const SizedBox(height: 8),
-              Row(
+              ],
+            ),
+            child: SafeArea(
+              child: Row(
                 children: [
                   Expanded(
-                    child: _buildChoiceChip(
-                      label: '6px (Sharp)',
-                      isSelected: _buttonCornerRadius == 6.0,
-                      onTap: () => setState(() => _buttonCornerRadius = 6.0),
+                    flex: 3,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                      ),
+                      icon: const Icon(AppIcons.play, size: 20),
+                      label: Text(
+                        'Trigger Dialog',
+                        style: AppTextStyle.buttonPrimary,
+                      ),
+                      onPressed: _triggerDialog,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: _buildChoiceChip(
-                      label: '12px (Standard)',
-                      isSelected: _buttonCornerRadius == 12.0,
-                      onTap: () => setState(() => _buttonCornerRadius = 12.0),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: '24px (Pill)',
-                      isSelected: _buttonCornerRadius == 24.0,
-                      onTap: () => setState(() => _buttonCornerRadius = 24.0),
+                    flex: 2,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(
+                          color: AppColors.primary,
+                          width: 1.2,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(AppIcons.help, size: 18),
+                      label: Text(
+                        'Confirm Flow',
+                        style: AppTextStyle.buttonSecondary.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() => _selectedDialogType = 1);
+                        _triggerDialog();
+                      },
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
-              Text(
-                'Negative (Cancel) Button Style:',
-                style: AppTextStyle.sectionLabel.copyWith(color: labelTextColor),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Outline',
-                      isSelected: _cancelStyleIndex == 0,
-                      onTap: () => setState(() => _cancelStyleIndex = 0),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Solid Fill',
-                      isSelected: _cancelStyleIndex == 1,
-                      onTap: () => setState(() => _cancelStyleIndex = 1),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildChoiceChip(
-                      label: 'Danger Tint',
-                      isSelected: _cancelStyleIndex == 2,
-                      onTap: () => setState(() => _cancelStyleIndex = 2),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: AppColors.primary,
-                  title: Text(
-                    'Reverse Button Order',
-                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    'Places Confirm on the left and Cancel on the right',
-                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                  ),
-                  value: _reverseButtonOrder,
-                  onChanged: (val) => setState(() => _reverseButtonOrder = val),
-                ),
-              ),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: AppColors.primary,
-                  title: Text(
-                    'High-Contrast Confirm Text',
-                    style: AppTextStyle.sectionLabel.copyWith(color: colors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    'Switches confirm button text color between dark and white',
-                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                  ),
-                  value: _customConfirmTextColor,
-                  onChanged: (val) => setState(() => _customConfirmTextColor = val),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      bottomNavigationBar: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        decoration: BoxDecoration(
-          color: colors.cardBg,
-          border: Border(
-            top: BorderSide(
-              color: colors.border,
-              width: 1,
             ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 3,
-                  ),
-                  icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                  label: Text(
-                    'Trigger Dialog',
-                    style: AppTextStyle.buttonPrimary,
-                  ),
-                  onPressed: _triggerDialog,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 2,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary, width: 1.2),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.help_outline_rounded, size: 18),
-                  label: Text(
-                    'Confirm Flow',
-                    style: AppTextStyle.buttonSecondary.copyWith(color: AppColors.primary),
-                  ),
-                  onPressed: () {
-                    setState(() => _selectedDialogType = 1);
-                    _triggerDialog();
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
-  },
-);
-}
+  }
 
   Widget _buildPresetPills() {
     return Container(
@@ -1094,7 +1303,10 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
+              border: Border.all(
+                color: color.withValues(alpha: 0.35),
+                width: 1,
+              ),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -1112,8 +1324,8 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     final typeName = _selectedDialogType == 0
         ? 'Alert Modal'
         : _selectedDialogType == 1
-            ? 'Confirm Modal'
-            : 'Custom Receipt';
+        ? 'Confirm Modal'
+        : 'Custom Receipt';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1121,7 +1333,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         color: colors.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: (theme['accent'] as Color).withValues(alpha: isDark ? 0.4 : 0.3),
+          color: (theme['accent'] as Color).withValues(
+            alpha: isDark ? 0.4 : 0.3,
+          ),
           width: 1.2,
         ),
         boxShadow: isDark
@@ -1145,7 +1359,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   'ACTIVE CONFIGURATION PREVIEW',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
+                  style: AppTextStyle.sectionHeader.copyWith(
+                    color: colors.textMuted,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -1157,7 +1373,9 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 ),
                 child: Text(
                   typeName,
-                  style: AppTextStyle.badgeSmall.copyWith(color: theme['accent'] as Color),
+                  style: AppTextStyle.badgeSmall.copyWith(
+                    color: theme['accent'] as Color,
+                  ),
                 ),
               ),
             ],
@@ -1187,7 +1405,11 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           const SizedBox(height: 6),
           _buildSummaryRow(
             'Buttons & Order',
-            '${_buttonCornerRadius.toInt()}px • ${_reverseButtonOrder ? "Reversed" : "Standard"} • ${_cancelStyleIndex == 0 ? "Outline" : _cancelStyleIndex == 1 ? "Solid" : "Danger"}',
+            '${_buttonCornerRadius.toInt()}px • ${_reverseButtonOrder ? "Reversed" : "Standard"} • ${_cancelStyleIndex == 0
+                ? "Outline"
+                : _cancelStyleIndex == 1
+                ? "Solid"
+                : "Danger"}',
           ),
         ],
       ),
@@ -1222,17 +1444,17 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
         color: colors.cardBg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colors.border),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
+                  blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -1245,17 +1467,19 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           children: [
             Row(
               children: [
-                Icon(icon, size: 16, color: AppColors.primary),
-                const SizedBox(width: 8),
+                Icon(icon, size: 15, color: AppColors.primary),
+                const SizedBox(width: 7),
                 Expanded(
                   child: Text(
                     title,
-                    style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
+                    style: AppTextStyle.sectionHeader.copyWith(
+                      color: colors.textMuted,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             ...children,
           ],
         ),
@@ -1267,97 +1491,19 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
+    Widget? icon,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
-          decoration: BoxDecoration(
-            color: isSelected ? colors.chipSelectedBg : colors.chipBg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected ? AppColors.primary : colors.borderSubtle,
-              width: 1.2,
-            ),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: (isSelected ? AppTextStyle.chipSelected : AppTextStyle.chipUnselected).copyWith(
-              color: isSelected ? (isDark ? Colors.white : AppColors.primaryDark) : colors.textMuted,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThemeColorChip(int index, Map<String, dynamic> theme) {
-    final bool isSelected = _selectedThemeIndex == index;
-    final Color color = theme['color'] as Color;
-    final Color accent = theme['accent'] as Color;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: () => setState(() => _selectedThemeIndex = index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? (color == Colors.white
-                    ? colors.chipSelectedBg
-                    : accent.withValues(alpha: isDark ? 0.2 : 0.12))
-                : colors.chipBg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected
-                  ? (color == Colors.white
-                      ? (isDark ? Colors.white : colors.textMuted)
-                      : accent)
-                  : colors.borderSubtle,
-              width: 1.2,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: color == Colors.white
-                        ? colors.borderSubtle
-                        : Colors.white.withValues(alpha: 0.3),
-                    width: 0.8,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 7),
-              Text(
-                theme['name'] as String,
-                style: (isSelected ? AppTextStyle.chipSelected : AppTextStyle.chipUnselected).copyWith(
-                  color: isSelected ? colors.textPrimary : colors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return BySelectOption(
+      label: Text(label),
+      isSelected: isSelected,
+      icon: icon,
+      selectedBorderColor: AppColors.primary,
+      unselectedBorderColor: colors.borderSubtle,
+      selectedBackgroundColor: colors.chipSelectedBg,
+      unselectedBackgroundColor: colors.chipBg,
+      selectedTextColor: isDark ? Colors.white : AppColors.primaryDark,
+      unselectedTextColor: colors.textMuted,
+      onTap: onTap,
     );
   }
 }

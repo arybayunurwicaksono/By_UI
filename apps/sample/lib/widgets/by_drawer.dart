@@ -38,16 +38,19 @@ class ByDrawer extends StatelessWidget {
                   // Drawer Content List
                   Expanded(
                     child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       children: [
                         // Active Components Section
-                        _buildSectionHeader('AVAILABLE COMPONENTS (2)', colors),
+                        _buildSectionHeader('AVAILABLE COMPONENTS (3)', colors),
                         const SizedBox(height: 8),
 
                         _buildDrawerItem(
                           title: 'ByToast',
                           subtitle: 'Stacked toast & banner overlay',
-                          icon: Icons.notifications_active_rounded,
+                          icon: AppIcons.notification,
                           isActive: activeComponent == 'ByToast',
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
@@ -62,7 +65,7 @@ class ByDrawer extends StatelessWidget {
                         _buildDrawerItem(
                           title: 'ByDialog',
                           subtitle: 'Animated shrink-wrap modal',
-                          icon: Icons.layers_rounded,
+                          icon: AppIcons.layers,
                           isActive: activeComponent == 'ByDialog',
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
@@ -70,6 +73,21 @@ class ByDrawer extends StatelessWidget {
                           onTap: () {
                             Navigator.of(context).pop();
                             onSelectComponent?.call('ByDialog');
+                          },
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByCard',
+                          subtitle: 'Spatial & dynamic sensor card',
+                          icon: AppIcons.card,
+                          isActive: activeComponent == 'ByCard',
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
+                          colors: colors,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onSelectComponent?.call('ByCard');
                           },
                         ),
 
@@ -140,10 +158,7 @@ class ByDrawer extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colors.border,
-          width: 1,
-        ),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +209,10 @@ class ByDrawer extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: colors.badgeBg,
                             borderRadius: BorderRadius.circular(6),
@@ -237,7 +255,11 @@ class ByDrawer extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.hub_rounded, size: 13, color: AppColors.primary),
+                const Icon(
+                  Icons.hub_rounded,
+                  size: 13,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -283,7 +305,9 @@ class ByDrawer extends StatelessWidget {
     required AppColorPalette colors,
     VoidCallback? onTap,
   }) {
-    final activeBg = AppColors.primary.withValues(alpha: colors.isDark ? 0.15 : 0.10);
+    final activeBg = AppColors.primary.withValues(
+      alpha: colors.isDark ? 0.15 : 0.10,
+    );
     final activeBorder = AppColors.primary.withValues(alpha: 0.5);
 
     return Material(
@@ -312,14 +336,18 @@ class ByDrawer extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? AppColors.primary.withValues(alpha: colors.isDark ? 0.25 : 0.15)
+                      ? AppColors.primary.withValues(
+                          alpha: colors.isDark ? 0.25 : 0.15,
+                        )
                       : colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   icon,
                   color: isActive
-                      ? (colors.isDark ? AppColors.primaryTextLight : AppColors.primaryDark)
+                      ? (colors.isDark
+                            ? AppColors.primaryTextLight
+                            : AppColors.primaryDark)
                       : (isUpcoming ? colors.textMuted : colors.textSubtle),
                   size: 20,
                 ),
@@ -334,8 +362,12 @@ class ByDrawer extends StatelessWidget {
                       style: AppTextStyle.body.copyWith(
                         color: isUpcoming
                             ? colors.textMuted
-                            : (isActive ? colors.textPrimary : colors.textSecondary),
-                        fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                            : (isActive
+                                  ? colors.textPrimary
+                                  : colors.textSecondary),
+                        fontWeight: isActive
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                       ),
                     ),
                     Text(
@@ -344,8 +376,10 @@ class ByDrawer extends StatelessWidget {
                         color: isUpcoming
                             ? colors.textMuted
                             : (isActive
-                                ? (colors.isDark ? AppColors.primaryTextLight : AppColors.primaryDark)
-                                : colors.textSubtle),
+                                  ? (colors.isDark
+                                        ? AppColors.primaryTextLight
+                                        : AppColors.primaryDark)
+                                  : colors.textSubtle),
                       ),
                     ),
                   ],
@@ -402,10 +436,7 @@ class ByDrawer extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colors.border,
-          width: 1,
-        ),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,7 +511,9 @@ class ByDrawer extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.35),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.35,
+                                  ),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -499,17 +532,18 @@ class ByDrawer extends StatelessWidget {
                         child: _buildThemeOptionButton(
                           mode: ThemeMode.system,
                           label: 'System',
-                          icon: Icons.brightness_auto_rounded,
+                          icon: AppIcons.themeAuto,
                           isSelected: currentMode == ThemeMode.system,
                           colors: colors,
-                          onTap: () => themeStore.setThemeMode(ThemeMode.system),
+                          onTap: () =>
+                              themeStore.setThemeMode(ThemeMode.system),
                         ),
                       ),
                       Expanded(
                         child: _buildThemeOptionButton(
                           mode: ThemeMode.light,
                           label: 'Light',
-                          icon: Icons.light_mode_rounded,
+                          icon: AppIcons.themeLight,
                           isSelected: currentMode == ThemeMode.light,
                           colors: colors,
                           onTap: () => themeStore.setThemeMode(ThemeMode.light),
@@ -519,7 +553,7 @@ class ByDrawer extends StatelessWidget {
                         child: _buildThemeOptionButton(
                           mode: ThemeMode.dark,
                           label: 'Dark',
-                          icon: Icons.dark_mode_rounded,
+                          icon: AppIcons.themeDark,
                           isSelected: currentMode == ThemeMode.dark,
                           colors: colors,
                           onTap: () => themeStore.setThemeMode(ThemeMode.dark),
@@ -570,7 +604,9 @@ class ByDrawer extends StatelessWidget {
                     style: AppTextStyle.badge.copyWith(
                       color: isSelected ? Colors.white : colors.textSecondary,
                       fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w600,
                     ),
                     child: Text(label),
                   ),
@@ -590,12 +626,7 @@ class ByDrawer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       decoration: BoxDecoration(
         color: colors.cardBg,
-        border: Border(
-          top: BorderSide(
-            color: colors.border,
-            width: 1,
-          ),
-        ),
+        border: Border(top: BorderSide(color: colors.border, width: 1)),
       ),
       child: Row(
         children: [

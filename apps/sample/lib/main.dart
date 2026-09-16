@@ -24,9 +24,7 @@ class ByUISampleApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           builder: (context, child) {
-            return WebMobileLayout(
-              child: child ?? const SizedBox.shrink(),
-            );
+            return WebMobileLayout(child: child ?? const SizedBox.shrink());
           },
           home: const ToastShowcaseScreen(),
         );

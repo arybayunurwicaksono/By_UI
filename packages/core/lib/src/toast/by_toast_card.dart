@@ -311,18 +311,15 @@ class _ByToastCardState extends State<ByToastCard>
             const SizedBox(width: 10),
           ] else if (item.icon != null) ...[
             if (item.onIconTap != null)
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: item.onIconTap,
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Icon(
-                      item.icon,
-                      color: item.iconColor ?? item.textColor,
-                      size: 20,
-                    ),
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: item.onIconTap,
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Icon(
+                    item.icon,
+                    color: item.iconColor ?? item.textColor,
+                    size: 20,
                   ),
                 ),
               )
@@ -337,49 +334,45 @@ class _ByToastCardState extends State<ByToastCard>
 
           // Message & Optional Title (Tap on text opens the morphing dialog!)
           Expanded(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap:
-                    item.canTapToExpand ? _triggerExpandToDialog : item.onTap,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 2.0,
-                    horizontal: 4.0,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (item.title != null && item.title!.isNotEmpty) ...[
-                        Text(
-                          item.title!,
-                          maxLines: item.titleMaxLines,
-                          overflow: item.titleOverflow,
-                          style: item.titleStyle ??
-                              TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: item.textColor,
-                              ),
-                        ),
-                        const SizedBox(height: 2),
-                      ],
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: item.canTapToExpand ? _triggerExpandToDialog : item.onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 2.0,
+                  horizontal: 4.0,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (item.title != null && item.title!.isNotEmpty) ...[
                       Text(
-                        item.message,
-                        maxLines: item.maxLines,
-                        overflow: item.overflow,
-                        style: item.textStyle ??
+                        item.title!,
+                        maxLines: item.titleMaxLines,
+                        overflow: item.titleOverflow,
+                        style: item.titleStyle ??
                             TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w700,
                               color: item.textColor,
-                              height: 1.3,
                             ),
                       ),
+                      const SizedBox(height: 2),
                     ],
-                  ),
+                    Text(
+                      item.message,
+                      maxLines: item.maxLines,
+                      overflow: item.overflow,
+                      style: item.textStyle ??
+                          TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: item.textColor,
+                            height: 1.3,
+                          ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -391,18 +384,15 @@ class _ByToastCardState extends State<ByToastCard>
             item.suffix!,
           ] else if (item.suffixIcon != null) ...[
             const SizedBox(width: 8),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap: item.onSuffixTap,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(
-                    item.suffixIcon,
-                    size: 18,
-                    color: item.suffixIconColor ?? item.textColor,
-                  ),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: item.onSuffixTap,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Icon(
+                  item.suffixIcon,
+                  size: 18,
+                  color: item.suffixIconColor ?? item.textColor,
                 ),
               ),
             ),
@@ -411,19 +401,16 @@ class _ByToastCardState extends State<ByToastCard>
           // Close Button ('X')
           if (item.showCloseButton) ...[
             const SizedBox(width: 6),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: _dismissWithAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.close_rounded,
-                    size: 16,
-                    color: item.closeButtonColor ??
-                        item.textColor.withValues(alpha: 0.8),
-                  ),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: _dismissWithAnimation,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 16,
+                  color: item.closeButtonColor ??
+                      item.textColor.withValues(alpha: 0.8),
                 ),
               ),
             ),

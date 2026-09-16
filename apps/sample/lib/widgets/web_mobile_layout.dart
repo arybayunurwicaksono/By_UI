@@ -80,13 +80,13 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
             final availableSideSpace =
                 (constraints.maxWidth - _selectedWidth) / 2;
             final showSidePanels = availableSideSpace >= 260;
-            final sidePanelWidth =
-                (availableSideSpace - 48).clamp(220.0, 360.0);
+            final sidePanelWidth = (availableSideSpace - 48).clamp(
+              220.0,
+              360.0,
+            );
 
             return Material(
-              color: isDark
-                  ? const Color(0xFF06090E)
-                  : const Color(0xFFF1F5F9),
+              color: isDark ? const Color(0xFF06090E) : const Color(0xFFF1F5F9),
               child: Stack(
                 children: [
                   // 1. Ambient Desktop Background Gradient
@@ -98,14 +98,8 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                             center: const Alignment(0.0, -0.6),
                             radius: 1.3,
                             colors: isDark
-                                ? const [
-                                    Color(0xFF0F172A),
-                                    Color(0xFF06090E),
-                                  ]
-                                : const [
-                                    Color(0xFFEEF2FF),
-                                    Color(0xFFE2E8F0),
-                                  ],
+                                ? const [Color(0xFF0F172A), Color(0xFF06090E)]
+                                : const [Color(0xFFEEF2FF), Color(0xFFE2E8F0)],
                           ),
                         ),
                       ),
@@ -123,7 +117,9 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                       child: Center(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(vertical: 24),
-                          child: RepaintBoundary(child: _buildLeftPanel(colors)),
+                          child: RepaintBoundary(
+                            child: _buildLeftPanel(colors),
+                          ),
                         ),
                       ),
                     ),
@@ -137,7 +133,9 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                       child: Center(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(vertical: 24),
-                          child: RepaintBoundary(child: _buildRightPanel(colors)),
+                          child: RepaintBoundary(
+                            child: _buildRightPanel(colors),
+                          ),
                         ),
                       ),
                     ),
@@ -150,7 +148,9 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                       left: 0,
                       right: 0,
                       child: Center(
-                        child: RepaintBoundary(child: _buildCompactWidthSelector(colors)),
+                        child: RepaintBoundary(
+                          child: _buildCompactWidthSelector(colors),
+                        ),
                       ),
                     ),
 
@@ -231,7 +231,9 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
               children: [
                 Text(
                   'ByUI',
-                  style: AppTextStyle.appBarTitle.copyWith(color: colors.textPrimary),
+                  style: AppTextStyle.appBarTitle.copyWith(
+                    color: colors.textPrimary,
+                  ),
                 ),
                 Text(
                   'Component Showcase',
@@ -285,7 +287,9 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                   const SizedBox(width: 8),
                   Text(
                     'PORTRAIT VIEWPORT WIDTH',
-                    style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
+                    style: AppTextStyle.sectionHeader.copyWith(
+                      color: colors.textMuted,
+                    ),
                   ),
                 ],
               ),
@@ -336,16 +340,17 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                               children: [
                                 Text(
                                   preset['name'] as String,
-                                  style: (isSelected
-                                          ? AppTextStyle.chipSelected
-                                          : AppTextStyle.chipUnselected)
-                                      .copyWith(
-                                    color: isSelected
-                                        ? (colors.isDark
-                                            ? Colors.white
-                                            : AppColors.primaryDark)
-                                        : colors.textPrimary,
-                                  ),
+                                  style:
+                                      (isSelected
+                                              ? AppTextStyle.chipSelected
+                                              : AppTextStyle.chipUnselected)
+                                          .copyWith(
+                                            color: isSelected
+                                                ? (colors.isDark
+                                                      ? Colors.white
+                                                      : AppColors.primaryDark)
+                                                : colors.textPrimary,
+                                          ),
                                 ),
                                 Text(
                                   '${preset['device']} • ${width.toInt()}px',
@@ -447,7 +452,9 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                   const SizedBox(width: 8),
                   Text(
                     'INTERACTION GUIDE',
-                    style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
+                    style: AppTextStyle.sectionHeader.copyWith(
+                      color: colors.textMuted,
+                    ),
                   ),
                 ],
               ),
@@ -503,14 +510,12 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
           margin: const EdgeInsets.only(top: 2),
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: colors.isDark ? 0.15 : 0.10),
+            color: AppColors.primary.withValues(
+              alpha: colors.isDark ? 0.15 : 0.10,
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 14,
-            color: AppColors.primary,
-          ),
+          child: Icon(icon, size: 14, color: AppColors.primary),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -571,11 +576,12 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
               borderRadius: BorderRadius.circular(18),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primary
-                      : Colors.transparent,
+                  color: isSelected ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
@@ -584,21 +590,20 @@ class _WebMobileLayoutState extends State<WebMobileLayout> {
                     Icon(
                       preset['icon'] as IconData,
                       size: 14,
-                      color: isSelected
-                          ? Colors.white
-                          : colors.textMuted,
+                      color: isSelected ? Colors.white : colors.textMuted,
                     ),
                     const SizedBox(width: 5),
                     Text(
                       '${width.toInt()}px',
-                      style: (isSelected
-                              ? AppTextStyle.chipSelected
-                              : AppTextStyle.chipUnselected)
-                          .copyWith(
-                        color: isSelected
-                            ? Colors.white
-                            : colors.textMuted,
-                      ),
+                      style:
+                          (isSelected
+                                  ? AppTextStyle.chipSelected
+                                  : AppTextStyle.chipUnselected)
+                              .copyWith(
+                                color: isSelected
+                                    ? Colors.white
+                                    : colors.textMuted,
+                              ),
                     ),
                   ],
                 ),

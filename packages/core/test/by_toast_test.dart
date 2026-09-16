@@ -332,8 +332,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));
 
-        final textFinder =
-            find.text('Line 1\nLine 2\nLine 3\nLine 4\nLine 5');
+        final textFinder = find.text('Line 1\nLine 2\nLine 3\nLine 4\nLine 5');
         expect(textFinder, findsOneWidget);
 
         final textWidget = tester.widget<Text>(textFinder);
@@ -422,8 +421,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 400));
 
         // Toast card has maxLines 3 and ellipsis
-        final cardTextWidget =
-            tester.widget<Text>(find.text(longMessage));
+        final cardTextWidget = tester.widget<Text>(find.text(longMessage));
         expect(cardTextWidget.maxLines, 3);
         expect(cardTextWidget.overflow, TextOverflow.ellipsis);
 
@@ -618,7 +616,8 @@ void main() {
         final animatedPosFinder = find.byType(AnimatedPositioned);
         expect(animatedPosFinder, findsWidgets);
 
-        final animatedPos = tester.widget<AnimatedPositioned>(animatedPosFinder.first);
+        final animatedPos =
+            tester.widget<AnimatedPositioned>(animatedPosFinder.first);
         expect(animatedPos.right, 16.0);
         expect(animatedPos.left, isNull);
         expect(animatedPos.width, 400.0);
@@ -629,4 +628,3 @@ void main() {
     );
   });
 }
-

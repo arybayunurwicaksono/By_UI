@@ -40,11 +40,13 @@ abstract class ByDialog {
     );
   }
 
-  /// Displays an alert dialog with an icon, title, message, and a single 'OK' button.
+  /// Displays an alert dialog with an icon, optional title, message or custom content, and a single action button.
   static Future<void> alert(
     BuildContext context, {
-    required String title,
-    required String message,
+    String? title,
+    String? message,
+    Widget? content,
+    double? maxWidth,
     IconData? icon = Icons.info_outline_rounded,
     Color? iconColor,
     String buttonText = 'OK',
@@ -67,7 +69,8 @@ abstract class ByDialog {
     VoidCallback? onConfirm,
   }) {
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(22);
-    final effectiveButtonRadius = buttonBorderRadius ?? BorderRadius.circular(12);
+    final effectiveButtonRadius =
+        buttonBorderRadius ?? BorderRadius.circular(12);
 
     return show(
       context,
@@ -77,7 +80,8 @@ abstract class ByDialog {
       enterCurve: enterCurve,
       builder: (ctx) {
         final screenSize = MediaQuery.of(ctx).size;
-        final double cardWidth = min(screenSize.width - 40.0, 380.0);
+        final double cardWidth =
+            min(screenSize.width - 40.0, maxWidth ?? 380.0);
 
         return Container(
           width: cardWidth,
@@ -119,29 +123,44 @@ abstract class ByDialog {
                 ),
                 const SizedBox(height: 16),
               ],
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: titleMaxLines,
-                overflow: titleOverflow,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
+              if (title != null && title.isNotEmpty) ...[
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: titleMaxLines,
+                  overflow: titleOverflow,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                maxLines: messageMaxLines,
-                overflow: messageOverflow,
-                style: TextStyle(
-                  color: textColor.withValues(alpha: 0.8),
-                  fontSize: 13,
-                  height: 1.5,
+                const SizedBox(height: 10),
+              ],
+              if (content != null)
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: screenSize.height * 0.62,
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: content,
+                    ),
+                  ),
+                )
+              else if (message != null && message.isNotEmpty)
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  maxLines: messageMaxLines,
+                  overflow: messageOverflow,
+                  style: TextStyle(
+                    color: textColor.withValues(alpha: 0.8),
+                    fontSize: 13,
+                    height: 1.5,
+                  ),
                 ),
-              ),
               const SizedBox(height: 22),
               SizedBox(
                 width: double.infinity,
@@ -207,7 +226,8 @@ abstract class ByDialog {
     Curve enterCurve = Curves.easeOutCubic,
   }) async {
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(22);
-    final effectiveButtonRadius = buttonBorderRadius ?? BorderRadius.circular(12);
+    final effectiveButtonRadius =
+        buttonBorderRadius ?? BorderRadius.circular(12);
 
     final result = await show<bool>(
       context,
@@ -363,8 +383,16 @@ abstract class ByDialog {
 
                   return Row(
                     children: reverseButtonOrder
-                        ? [confirmButton, const SizedBox(width: 10), cancelButton]
-                        : [cancelButton, const SizedBox(width: 10), confirmButton],
+                        ? [
+                            confirmButton,
+                            const SizedBox(width: 10),
+                            cancelButton
+                          ]
+                        : [
+                            cancelButton,
+                            const SizedBox(width: 10),
+                            confirmButton
+                          ],
                   );
                 },
               ),

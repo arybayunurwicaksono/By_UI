@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 export 'app_colors.dart';
+export 'app_icons.dart';
 export 'app_textstyle.dart';
 
 /// Central theme definitions for the ByUI Showcase app.

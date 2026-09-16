@@ -1,6 +1,6 @@
 # ByUI — Modern Flutter UI Component Library
 
-A modern, highly customizable Flutter UI component library featuring fluid spatial animations, interactive toasts with desktop/web multi-corner anchors, gesture-driven morphing dialogs, and standalone modal systems.
+A modern, highly customizable Flutter UI component library featuring dynamic motion cards, fluid spatial animations, interactive toasts with desktop/web multi-corner anchors, gesture-driven morphing dialogs, and standalone modal systems.
 
 [![pub package](https://img.shields.io/pub/v/by_ui.svg)](https://pub.dev/packages/by_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -10,13 +10,18 @@ A modern, highly customizable Flutter UI component library featuring fluid spati
 
 ## 🎬 Preview
 
-| Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
-| :---: | :---: | :---: |
-| <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="240" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="240" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="240" alt="ByDialog Standalone Alert and Confirm" /> |
+| Dynamic Motion Card | Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
+| :---: | :---: | :---: | :---: |
+| <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_card.gif" width="210" alt="ByCard Dynamic Motion" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="210" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="210" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="210" alt="ByDialog Standalone Alert and Confirm" /> |
 
 ---
 
 ## ✨ Highlights
+
+* 🎴 **ByCard (Dynamic Motion & Gradient Surfaces)**:
+  * **Zero-Boilerplate Sensor Motion (`ByCard.dynamicSensor`)**: Responsive border gradient shifts with device gyroscope/accelerometer motion on mobile, and seamlessly switches to mouse cursor hover parallax on desktop & web with smooth spring return to neutral.
+  * **Lifecycle-Safe Stream Handling**: Automatically subscribes to hardware sensors when mounted and disposes on unmount without user state management boilerplate.
+  * **Shorthand & Standard Variants**: `ByCard.dynamicSensor` for interactive motion, `ByCard.gradient` for stylized borders, and standard `ByCard` for solid surfaces.
 
 * 🔔 **ByToast**:
   * **Multi-Anchor Positioning**: Supports mobile standard anchors (`top`, `bottom`) and 4-corner desktop/web anchors (`topRight`, `topLeft`, `bottomRight`, `bottomLeft`).
@@ -74,7 +79,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.2
+  by_ui: ^0.1.3
 ```
 
 Or run:
@@ -86,13 +91,22 @@ flutter pub add by_ui
 ```dart
 import 'package:by_ui/by_ui.dart';
 
-// Show a success notification
+// 1. Dynamic Motion Card (Device tilt on mobile, cursor parallax on desktop/web)
+ByCard.dynamicSensor(
+  colors: const [Color(0xFF38BDF8), Color(0xFF818CF8), Color(0xFFC084FC)],
+  borderWidth: 2.0,
+  borderRadius: BorderRadius.circular(20),
+  padding: const EdgeInsets.all(20),
+  child: const Text('Dynamic Motion Card'),
+);
+
+// 2. Show a success notification
 ByToast.showSuccess(
   context,
   message: 'Transaction saved successfully.',
 );
 
-// Show a corner toast with opacity control (desktop/web)
+// 3. Show a corner toast with opacity control (desktop/web)
 ByToast.show(
   context,
   title: 'Build Finished',

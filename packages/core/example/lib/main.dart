@@ -83,6 +83,34 @@ class ExampleHomePage extends StatelessWidget {
                   }
                 },
               ),
+              const SizedBox(height: 24),
+              ByCard.dynamicSensor(
+                colors: const [
+                  Color(0xFF38BDF8),
+                  Color(0xFF818CF8),
+                  Color(0xFFC084FC),
+                ],
+                borderWidth: 2.0,
+                borderRadius: BorderRadius.circular(20),
+                padding: const EdgeInsets.all(20),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ByCard.dynamicSensor',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Tilts border gradient with motion on mobile, or tracks cursor on desktop/web.',
+                      style: TextStyle(fontSize: 13, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

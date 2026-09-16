@@ -5,6 +5,25 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.3
+
+### Added
+* **ByCard**:
+  * New versatile card widget family featuring sleek styling, configurable padding, borders, corner radii, and drop shadows.
+  * **Card Variants & Constructors**:
+    * `ByCard`: Standard card with solid or custom background styling, customizable border width, and border color.
+    * `ByCard.gradient`: Shorthand constructor for cards with vibrant linear gradient borders (`colors`, `borderGradient`, `borderWidth`).
+    * `ByCard.dynamicSensor`: Zero-boilerplate dynamic motion card with responsive border gradient tracking:
+      * **Mobile (Android / iOS)**: Automatically responds to hardware device motion using gyroscope/accelerometer tilt with smooth low-pass filtering.
+      * **Desktop & Web**: Seamlessly adapts to mouse cursor hover tracking with fluid spring glide back to neutral center position when the pointer exits.
+  * **Lifecycle-Safe Tilt Management**: Built-in `ByTiltController` handles hardware stream subscriptions and listeners lazily on mount and disposes automatically on unmount without user boilerplate.
+  * **Configurable Motion Settings**: Custom `sensorSensitivity`, `maxSensorTilt`, `hoverSensitivity`, and `neutralAlignment`.
+  * **Theming & Design Tokens**: `ByCardThemeData` and `ByCardDefaults` for unified application-wide card styling.
+* **BySelectOption**:
+  * Reusable model and UI component for selectable options with active indicator, title, subtitle, icon, and badge support.
+* **Documentation & Media**:
+  * Added animated preview GIF for `ByCard` dynamic motion border gradient.
+
 ## 0.1.2
 
 ### Added

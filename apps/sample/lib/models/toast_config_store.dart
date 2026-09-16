@@ -101,7 +101,8 @@ class ToastConfigStore {
         customGradient ?? (theme['gradient'] as Gradient?);
     final effectiveTextColor = textColor ?? theme['textColor'] as Color;
 
-    final effectiveSlideDirection = slideDirection ??
+    final effectiveSlideDirection =
+        slideDirection ??
         (position == ByToastPosition.top
             ? ByToastSlideDirection.fromTop
             : ByToastSlideDirection.fromBottom);

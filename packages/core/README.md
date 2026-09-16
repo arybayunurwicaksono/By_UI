@@ -1,6 +1,6 @@
 # ByUI
 
-A modern, highly customizable Flutter UI component library featuring fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
+A modern, highly customizable Flutter UI component library featuring dynamic motion cards, fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
 
 [![pub package](https://img.shields.io/pub/v/by_ui.svg)](https://pub.dev/packages/by_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -9,13 +9,22 @@ A modern, highly customizable Flutter UI component library featuring fluid spati
 
 ## Preview
 
-| Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
-| :---: | :---: | :---: |
-| <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="240" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="240" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="240" alt="ByDialog Standalone Alert and Confirm" /> |
+| Dynamic Motion Card | Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
+| :---: | :---: | :---: | :---: |
+| <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_card.gif" width="210" alt="ByCard Dynamic Motion" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="210" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="210" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="210" alt="ByDialog Standalone Alert and Confirm" /> |
 
 ---
 
 ## Features
+
+* **ByCard (Standard, Gradient & Dynamic Motion Sensor)**:
+  * **Zero-Boilerplate Motion (`ByCard.dynamicSensor`)**: Responsive border gradient that shifts dynamically with physical tilt and pointer motion.
+    * **Mobile (Android & iOS)**: Reacts to hardware gyroscope / accelerometer sensors with smooth low-pass filtering.
+    * **Desktop & Web**: Reacts interactively to cursor hover position, smoothly gliding back to neutral center position when the pointer exits.
+    * **Lifecycle Safe**: Automatically initializes and disposes sensor listeners on mount/unmount. No manual stream handling required.
+  * **Vibrant Gradient Borders (`ByCard.gradient`)**: Quick setup with `colors` or custom `borderGradient` to frame your content in eye-catching styles.
+  * **Standard Solid Cards (`ByCard`)**: Polished cards with solid background, border styling, customizable drop shadows, and corner radius.
+  * **Theming**: Unified application-wide styling with `ByCardThemeData` and `ByCardDefaults`.
 
 * **ByToast**:
   * **Multi-Anchor Screen Positioning**: Supports standard mobile positions (`top`, `bottom`) and desktop/web corner anchors (`topRight`, `topLeft`, `bottomRight`, `bottomLeft`).
@@ -47,7 +56,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.2
+  by_ui: ^0.1.3
 ```
 
 Or run:
@@ -66,7 +75,59 @@ import 'package:by_ui/by_ui.dart';
 
 ## Usage
 
-### 1. Simple Notification Toast
+### ByCard
+
+#### 1. Dynamic Motion Card (Hardware Sensors on Mobile, Cursor Parallax on Desktop/Web)
+
+Zero boilerplate—automatically handles hardware gyro/accel on mobile and mouse cursor hover on desktop & web:
+
+```dart
+ByCard.dynamicSensor(
+  colors: const [Color(0xFF38BDF8), Color(0xFF818CF8), Color(0xFFC084FC)],
+  borderWidth: 2.0,
+  borderRadius: BorderRadius.circular(20),
+  padding: const EdgeInsets.all(20),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text('Dynamic Motion Card', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+      SizedBox(height: 8),
+      Text('Border gradient dynamically reacts to phone tilt and cursor movement.'),
+    ],
+  ),
+);
+```
+
+#### 2. Gradient Border Card
+
+```dart
+ByCard.gradient(
+  colors: const [Color(0xFFF43F5E), Color(0xFFFB923C)],
+  borderWidth: 1.5,
+  borderRadius: BorderRadius.circular(16),
+  padding: const EdgeInsets.all(16),
+  child: const Text('Card with static linear gradient border'),
+);
+```
+
+#### 3. Standard Card
+
+```dart
+ByCard(
+  backgroundColor: const Color(0xFF1E293B),
+  borderColor: const Color(0xFF334155),
+  borderWidth: 1.0,
+  borderRadius: BorderRadius.circular(16),
+  padding: const EdgeInsets.all(16),
+  child: const Text('Clean solid card surface'),
+);
+```
+
+---
+
+### ByToast & Morphing Dialog
+
+#### 4. Simple Notification Toast
 
 ```dart
 ByToast.show(
@@ -80,7 +141,7 @@ ByToast.show(
 );
 ```
 
-### 2. Corner Positioning (Desktop & Web)
+#### 5. Corner Positioning (Desktop & Web)
 
 Ideal for desktop and web layouts where notifications belong in the corner:
 
@@ -95,7 +156,7 @@ ByToast.show(
 );
 ```
 
-### 3. Background Opacity & Text Clamping
+#### 6. Background Opacity & Text Clamping
 
 Create translucent floating toasts while keeping text crisp and readable:
 
@@ -111,7 +172,7 @@ ByToast.show(
 );
 ```
 
-### 4. 1-Click Presets
+#### 7. 1-Click Presets
 
 ```dart
 // Success preset
@@ -128,7 +189,7 @@ ByToast.showError(
 );
 ```
 
-### 5. Tap & Drag to Expand into Dialog
+#### 8. Tap & Drag to Expand into Dialog
 
 Users can tap the message text or drag the toast towards the center of the screen to reveal full scrollable details:
 
@@ -152,7 +213,11 @@ ByToast.show(
 );
 ```
 
-### 6. Standalone Modal Dialogs & Button Customization
+---
+
+### ByDialog
+
+#### 9. Standalone Modal Dialogs & Button Customization
 
 ```dart
 // Confirm Dialog with customized buttons

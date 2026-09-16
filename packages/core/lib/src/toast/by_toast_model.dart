@@ -156,8 +156,7 @@ class ByToastModel {
           : (enableDragToExpand ?? true));
 
   /// Whether drag-to-expand gesture is active on this toast.
-  bool get canDragToExpand =>
-      enableDragToExpand ?? enableTapToExpand ?? true;
+  bool get canDragToExpand => enableDragToExpand ?? enableTapToExpand ?? true;
 
   /// Effective background color with [backgroundOpacity] applied.
   Color get effectiveBackgroundColor {
@@ -177,9 +176,8 @@ class ByToastModel {
       return LinearGradient(
         begin: grad.begin,
         end: grad.end,
-        colors: grad.colors
-            .map((c) => c.withValues(alpha: c.a * opacity))
-            .toList(),
+        colors:
+            grad.colors.map((c) => c.withValues(alpha: c.a * opacity)).toList(),
         stops: grad.stops,
         tileMode: grad.tileMode,
         transform: grad.transform,
@@ -188,9 +186,8 @@ class ByToastModel {
       return RadialGradient(
         center: grad.center,
         radius: grad.radius,
-        colors: grad.colors
-            .map((c) => c.withValues(alpha: c.a * opacity))
-            .toList(),
+        colors:
+            grad.colors.map((c) => c.withValues(alpha: c.a * opacity)).toList(),
         stops: grad.stops,
         tileMode: grad.tileMode,
         focal: grad.focal,
@@ -202,9 +199,8 @@ class ByToastModel {
         center: grad.center,
         startAngle: grad.startAngle,
         endAngle: grad.endAngle,
-        colors: grad.colors
-            .map((c) => c.withValues(alpha: c.a * opacity))
-            .toList(),
+        colors:
+            grad.colors.map((c) => c.withValues(alpha: c.a * opacity)).toList(),
         stops: grad.stops,
         tileMode: grad.tileMode,
         transform: grad.transform,
