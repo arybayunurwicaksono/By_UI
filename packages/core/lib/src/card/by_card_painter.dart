@@ -37,6 +37,15 @@ class ByCardPainter extends CustomPainter {
   /// Maximum distance the directional shadow shifts with tilt.
   final double maxShadowOffset;
 
+  /// Whether to render dynamic specular inner glow inside the card.
+  final bool enableInnerGlow;
+
+  /// Custom opacity multiplier for the inner glow.
+  final double? innerGlowOpacity;
+
+  /// Custom blur radius for the inner glow. Defaults to [shadowBlur] if omitted.
+  final double? innerGlowBlur;
+
   /// Creates a [ByCardPainter].
   ByCardPainter({
     required this.variant,
@@ -50,6 +59,9 @@ class ByCardPainter extends CustomPainter {
     this.shadowGradient,
     this.shadowBlur = 18.0,
     this.maxShadowOffset = 10.0,
+    this.enableInnerGlow = false,
+    this.innerGlowOpacity,
+    this.innerGlowBlur,
     super.repaint,
   });
 
@@ -68,6 +80,11 @@ class ByCardPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = backgroundColor;
     canvas.drawRRect(rrect, bodyPaint);
+
+    // 2.5. Render Dynamic Specular Inner Glow / Sheen
+    if (enableInnerGlow && variant != ByCardVariant.normal) {
+      _paintInnerGlow(canvas, rrect, rect);
+    }
 
     // 3. Render Border Layer
     if (borderWidth > 0) {
@@ -269,6 +286,105 @@ class ByCardPainter extends CustomPainter {
     canvas.drawRRect(borderRRect, borderPaint);
   }
 
+  void _paintInnerGlow(Canvas canvas, RRect rrect, Rect rect) {
+    final double blur = innerGlowBlur ?? shadowBlur;
+    if (blur <= 0) return;
+
+    final double opacity = (innerGlowOpacity ?? 1.0).clamp(0.0, 1.0);
+    if (opacity <= 0) return;
+
+    // Resolve sheen colors: prefer shadowGradient, fallback to borderGradient, then defaults
+    List<Color> sheenColors = const [
+      Color(0xFF6366F1),
+      Color(0xFF38BDF8),
+    ];
+    if (shadowGradient != null) {
+      final nonTransparent =
+          shadowGradient!.colors.where((c) => c.a > 0.05).toList();
+      if (nonTransparent.isNotEmpty) {
+        sheenColors = nonTransparent;
+      } else {
+        sheenColors = shadowGradient!.colors;
+      }
+    } else if (borderGradient != null) {
+      final nonTransparent =
+          borderGradient!.colors.where((c) => c.a > 0.05).toList();
+      if (nonTransparent.isNotEmpty) {
+        sheenColors = nonTransparent;
+      } else {
+        sheenColors = borderGradient!.colors;
+      }
+    }
+
+    final Color sColorA = sheenColors.first;
+    final Color sColorB = sheenColors.length > 1 ? sheenColors.last : sColorA;
+
+    final double magnitude = tilt.distance.clamp(0.0, 1.0);
+    final Offset sheenOffset = magnitude < 0.08
+        ? Offset.zero
+        : Offset(tilt.dx * maxShadowOffset, tilt.dy * maxShadowOffset);
+
+    final RRect sheenRRect = rrect.shift(sheenOffset);
+
+    final Paint sheenPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, blur);
+
+    if (magnitude < 0.08) {
+      // Balanced even ambient inner glow across the entire card when neutral
+      final Alignment begin;
+      final Alignment end;
+      if (shadowGradient is LinearGradient) {
+        begin = (shadowGradient as LinearGradient)
+            .begin
+            .resolve(TextDirection.ltr);
+        end = (shadowGradient as LinearGradient)
+            .end
+            .resolve(TextDirection.ltr);
+      } else if (borderGradient is LinearGradient) {
+        begin = (borderGradient as LinearGradient)
+            .begin
+            .resolve(TextDirection.ltr);
+        end = (borderGradient as LinearGradient)
+            .end
+            .resolve(TextDirection.ltr);
+      } else {
+        begin = Alignment.topLeft;
+        end = Alignment.bottomRight;
+      }
+
+      final Gradient fallbackGlow = LinearGradient(
+        begin: begin,
+        end: end,
+        colors: [
+          sColorA.withValues(alpha: 0.22 * opacity),
+          sColorB.withValues(alpha: 0.18 * opacity),
+        ],
+      );
+      sheenPaint.shader = fallbackGlow.createShader(sheenRRect.outerRect);
+    } else {
+      final double dirX = tilt.dx / magnitude;
+      final double dirY = tilt.dy / magnitude;
+
+      sheenPaint.shader = LinearGradient(
+        begin: Alignment(-dirX, -dirY),
+        end: Alignment(dirX, dirY),
+        colors: [
+          Colors.transparent,
+          sColorA.withValues(alpha: 0.25 * magnitude * opacity),
+          sColorB.withValues(alpha: 0.40 * magnitude * opacity),
+        ],
+        stops: const [0.0, 0.50, 1.0],
+      ).createShader(sheenRRect.outerRect);
+    }
+
+    // Clip to card boundary so the inner sheen stays cleanly within the layout
+    canvas.save();
+    canvas.clipRRect(rrect);
+    canvas.drawRRect(sheenRRect, sheenPaint);
+    canvas.restore();
+  }
+
   @override
   bool shouldRepaint(covariant ByCardPainter oldDelegate) {
     return oldDelegate.variant != variant ||
@@ -281,6 +397,9 @@ class ByCardPainter extends CustomPainter {
         oldDelegate.shadows != shadows ||
         oldDelegate.shadowGradient != shadowGradient ||
         oldDelegate.shadowBlur != shadowBlur ||
-        oldDelegate.maxShadowOffset != maxShadowOffset;
+        oldDelegate.maxShadowOffset != maxShadowOffset ||
+        oldDelegate.enableInnerGlow != enableInnerGlow ||
+        oldDelegate.innerGlowOpacity != innerGlowOpacity ||
+        oldDelegate.innerGlowBlur != innerGlowBlur;
   }
 }

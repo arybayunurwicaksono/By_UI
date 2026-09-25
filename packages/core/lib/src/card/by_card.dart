@@ -65,6 +65,16 @@ class ByCard extends ImplicitlyAnimatedWidget {
   /// Enables mouse hover parallax effect on Desktop and Web platforms.
   final bool enableHoverTilt;
 
+  /// Enables dynamic specular inner glow / sheen inside the card layout following tilt.
+  /// Defaults to `false`.
+  final bool enableInnerGlow;
+
+  /// Custom opacity multiplier for the inner glow (0.0 to 1.0).
+  final double? innerGlowOpacity;
+
+  /// Custom blur radius for the inner glow. Defaults to [shadowBlur] if omitted.
+  final double? innerGlowBlur;
+
   /// Optional callback invoked when the spatial tilt coordinate updates
   /// from physical sensors, cursor hover, or manual input.
   final ValueChanged<Offset>? onTiltChanged;
@@ -95,6 +105,9 @@ class ByCard extends ImplicitlyAnimatedWidget {
     this.shadowBlur = ByCardDefaults.shadowBlur,
     this.maxShadowOffset = ByCardDefaults.maxShadowOffset,
     this.enableHoverTilt = true,
+    this.enableInnerGlow = false,
+    this.innerGlowOpacity,
+    this.innerGlowBlur,
     this.onTap,
     this.clipBehavior = Clip.antiAlias,
     super.duration = ByCardDefaults.animationDuration,
@@ -113,6 +126,9 @@ class ByCard extends ImplicitlyAnimatedWidget {
     Gradient? borderGradient,
     this.enableSensor = true,
     this.enableHoverTilt = true,
+    this.enableInnerGlow = false,
+    this.innerGlowOpacity,
+    this.innerGlowBlur,
     this.backgroundColor,
     this.borderRadius = ByCardDefaults.borderRadius,
     this.padding = const EdgeInsets.all(16.0),
@@ -142,6 +158,9 @@ class ByCard extends ImplicitlyAnimatedWidget {
     required this.child,
     List<Color>? colors,
     Gradient? borderGradient,
+    this.enableInnerGlow = false,
+    this.innerGlowOpacity,
+    this.innerGlowBlur,
     this.backgroundColor,
     this.borderRadius = ByCardDefaults.borderRadius,
     this.padding = const EdgeInsets.all(16.0),
@@ -174,6 +193,8 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
   BorderRadiusTween? _borderRadiusTween;
   Tween<double>? _borderWidthTween;
   Tween<double>? _shadowBlurTween;
+  Tween<double>? _innerGlowOpacityTween;
+  Tween<double>? _innerGlowBlurTween;
 
   late ByTiltController _tiltController;
 
@@ -262,6 +283,18 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
       widget.shadowBlur,
       (dynamic value) => Tween<double>(begin: value as double?),
     ) as Tween<double>?;
+
+    _innerGlowOpacityTween = visitor(
+      _innerGlowOpacityTween,
+      widget.innerGlowOpacity,
+      (dynamic value) => Tween<double>(begin: value as double?),
+    ) as Tween<double>?;
+
+    _innerGlowBlurTween = visitor(
+      _innerGlowBlurTween,
+      widget.innerGlowBlur,
+      (dynamic value) => Tween<double>(begin: value as double?),
+    ) as Tween<double>?;
   }
 
   @override
@@ -289,6 +322,10 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
         _borderWidthTween?.evaluate(animation) ?? widget.borderWidth;
     final double resolvedBlur =
         _shadowBlurTween?.evaluate(animation) ?? widget.shadowBlur;
+    final double? resolvedInnerGlowOpacity =
+        _innerGlowOpacityTween?.evaluate(animation) ?? widget.innerGlowOpacity;
+    final double? resolvedInnerGlowBlur =
+        _innerGlowBlurTween?.evaluate(animation) ?? widget.innerGlowBlur;
 
     Widget content = Padding(
       padding: widget.padding,
@@ -331,6 +368,9 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
             shadowGradient: widget.shadowGradient,
             shadowBlur: resolvedBlur,
             maxShadowOffset: widget.maxShadowOffset,
+            enableInnerGlow: widget.enableInnerGlow,
+            innerGlowOpacity: resolvedInnerGlowOpacity,
+            innerGlowBlur: resolvedInnerGlowBlur,
           ),
           child: content,
         );

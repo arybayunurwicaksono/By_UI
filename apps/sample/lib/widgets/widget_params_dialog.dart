@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:by_ui/by_ui.dart';
+import '../models/app_theme_store.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_textstyle.dart';
 
@@ -25,6 +26,9 @@ void showWidgetParametersDialog(
   BuildContext context, {
   required List<WidgetParamInfo> parameters,
 }) {
+  final colors = AppColors.of(context);
+  final isDark = AppThemeStore.instance.isDarkMode(context);
+
   ByDialog.alert(
     context,
     // Dialog murni tanpa judul dan tanpa ikon header (strictly title-less parameter list)
@@ -33,6 +37,9 @@ void showWidgetParametersDialog(
     message: null,
     buttonText: 'Close',
     buttonColor: AppColors.primary,
+    backgroundColor: colors.cardBg,
+    textColor: colors.textPrimary,
+    border: Border.all(color: colors.border, width: 1.2),
     maxWidth: 440.0,
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,10 +54,12 @@ void showWidgetParametersDialog(
           ),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.04),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.04)
+                : colors.chipBg,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: colors.border,
               width: 1.0,
             ),
           ),
@@ -70,7 +79,9 @@ void showWidgetParametersDialog(
                           child: Text(
                             param.name,
                             style: AppTextStyle.captionBold.copyWith(
-                              color: AppColors.cyanAccent,
+                              color: isDark
+                                  ? AppColors.cyanAccent
+                                  : const Color(0xFF0284C7),
                               fontSize: 13,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -84,7 +95,7 @@ void showWidgetParametersDialog(
                               vertical: 1.5,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.error.withValues(alpha: 0.2),
+                              color: AppColors.error.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -108,15 +119,18 @@ void showWidgetParametersDialog(
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : colors.chipSelectedBg,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       param.type,
                       style: AppTextStyle.badge.copyWith(
-                        color: const Color(0xFFE2E8F0),
+                        color: colors.textSecondary,
                         fontSize: 10,
                         fontFamily: 'monospace',
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -127,7 +141,7 @@ void showWidgetParametersDialog(
               Text(
                 param.description,
                 style: AppTextStyle.caption.copyWith(
-                  color: const Color(0xFF94A3B8),
+                  color: colors.textSecondary,
                   fontSize: 11.5,
                   height: 1.35,
                 ),
@@ -140,7 +154,7 @@ void showWidgetParametersDialog(
                     Text(
                       'Default:',
                       style: AppTextStyle.caption.copyWith(
-                        color: const Color(0xFF64748B),
+                        color: colors.textMuted,
                         fontSize: 10.5,
                       ),
                     ),
@@ -149,9 +163,12 @@ void showWidgetParametersDialog(
                       child: Text(
                         param.defaultValue!,
                         style: AppTextStyle.caption.copyWith(
-                          color: const Color(0xFF38BDF8),
+                          color: isDark
+                              ? const Color(0xFF38BDF8)
+                              : const Color(0xFF0284C7),
                           fontSize: 10.5,
                           fontFamily: 'monospace',
+                          fontWeight: FontWeight.w600,
                         ),
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,

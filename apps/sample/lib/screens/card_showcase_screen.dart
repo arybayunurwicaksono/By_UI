@@ -3,7 +3,11 @@ import 'package:by_ui/by_ui.dart';
 import '../models/app_theme_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/by_drawer.dart';
+import '../widgets/by_showcase_header.dart';
+import '../widgets/by_color_palette.dart';
+import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
+import 'app_bar_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
 
@@ -20,6 +24,8 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
   ByCardVariant _variant = ByCardVariant.dynamicSensor;
   bool _enableSensor = true;
   bool _enableHoverTilt = true;
+  bool _enableInnerGlow = false;
+  double _innerGlowOpacity = 1.0;
 
   // Manual tilt coordinates (for simulation on Web/Desktop/Simulator)
   double _tiltX = 0.0;
@@ -47,6 +53,8 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
       _variant = ByCardVariant.dynamicSensor;
       _enableSensor = true;
       _enableHoverTilt = true;
+      _enableInnerGlow = false;
+      _innerGlowOpacity = 1.0;
       _tiltX = 0.0;
       _tiltY = 1.0;
       _borderWidth = 1.4;
@@ -102,6 +110,25 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
           description:
               'Enables mouse pointer hover tilt parallax effect on Desktop and Web.',
           defaultValue: 'true',
+        ),
+        WidgetParamInfo(
+          name: 'enableInnerGlow',
+          type: 'bool',
+          description:
+              'Enables dynamic specular inner glow / sheen inside the card layout following tilt.',
+          defaultValue: 'false',
+        ),
+        WidgetParamInfo(
+          name: 'innerGlowOpacity',
+          type: 'double?',
+          description:
+              'Custom opacity multiplier (0.0 to 1.0) for the dynamic inner sheen.',
+        ),
+        WidgetParamInfo(
+          name: 'innerGlowBlur',
+          type: 'double?',
+          description:
+              'Custom blur radius for the inner glow. Defaults to shadowBlur if omitted.',
         ),
         WidgetParamInfo(
           name: 'backgroundColor',
@@ -246,96 +273,65 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
           stops: const [0.0, 0.55, 1.0],
         );
 
-        return Scaffold(
-          backgroundColor: colors.scaffoldBg,
-          appBar: AppBar(
-            backgroundColor: colors.cardBg,
-            elevation: 0,
-            titleSpacing: 4.0,
-            leading: Builder(
-              builder: (ctx) => IconButton(
-                icon: Icon(AppIcons.menu, color: colors.textPrimary),
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
+        return ByScrollScope(
+          child: Scaffold(
+            backgroundColor: colors.scaffoldBg,
+            extendBodyBehindAppBar: true,
+            appBar: ByAppBar(
+              child: ByShowcaseHeader(
+                componentName: 'ByCard',
+                onReset: _resetToDefaults,
+                onOpenParams: () => _showByCardParams(context),
               ),
             ),
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
+            drawer: ByDrawer(
+              activeComponent: 'ByCard',
+              onSelectComponent: (comp) {
+                if (comp == 'ByToast') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ToastShowcaseScreen(),
+                    ),
+                  );
+                } else if (comp == 'ByDialog') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DialogShowcaseScreen(),
+                    ),
+                  );
+                } else if (comp == 'ByAppBar') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AppBarShowcaseScreen(),
+                    ),
+                  );
+                }
+              },
+            ),
+            body: ListView(
+              padding: EdgeInsets.fromLTRB(
+                12,
+                ByAppBar.getContentTopPadding(context, extra: 10),
+                12,
+                20,
+              ),
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 3.5,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryAccent],
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'ByCard',
-                    style: AppTextStyle.buttonPrimary.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'Showcase',
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bodyMedium.copyWith(
-                      color: colors.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Reset to Defaults',
-                icon: const Icon(AppIcons.reset, color: AppColors.primary),
-                onPressed: _resetToDefaults,
+              // 1. Active Configuration Preview Card
+              _buildActiveConfigPreviewCard(
+                colors,
+                isDark,
+                bgOptions[_selectedBgIndex.clamp(0, bgOptions.length - 1)]['name'] as String,
               ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Widget Parameters',
-                icon: const Icon(AppIcons.help, color: AppColors.primary),
-                onPressed: () => _showByCardParams(context),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          drawer: ByDrawer(
-            activeComponent: 'ByCard',
-            onSelectComponent: (comp) {
-              if (comp == 'ByToast') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ToastShowcaseScreen(),
-                  ),
-                );
-              } else if (comp == 'ByDialog') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const DialogShowcaseScreen(),
-                  ),
-                );
-              }
-            },
-          ),
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 20),
-            children: [
-              // Preset Pills
-              _buildPresetPills(colors, isDark),
               const SizedBox(height: 12),
 
-              // Hero Interactive Live Card Preview
+              // 2. Preset Example Card
+              _buildPresetCard(colors, isDark),
+              const SizedBox(height: 12),
+
+              // 3. Standalone Widget Display (ByCard)
               _buildHeroPreviewCard(
                 colors: colors,
                 isDark: isDark,
@@ -380,6 +376,37 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                       });
                     },
                   ),
+                  const SizedBox(height: 8),
+                  _buildSwitchTile(
+                    title: 'Specular Inner Glow / Sheen',
+                    subtitle:
+                        'Projects dynamic reflective light sweep inside the card layout',
+                    value: _enableInnerGlow,
+                    colors: colors,
+                    onChanged: (val) {
+                      setState(() {
+                        _enableInnerGlow = val;
+                        _activePresetIndex = -1;
+                      });
+                    },
+                  ),
+                  if (_enableInnerGlow) ...[
+                    const SizedBox(height: 8),
+                    _buildSliderRow(
+                      title: 'Inner Sheen Opacity',
+                      value: _innerGlowOpacity,
+                      min: 0.1,
+                      max: 1.0,
+                      suffix: 'x',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _innerGlowOpacity = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 14),
@@ -482,44 +509,15 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(bgOptions.length, (index) {
-                        final isSelected = _selectedBgIndex == index;
-                        final Color color = bgOptions[index]['color'] as Color;
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedBgIndex = index;
-                              _activePresetIndex = -1;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: color,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? AppColors.cyanAccent
-                                    : colors.border,
-                                width: isSelected ? 2.5 : 1.0,
-                              ),
-                            ),
-                            child: isSelected
-                                ? const Icon(
-                                    AppIcons.checkRaw,
-                                    size: 18,
-                                    color: Colors.white,
-                                  )
-                                : null,
-                          ),
-                        );
-                      }),
-                    ),
+                  ByColorPalette.fromOptions(
+                    options: bgOptions,
+                    selectedIndex: _selectedBgIndex,
+                    onSelected: (index) {
+                      setState(() {
+                        _selectedBgIndex = index;
+                        _activePresetIndex = -1;
+                      });
+                    },
                   ),
                   const SizedBox(height: 14),
                   Text(
@@ -529,50 +527,15 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(gradientColorOptions.length, (
-                        index,
-                      ) {
-                        final isSelected =
-                            _selectedGradientColorAIndex == index;
-                        final Color color =
-                            gradientColorOptions[index]['color'] as Color;
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedGradientColorAIndex = index;
-                              _activePresetIndex = -1;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: color,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? colors.textPrimary
-                                    : colors.border,
-                                width: isSelected ? 2.5 : 1.0,
-                              ),
-                            ),
-                            child: isSelected
-                                ? Icon(
-                                    AppIcons.checkRaw,
-                                    size: 18,
-                                    color: color.computeLuminance() > 0.5
-                                        ? Colors.black
-                                        : Colors.white,
-                                  )
-                                : null,
-                          ),
-                        );
-                      }),
-                    ),
+                  ByColorPalette.fromOptions(
+                    options: gradientColorOptions,
+                    selectedIndex: _selectedGradientColorAIndex,
+                    onSelected: (index) {
+                      setState(() {
+                        _selectedGradientColorAIndex = index;
+                        _activePresetIndex = -1;
+                      });
+                    },
                   ),
                   const SizedBox(height: 14),
                   Text(
@@ -582,50 +545,15 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(gradientColorOptions.length, (
-                        index,
-                      ) {
-                        final isSelected =
-                            _selectedGradientColorBIndex == index;
-                        final Color color =
-                            gradientColorOptions[index]['color'] as Color;
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedGradientColorBIndex = index;
-                              _activePresetIndex = -1;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: color,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? colors.textPrimary
-                                    : colors.border,
-                                width: isSelected ? 2.5 : 1.0,
-                              ),
-                            ),
-                            child: isSelected
-                                ? Icon(
-                                    AppIcons.checkRaw,
-                                    size: 18,
-                                    color: color.computeLuminance() > 0.5
-                                        ? Colors.black
-                                        : Colors.white,
-                                  )
-                                : null,
-                          ),
-                        );
-                      }),
-                    ),
+                  ByColorPalette.fromOptions(
+                    options: gradientColorOptions,
+                    selectedIndex: _selectedGradientColorBIndex,
+                    onSelected: (index) {
+                      setState(() {
+                        _selectedGradientColorBIndex = index;
+                        _activePresetIndex = -1;
+                      });
+                    },
                   ),
                   const SizedBox(height: 14),
                   // Live Gradient Preview Bar
@@ -722,8 +650,9 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
               ),
             ],
           ),
-        );
-      },
+        ),
+      );
+    },
     );
   }
 
@@ -741,6 +670,8 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
         variant: _variant,
         enableSensor: _enableSensor,
         enableHoverTilt: _enableHoverTilt,
+        enableInnerGlow: _enableInnerGlow,
+        innerGlowOpacity: _innerGlowOpacity,
         manualTilt: _enableSensor ? null : Offset(_tiltX, _tiltY),
         onTiltChanged: (tilt) {
           if (_enableSensor && mounted) {
@@ -868,27 +799,218 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
     );
   }
 
-  Widget _buildPresetPills(AppColorPalette colors, bool isDark) {
+  Widget _buildPresetCard(AppColorPalette colors, bool isDark) {
     final presets = [
-      'Spatial Aurora',
-      'Neon Cyberpunk',
-      'Minimal Slate',
-      'Elevated Clean',
+      (
+        name: 'Spatial Aurora',
+        color: AppColors.cyanAccent,
+        icon: AppIcons.sparkle,
+      ),
+      (
+        name: 'Neon Cyberpunk',
+        color: AppColors.primaryAccent,
+        icon: AppIcons.bolt,
+      ),
+      (
+        name: 'Minimal Slate',
+        color: const Color(0xFF64748B),
+        icon: AppIcons.cardNormal,
+      ),
+      (
+        name: 'Elevated Clean',
+        color: AppColors.primary,
+        icon: AppIcons.star,
+      ),
     ];
 
-    return BySelectOptionGroup<int>(
-      selectedValue: _activePresetIndex,
-      items: List.generate(
-        presets.length,
-        (index) => BySelectOptionItem(value: index, label: presets[index]),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: colors.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colors.border),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
-      selectedBorderColor: AppColors.primary,
-      unselectedBorderColor: colors.borderSubtle,
-      selectedBackgroundColor: colors.chipSelectedBg,
-      unselectedBackgroundColor: colors.chipBg,
-      selectedTextColor: isDark ? Colors.white : AppColors.primaryDark,
-      unselectedTextColor: colors.textMuted,
-      onSelected: (index) => _applyPreset(index),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Preset Example',
+            style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
+          ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(presets.length, (index) {
+                final preset = presets[index];
+                final isSelected = _activePresetIndex == index;
+                final color = preset.color;
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () => _applyPreset(index),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? color.withValues(alpha: 0.25)
+                              : color.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected
+                                ? color
+                                : color.withValues(alpha: 0.35),
+                            width: isSelected ? 1.4 : 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(preset.icon, size: 14, color: color),
+                            const SizedBox(width: 6),
+                            Text(
+                              preset.name,
+                              style: AppTextStyle.pillButton.copyWith(
+                                color: color,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActiveConfigPreviewCard(
+    AppColorPalette colors,
+    bool isDark,
+    String currentBgName,
+  ) {
+    return ByCard(
+      variant: ByCardVariant.normal,
+      backgroundColor: colors.cardBg,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.circular(16),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryAccent],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  AppIcons.palette,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Active Configuration Preview',
+                      style: AppTextStyle.screenSubtitle.copyWith(
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Live hardware sensor and geometry metrics',
+                      style: AppTextStyle.caption.copyWith(
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'The interactive ByCard above smoothly re-renders with hardware sensor parallax, dynamic lighting, and customized borders.',
+            style: AppTextStyle.body.copyWith(
+              color: colors.textSecondary,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              ByMetricBadge(label: 'Variant', value: _variant.name),
+              ByMetricBadge(label: 'Background', value: currentBgName),
+              ByMetricBadge(
+                label: 'Sensor',
+                value: _enableSensor ? 'Active' : 'Off',
+              ),
+              ByMetricBadge(
+                label: 'Hover Tilt',
+                value: _enableHoverTilt ? 'Active' : 'Off',
+              ),
+              ByMetricBadge(
+                label: 'Inner Sheen',
+                value: _enableInnerGlow
+                    ? '${(_innerGlowOpacity * 100).toInt()}%'
+                    : 'Off',
+              ),
+              ByMetricBadge(
+                label: 'Border',
+                value: '${_borderWidth.toStringAsFixed(1)}px',
+              ),
+              ByMetricBadge(
+                label: 'Radius',
+                value: '${_borderRadius.toInt()}px',
+              ),
+              ByMetricBadge(
+                label: 'Blur',
+                value: '${_shadowBlur.toInt()}px',
+              ),
+              ByMetricBadge(
+                label: 'Vector',
+                value:
+                    '(${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -976,16 +1098,10 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
           final isSelected = _variant == item.variant;
           return Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: BySelectOption(
-              label: Text(item.label),
+            child: ByShowcaseChoiceChip(
+              label: item.label,
               isSelected: isSelected,
               icon: Icon(item.icon),
-              selectedBorderColor: AppColors.primary,
-              unselectedBorderColor: colors.borderSubtle,
-              selectedBackgroundColor: colors.chipSelectedBg,
-              unselectedBackgroundColor: colors.chipBg,
-              selectedTextColor: isDark ? Colors.white : AppColors.primaryDark,
-              unselectedTextColor: colors.textMuted,
               onTap: () {
                 setState(() {
                   _variant = item.variant;
@@ -1006,32 +1122,11 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
     required AppColorPalette colors,
     required ValueChanged<bool> onChanged,
   }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTextStyle.fieldLabel.copyWith(
-                  color: colors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-              ),
-            ],
-          ),
-        ),
-        Switch.adaptive(
-          value: value,
-          activeTrackColor: AppColors.primary,
-          onChanged: onChanged,
-        ),
-      ],
+    return ByShowcaseSwitchTile(
+      title: title,
+      subtitle: subtitle,
+      value: value,
+      onChanged: onChanged,
     );
   }
 

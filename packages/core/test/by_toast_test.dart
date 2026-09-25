@@ -626,5 +626,85 @@ void main() {
         await tester.pumpAndSettle();
       },
     );
+
+    testWidgets(
+      'ByToast supports customizable textSize and titleSize',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      title: 'Title with custom size',
+                      message: 'Message with custom size',
+                      titleSize: 16.0,
+                      textSize: 14.5,
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        final titleWidget =
+            tester.widget<Text>(find.text('Title with custom size'));
+        expect(titleWidget.style?.fontSize, 16.0);
+
+        final msgWidget =
+            tester.widget<Text>(find.text('Message with custom size'));
+        expect(msgWidget.style?.fontSize, 14.5);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToast preset showSuccess supports customizable textSize and titleSize',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.showSuccess(
+                      context,
+                      title: 'Success Title',
+                      message: 'Success Message',
+                      titleSize: 15.0,
+                      textSize: 12.0,
+                    );
+                  },
+                  child: const Text('Show Success'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show Success'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        final titleWidget = tester.widget<Text>(find.text('Success Title'));
+        expect(titleWidget.style?.fontSize, 15.0);
+
+        final msgWidget = tester.widget<Text>(find.text('Success Message'));
+        expect(msgWidget.style?.fontSize, 12.0);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
   });
 }

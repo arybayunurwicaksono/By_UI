@@ -44,7 +44,7 @@ class ByDrawer extends StatelessWidget {
                       ),
                       children: [
                         // Active Components Section
-                        _buildSectionHeader('AVAILABLE COMPONENTS (3)', colors),
+                        _buildSectionHeader('AVAILABLE COMPONENTS (4)', colors),
                         const SizedBox(height: 8),
 
                         _buildDrawerItem(
@@ -88,6 +88,21 @@ class ByDrawer extends StatelessWidget {
                           onTap: () {
                             Navigator.of(context).pop();
                             onSelectComponent?.call('ByCard');
+                          },
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByAppBar',
+                          subtitle: 'Dynamic floating & glassmorphic app bar',
+                          icon: Icons.web_asset_rounded,
+                          isActive: activeComponent == 'ByAppBar',
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
+                          colors: colors,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onSelectComponent?.call('ByAppBar');
                           },
                         ),
 
@@ -222,7 +237,7 @@ class ByDrawer extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'v0.1.1',
+                            'v0.1.4',
                             style: AppTextStyle.badgeSmall.copyWith(
                               color: colors.badgeText,
                             ),

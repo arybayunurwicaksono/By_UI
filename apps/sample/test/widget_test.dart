@@ -168,6 +168,8 @@ void main() {
         200,
         scrollable: verticalScrollable,
       );
+      // Drag down slightly so the swatch moves below the floating AppBar
+      await tester.drag(verticalScrollable, const Offset(0, 100));
       await tester.pumpAndSettle();
       expect(dialogWhiteFinder, findsOneWidget);
       await tester.tap(dialogWhiteFinder);
@@ -192,7 +194,7 @@ void main() {
         (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
       );
 
-      final topCenterFinder = find.text('Top (Center)');
+      final topCenterFinder = find.text('Top (Center)').last;
       await tester.scrollUntilVisible(
         topCenterFinder,
         100,
@@ -222,14 +224,15 @@ void main() {
     await tester.pumpWidget(const ByUISampleApp());
     await tester.pumpAndSettle();
 
-    final previewFinder = find.text('ACTIVE CONFIGURATION PREVIEW');
+    final previewFinder = find.text('Active Configuration Preview');
     expect(previewFinder, findsOneWidget);
-    expect(find.text('Screen Anchor'), findsOneWidget);
-    expect(find.text('Theme Palette'), findsOneWidget);
-    expect(find.text('Opacity & Border'), findsOneWidget);
-    expect(find.text('Entrance & Motion'), findsOneWidget);
-    expect(find.text('Expand to Dialog'), findsOneWidget);
-    expect(find.text('Text Clamp'), findsOneWidget);
+    expect(find.text('Anchor'), findsOneWidget);
+    expect(find.text('Theme'), findsOneWidget);
+    expect(find.text('Opacity'), findsOneWidget);
+    expect(find.text('Border'), findsOneWidget);
+    expect(find.text('Motion'), findsOneWidget);
+    expect(find.text('Dialog Morph'), findsOneWidget);
+    expect(find.text('Max Lines'), findsOneWidget);
   });
 
   testWidgets(
@@ -244,8 +247,8 @@ void main() {
       await tester.tap(find.text('ByDialog'));
       await tester.pumpAndSettle();
 
-      // Verify summary card has Buttons & Order row
-      expect(find.text('Buttons & Order'), findsOneWidget);
+      // Verify summary card has Btn Radius metric
+      expect(find.text('Btn Radius'), findsOneWidget);
 
       // Scroll to Section 5: BUTTON ACTIONS & STYLING
       final section5Finder = find.text('5. BUTTON ACTIONS & STYLING');
@@ -277,7 +280,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Scroll back to preview card to check updated summary
-      final previewFinder = find.text('ACTIVE CONFIGURATION PREVIEW');
+      final previewFinder = find.text('Active Configuration Preview');
       await tester.scrollUntilVisible(
         previewFinder,
         -300,
@@ -285,7 +288,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('24px • Reversed'), findsOneWidget);
+      expect(find.text('24px'), findsOneWidget);
     },
   );
 
@@ -363,4 +366,86 @@ void main() {
       expect(find.text('Close'), findsNothing);
     },
   );
+
+  testWidgets(
+    'Drawer navigates to ByAppBar showcase and renders live controls',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const ByUISampleApp());
+      await tester.pumpAndSettle();
+
+      // Open drawer
+      await tester.tap(find.byIcon(Icons.menu_rounded));
+      await tester.pumpAndSettle();
+
+      final drawerScrollable = find.descendant(
+        of: find.byType(Drawer),
+        matching: find.byType(Scrollable),
+      );
+      final byAppBarDrawerItem = find.text('ByAppBar');
+      await tester.scrollUntilVisible(
+        byAppBarDrawerItem,
+        100,
+        scrollable: drawerScrollable,
+      );
+      await tester.pumpAndSettle();
+
+      // Tap ByAppBar drawer item
+      expect(byAppBarDrawerItem, findsOneWidget);
+      await tester.tap(byAppBarDrawerItem);
+      await tester.pumpAndSettle();
+
+      // Verify ByAppBar showcase screen rendered with Active Configuration Preview
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
+
+      final screenScrollable = find.descendant(
+        of: find.byType(Scaffold),
+        matching: find.byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+        ),
+      );
+      final section1 = find.text('1. FLOATING DYNAMICS & SCROLL BEHAVIOR');
+      await tester.scrollUntilVisible(
+        section1,
+        150,
+        scrollable: screenScrollable,
+      );
+      await tester.pumpAndSettle();
+      expect(section1, findsOneWidget);
+      final section2 = find.text('2. COLOR THEME & GLASSMORPHIC OPACITY');
+      await tester.scrollUntilVisible(
+        section2,
+        150,
+        scrollable: screenScrollable,
+      );
+      await tester.pumpAndSettle();
+      expect(section2, findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'ByAppBar allows Scaffold.body content to scroll behind floating app bar without clipping',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const ByUISampleApp());
+      await tester.pumpAndSettle();
+
+      // Verify Scaffold has extendBodyBehindAppBar enabled
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      expect(scaffold.extendBodyBehindAppBar, isTrue);
+
+      // Verify ByAppBar is present
+      expect(find.byType(ByAppBar), findsOneWidget);
+
+      final screenScrollable = find.byWidgetPredicate(
+        (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+      );
+
+      // Scroll content up
+      await tester.drag(screenScrollable, const Offset(0, -60));
+      await tester.pumpAndSettle();
+
+      // Verify app bar is still rendered in front
+      expect(find.byType(ByAppBar), findsOneWidget);
+    },
+  );
 }
+

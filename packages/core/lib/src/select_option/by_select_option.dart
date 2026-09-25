@@ -95,19 +95,22 @@ class BySelectOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final effectiveSelectedBorder =
         selectedBorderColor ?? const Color(0xFF6366F1);
     final effectiveUnselectedBorder =
         unselectedBorderColor ?? const Color(0x2A94A3B8);
 
     final effectiveSelectedBg = selectedBackgroundColor ??
-        effectiveSelectedBorder.withValues(alpha: 0.12);
+        effectiveSelectedBorder.withValues(alpha: isDark ? 0.20 : 0.12);
     final effectiveUnselectedBg =
         unselectedBackgroundColor ?? Colors.transparent;
 
-    final effectiveSelectedText = selectedTextColor ?? effectiveSelectedBorder;
+    final effectiveSelectedText =
+        selectedTextColor ?? (isDark ? Colors.white : Colors.black);
     final effectiveUnselectedText =
-        unselectedTextColor ?? const Color(0xFF64748B);
+        unselectedTextColor ?? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B));
 
     final effectiveRadius = borderRadius ?? BorderRadius.circular(10);
     final effectivePadding =

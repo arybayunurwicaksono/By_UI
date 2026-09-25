@@ -58,8 +58,14 @@ class ByToastModel {
   /// Custom typography style for the message text.
   final TextStyle? textStyle;
 
+  /// Custom font size for the message text. Defaults to 13.0 if omitted.
+  final double? textSize;
+
   /// Custom typography style for the optional [title].
   final TextStyle? titleStyle;
+
+  /// Custom font size for the optional [title]. Defaults to 13.0 if omitted.
+  final double? titleSize;
 
   /// Maximum number of lines for the message text. Defaults to 3.
   final int? maxLines;
@@ -227,7 +233,9 @@ class ByToastModel {
     this.backgroundOpacity = 1.0,
     required this.textColor,
     this.textStyle,
+    this.textSize,
     this.titleStyle,
+    this.titleSize,
     this.maxLines = 3,
     this.overflow = TextOverflow.ellipsis,
     this.titleMaxLines,

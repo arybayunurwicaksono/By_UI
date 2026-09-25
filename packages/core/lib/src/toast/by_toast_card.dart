@@ -351,12 +351,16 @@ class _ByToastCardState extends State<ByToastCard>
                         item.title!,
                         maxLines: item.titleMaxLines,
                         overflow: item.titleOverflow,
-                        style: item.titleStyle ??
-                            TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: item.textColor,
-                            ),
+                        style: item.titleStyle != null
+                            ? (item.titleSize != null
+                                ? item.titleStyle!
+                                    .copyWith(fontSize: item.titleSize)
+                                : item.titleStyle)
+                            : TextStyle(
+                                fontSize: item.titleSize ?? 13,
+                                fontWeight: FontWeight.w700,
+                                color: item.textColor,
+                              ),
                       ),
                       const SizedBox(height: 2),
                     ],
@@ -364,13 +368,17 @@ class _ByToastCardState extends State<ByToastCard>
                       item.message,
                       maxLines: item.maxLines,
                       overflow: item.overflow,
-                      style: item.textStyle ??
-                          TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: item.textColor,
-                            height: 1.3,
-                          ),
+                      style: item.textStyle != null
+                          ? (item.textSize != null
+                              ? item.textStyle!
+                                  .copyWith(fontSize: item.textSize)
+                              : item.textStyle)
+                          : TextStyle(
+                              fontSize: item.textSize ?? 13,
+                              fontWeight: FontWeight.w500,
+                              color: item.textColor,
+                              height: 1.3,
+                            ),
                     ),
                   ],
                 ),

@@ -5,7 +5,11 @@ import '../models/app_theme_store.dart';
 import '../models/toast_config_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/by_drawer.dart';
+import '../widgets/by_showcase_header.dart';
+import '../widgets/by_color_palette.dart';
+import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
+import 'app_bar_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
 import 'card_showcase_screen.dart';
 
@@ -458,6 +462,20 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
           defaultValue: 'Colors.white',
         ),
         WidgetParamInfo(
+          name: 'textSize',
+          type: 'double?',
+          description:
+              'Custom font size for the toast message text. Defaults to 13.0.',
+          defaultValue: '13.0',
+        ),
+        WidgetParamInfo(
+          name: 'titleSize',
+          type: 'double?',
+          description:
+              'Custom font size for the optional toast title. Defaults to 13.0.',
+          defaultValue: '13.0',
+        ),
+        WidgetParamInfo(
           name: 'icon / prefixIcon',
           type: 'IconData?',
           description:
@@ -535,96 +553,62 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
     return ListenableBuilder(
       listenable: AppThemeStore.instance,
       builder: (context, _) {
-        return Scaffold(
-          backgroundColor: colors.scaffoldBg,
-          appBar: AppBar(
-            key: ByToast.appBarKey,
-            backgroundColor: colors.cardBg,
-            elevation: 0,
-            titleSpacing: 4.0,
-            leading: Builder(
-              builder: (ctx) => IconButton(
-                icon: Icon(AppIcons.menu, color: colors.textPrimary),
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
+        return ByScrollScope(
+          child: Scaffold(
+            backgroundColor: colors.scaffoldBg,
+            extendBodyBehindAppBar: true,
+            appBar: ByAppBar(
+              key: ByToast.appBarKey,
+              child: ByShowcaseHeader(
+                componentName: 'ByToast',
+                onReset: _resetToDefaults,
+                onOpenParams: () => _showByToastParams(context),
               ),
             ),
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
+            drawer: ByDrawer(
+              activeComponent: 'ByToast',
+              onSelectComponent: (comp) {
+                if (comp == 'ByDialog') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DialogShowcaseScreen(),
+                    ),
+                  );
+                } else if (comp == 'ByCard') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CardShowcaseScreen()),
+                  );
+                } else if (comp == 'ByAppBar') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AppBarShowcaseScreen(),
+                    ),
+                  );
+                }
+              },
+            ),
+            body: ListView(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                ByAppBar.getContentTopPadding(context, extra: 16),
+                16,
+                24,
+              ),
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 3.5,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryAccent],
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'ByToast',
-                    style: AppTextStyle.buttonPrimary.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'Showcase',
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bodyMedium.copyWith(
-                      color: colors.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Reset to Defaults',
-                icon: const Icon(AppIcons.reset, color: AppColors.primary),
-                onPressed: _resetToDefaults,
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Widget Parameters',
-                icon: const Icon(AppIcons.help, color: AppColors.primary),
-                onPressed: () => _showByToastParams(context),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          drawer: ByDrawer(
-            activeComponent: 'ByToast',
-            onSelectComponent: (comp) {
-              if (comp == 'ByDialog') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const DialogShowcaseScreen(),
-                  ),
-                );
-              } else if (comp == 'ByCard') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CardShowcaseScreen()),
-                );
-              }
-            },
-          ),
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            children: [
-              // Quick Preset Bar
+              // 1. Active Configuration Preview Card
+              _buildConfigSummaryCard(),
+
+              const SizedBox(height: 16),
+
+              // 2. Preset Example Card
               _buildPresetPills(),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
-              // Visual Hint for Tap-to-Dialog feature
+              // 3. Visual Hint for Tap-to-Dialog feature
               if (_enableTapToDialog)
                 Container(
                   margin: const EdgeInsets.only(bottom: 16),
@@ -653,9 +637,6 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                     ],
                   ),
                 ),
-
-              // Live Configuration Summary Card
-              _buildConfigSummaryCard(),
 
               const SizedBox(height: 16),
 
@@ -931,28 +912,12 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                   const SizedBox(height: 10),
 
                   // Close Button Toggle
-                  Material(
-                    color: Colors.transparent,
-                    child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: AppColors.primary,
-                      title: Text(
-                        'Show Close Button (\'X\')',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Can be toggled active or inactive independently',
-                        style: AppTextStyle.caption.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      value: _showCloseButton,
-                      onChanged: (val) =>
-                          setState(() => _showCloseButton = val),
-                    ),
+                  ByShowcaseSwitchTile(
+                    title: 'Show Close Button (\'X\')',
+                    subtitle: 'Can be toggled active or inactive independently',
+                    value: _showCloseButton,
+                    onChanged: (val) =>
+                        setState(() => _showCloseButton = val),
                   ),
                 ],
               ),
@@ -964,28 +929,13 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                 title: '4. EXPAND TO DIALOG (TAP & DRAG)',
                 icon: AppIcons.external,
                 children: [
-                  Material(
-                    color: Colors.transparent,
-                    child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: AppColors.primary,
-                      title: Text(
-                        'Enable Expand to Dialog (Tap & Drag)',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
+                  ByShowcaseSwitchTile(
+                    title: 'Enable Expand to Dialog (Tap & Drag)',
+                    subtitle:
                         'Tap message text or drag toast towards screen center to morph into dialog',
-                        style: AppTextStyle.caption.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      value: _enableTapToDialog,
-                      onChanged: (val) =>
-                          setState(() => _enableTapToDialog = val),
-                    ),
+                    value: _enableTapToDialog,
+                    onChanged: (val) =>
+                        setState(() => _enableTapToDialog = val),
                   ),
                   AnimatedSize(
                     duration: const Duration(milliseconds: 280),
@@ -1045,56 +995,11 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(_colorThemes.length, (index) {
-                        final isSelected = _selectedColorIndex == index;
-                        final theme = _colorThemes[index];
-                        final Color color = theme['color'] as Color;
-                        final Gradient? gradient =
-                            theme['gradient'] as Gradient?;
-                        final bool isWhite = color == Colors.white;
-
-                        return Tooltip(
-                          message: theme['name'] as String,
-                          child: GestureDetector(
-                            key: ValueKey('theme_${theme['name']}'),
-                            onTap: () =>
-                                setState(() => _selectedColorIndex = index),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 10),
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: gradient == null ? color : null,
-                                gradient: gradient,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? (isWhite && !isDark
-                                            ? AppColors.primary
-                                            : (isDark
-                                                  ? Colors.white
-                                                  : AppColors.primaryDark))
-                                      : colors.borderSubtle,
-                                  width: isSelected ? 2.5 : 1.0,
-                                ),
-                              ),
-                              child: isSelected
-                                  ? Icon(
-                                      AppIcons.checkRaw,
-                                      size: 18,
-                                      color: isWhite
-                                          ? const Color(0xFF0F172A)
-                                          : Colors.white,
-                                    )
-                                  : null,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
+                  ByColorPalette.fromPresets(
+                    presets: _colorThemes,
+                    selectedIndex: _selectedColorIndex,
+                    onSelected: (index) =>
+                        setState(() => _selectedColorIndex = index),
                   ),
                   const SizedBox(height: 14),
                   _buildToggleChip(
@@ -1325,25 +1230,21 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
               ),
             ),
           ),
-        );
-      },
+        ),
+      );
+    },
     );
   }
 
   Widget _buildConfigSummaryCard() {
     final theme = _colorThemes[_selectedColorIndex];
-    final Color rawColor = theme['color'] as Color;
-    final Color accentColor = rawColor == Colors.white
-        ? AppColors.primary
-        : (theme['gradient'] != null ? AppColors.primaryLight : rawColor);
-
     String positionLabel;
     switch (_position) {
       case ByToastPosition.top:
-        positionLabel = 'Top Center';
+        positionLabel = 'Top (Center)';
         break;
       case ByToastPosition.bottom:
-        positionLabel = 'Bottom Center';
+        positionLabel = 'Bottom (Center)';
         break;
       case ByToastPosition.topLeft:
         positionLabel = 'Top-Left';
@@ -1359,29 +1260,13 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
         break;
     }
 
-    String slideLabel;
-    switch (_slideDirection) {
-      case ByToastSlideDirection.fromTop:
-        slideLabel = 'From Top';
-        break;
-      case ByToastSlideDirection.fromBottom:
-        slideLabel = 'From Bottom';
-        break;
-      case ByToastSlideDirection.fromLeft:
-        slideLabel = 'From Left';
-        break;
-      case ByToastSlideDirection.fromRight:
-        slideLabel = 'From Right';
-        break;
-    }
-
     String animLabel;
     switch (_animationType) {
       case ByToastAnimationType.slideAndFade:
         animLabel = 'Slide & Fade';
         break;
       case ByToastAnimationType.bounce:
-        animLabel = 'Bounce / Spring';
+        animLabel = 'Bounce';
         break;
       case ByToastAnimationType.scaleAndFade:
         animLabel = 'Scale & Fade';
@@ -1404,115 +1289,100 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
         ? 'None'
         : (_selectedRightActionIndex == 1 ? 'Chevron' : 'Undo');
 
-    return Container(
+    return ByCard(
+      variant: ByCardVariant.normal,
+      backgroundColor: colors.cardBg,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.circular(16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: accentColor.withValues(alpha: isDark ? 0.4 : 0.3),
-          width: 1.2,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                child: Text(
-                  'ACTIVE CONFIGURATION PREVIEW',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.sectionHeader.copyWith(
-                    color: colors.textMuted,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryAccent],
                   ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  AppIcons.notification,
+                  color: Colors.white,
+                  size: 20,
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  positionLabel,
-                  style: AppTextStyle.badgeSmall.copyWith(color: accentColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Active Configuration Preview',
+                      style: AppTextStyle.screenSubtitle.copyWith(
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Live toast anchor, motion, and overlay styling',
+                      style: AppTextStyle.caption.copyWith(
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildSummaryRow('Screen Anchor', positionLabel),
-          const SizedBox(height: 6),
-          _buildSummaryRow('Theme Palette', theme['name'] as String),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Opacity & Border',
-            '${(_backgroundOpacity * 100).round()}%${_useOutlineBorder ? ' • Outline Glow' : ' • Borderless'}',
+          Text(
+            'The ByToast notification smoothly slides in with custom curves, expandable modal actions, and adaptive themes.',
+            style: AppTextStyle.body.copyWith(
+              color: colors.textSecondary,
+              height: 1.45,
+            ),
           ),
-          const SizedBox(height: 6),
-          _buildSummaryRow('Entrance & Motion', '$slideLabel • $animLabel'),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Expand to Dialog',
-            _enableTapToDialog
-                ? (_selectedDialogMode == 0
-                      ? 'Active (Default Text)'
-                      : 'Active (Custom Receipt)')
-                : 'Disabled',
-          ),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Icons & Actions',
-            'Prefix: $leftIconLabel • Suffix: $rightActionLabel${_showCloseButton ? ' • Close (X)' : ''}',
-          ),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Text Clamp',
-            '${_maxLines ?? 'Unlimited'} lines (${_overflow.name})',
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              ByMetricBadge(label: 'Anchor', value: positionLabel),
+              ByMetricBadge(label: 'Theme', value: theme['name'] as String),
+              ByMetricBadge(
+                label: 'Opacity',
+                value: '${(_backgroundOpacity * 100).round()}%',
+              ),
+              ByMetricBadge(
+                label: 'Border',
+                value: _useOutlineBorder ? 'Outline Glow' : 'Borderless',
+              ),
+              ByMetricBadge(label: 'Motion', value: animLabel),
+              ByMetricBadge(
+                label: 'Dialog Morph',
+                value: _enableTapToDialog ? 'Active' : 'Off',
+              ),
+              ByMetricBadge(label: 'Prefix', value: leftIconLabel),
+              ByMetricBadge(label: 'Suffix', value: rightActionLabel),
+              ByMetricBadge(
+                label: 'Max Lines',
+                value: '${_maxLines ?? 'All'}',
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.specValue.copyWith(color: colors.textPrimary),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildPresetPills() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: colors.cardBg,
         borderRadius: BorderRadius.circular(14),
@@ -1531,76 +1401,79 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'QUICK PRESETS (1-CLICK TEST)',
+            'Preset Example',
             style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildPresetBtn('Success', AppColors.success, () {
-                ByToast.showSuccess(
-                  context,
-                  message: 'Transaction completed successfully!',
-                  position: _position,
-                  slideDirection: _slideDirection,
-                  backgroundOpacity: _backgroundOpacity,
-                  detailTitle: 'Transaction #1042 Completed',
-                  detailMessage:
-                      'Payment verified via QRIS. Thermal receipt ready to print.',
-                  enableTapToExpand: _enableTapToDialog,
-                  maxLines: _maxLines,
-                  overflow: _overflow,
-                );
-              }),
-              const SizedBox(width: 6),
-              _buildPresetBtn('Error', AppColors.error, () {
-                ByToast.showError(
-                  context,
-                  message: 'Thermal printer connection timed out.',
-                  position: _position,
-                  slideDirection: _slideDirection,
-                  backgroundOpacity: _backgroundOpacity,
-                  detailTitle: 'Hardware Connection Error',
-                  detailMessage:
-                      'The system could not communicate with Bluetooth printer POS-PRT-02. Please ensure the printer is turned on and paired.',
-                  enableTapToExpand: _enableTapToDialog,
-                  maxLines: _maxLines,
-                  overflow: _overflow,
-                );
-              }),
-              const SizedBox(width: 6),
-              _buildPresetBtn('Warning', AppColors.warning, () {
-                ByToast.showWarning(
-                  context,
-                  message: 'Robusta coffee bean stock is low.',
-                  position: _position,
-                  slideDirection: _slideDirection,
-                  backgroundOpacity: _backgroundOpacity,
-                  detailTitle: 'Low Stock Alert',
-                  detailMessage:
-                      'Robusta Medium Roast Beans is below the reorder threshold (remaining: 3 portions). Please contact supplier.',
-                  enableTapToExpand: _enableTapToDialog,
-                  maxLines: _maxLines,
-                  overflow: _overflow,
-                );
-              }),
-              const SizedBox(width: 6),
-              _buildPresetBtn('Info', AppColors.info, () {
-                ByToast.showInfo(
-                  context,
-                  message: 'Cloud data synchronization in progress.',
-                  position: _position,
-                  slideDirection: _slideDirection,
-                  backgroundOpacity: _backgroundOpacity,
-                  detailTitle: 'Background Sync Status',
-                  detailMessage:
-                      'Syncing 14 local transactions and 2 inventory logs with cloud server database. Estimated time remaining: 12 seconds.',
-                  enableTapToExpand: _enableTapToDialog,
-                  maxLines: _maxLines,
-                  overflow: _overflow,
-                );
-              }),
-            ],
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildPresetBtn('Success', AppColors.success, () {
+                  ByToast.showSuccess(
+                    context,
+                    message: 'Transaction completed successfully!',
+                    position: _position,
+                    slideDirection: _slideDirection,
+                    backgroundOpacity: _backgroundOpacity,
+                    detailTitle: 'Transaction #1042 Completed',
+                    detailMessage:
+                        'Payment verified via QRIS. Thermal receipt ready to print.',
+                    enableTapToExpand: _enableTapToDialog,
+                    maxLines: _maxLines,
+                    overflow: _overflow,
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Error', AppColors.error, () {
+                  ByToast.showError(
+                    context,
+                    message: 'Thermal printer connection timed out.',
+                    position: _position,
+                    slideDirection: _slideDirection,
+                    backgroundOpacity: _backgroundOpacity,
+                    detailTitle: 'Hardware Connection Error',
+                    detailMessage:
+                        'The system could not communicate with Bluetooth printer POS-PRT-02. Please ensure the printer is turned on and paired.',
+                    enableTapToExpand: _enableTapToDialog,
+                    maxLines: _maxLines,
+                    overflow: _overflow,
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Warning', AppColors.warning, () {
+                  ByToast.showWarning(
+                    context,
+                    message: 'Robusta coffee bean stock is low.',
+                    position: _position,
+                    slideDirection: _slideDirection,
+                    backgroundOpacity: _backgroundOpacity,
+                    detailTitle: 'Low Stock Alert',
+                    detailMessage:
+                        'Robusta Medium Roast Beans is below the reorder threshold (remaining: 3 portions). Please contact supplier.',
+                    enableTapToExpand: _enableTapToDialog,
+                    maxLines: _maxLines,
+                    overflow: _overflow,
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Info', AppColors.info, () {
+                  ByToast.showInfo(
+                    context,
+                    message: 'Cloud data synchronization in progress.',
+                    position: _position,
+                    slideDirection: _slideDirection,
+                    backgroundOpacity: _backgroundOpacity,
+                    detailTitle: 'Background Sync Status',
+                    detailMessage:
+                        'Syncing 14 local transactions and 2 inventory logs with cloud server database. Estimated time remaining: 12 seconds.',
+                    enableTapToExpand: _enableTapToDialog,
+                    maxLines: _maxLines,
+                    overflow: _overflow,
+                  );
+                }),
+              ],
+            ),
           ),
         ],
       ),
@@ -1608,27 +1481,25 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
   }
 
   Widget _buildPresetBtn(String label, Color color, VoidCallback onTap) {
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: color.withValues(alpha: 0.35),
-                width: 1,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: color.withValues(alpha: 0.35),
+              width: 1,
             ),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: AppTextStyle.pillButton.copyWith(color: color),
-            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: AppTextStyle.pillButton.copyWith(color: color),
           ),
         ),
       ),
@@ -1690,17 +1561,11 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
     required VoidCallback onTap,
     Widget? icon,
   }) {
-    return BySelectOption(
-      label: Text(label),
+    return ByShowcaseChoiceChip(
+      label: label,
       isSelected: isSelected,
-      icon: icon,
-      selectedBorderColor: AppColors.primary,
-      unselectedBorderColor: colors.borderSubtle,
-      selectedBackgroundColor: colors.chipSelectedBg,
-      unselectedBackgroundColor: colors.chipBg,
-      selectedTextColor: isDark ? Colors.white : AppColors.primaryDark,
-      unselectedTextColor: colors.textMuted,
       onTap: onTap,
+      icon: icon,
     );
   }
 
@@ -1715,12 +1580,15 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
       icon: Icon(
         isSelected ? AppIcons.successFilled : AppIcons.radioUnchecked,
         size: 14,
+        color: isSelected
+            ? (isDark ? Colors.white : Colors.black)
+            : colors.textMuted,
       ),
       selectedBorderColor: AppColors.primary,
       unselectedBorderColor: colors.borderSubtle,
       selectedBackgroundColor: colors.chipSelectedBg,
       unselectedBackgroundColor: colors.chipBg,
-      selectedTextColor: isDark ? Colors.white : AppColors.primaryDark,
+      selectedTextColor: isDark ? Colors.white : Colors.black,
       unselectedTextColor: colors.textMuted,
       onTap: () => onChanged(!isSelected),
     );

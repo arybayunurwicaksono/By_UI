@@ -262,5 +262,47 @@ void main() {
       expect(card.variant, ByCardVariant.gradient);
       expect(card.borderGradient, isNotNull);
     });
+
+    testWidgets('ByCard renders with enableInnerGlow in dynamicSensor variant',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ByCard.dynamicSensor(
+              enableInnerGlow: true,
+              innerGlowOpacity: 0.5,
+              innerGlowBlur: 22.0,
+              manualTilt: const Offset(0.3, 0.7),
+              child: const Text('Inner Glow Sensor Card'),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Inner Glow Sensor Card'), findsOneWidget);
+      final card = tester.widget<ByCard>(find.byType(ByCard));
+      expect(card.enableInnerGlow, isTrue);
+      expect(card.innerGlowOpacity, 0.5);
+      expect(card.innerGlowBlur, 22.0);
+    });
+
+    testWidgets('ByCard renders with enableInnerGlow in gradient variant',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ByCard.gradient(
+              enableInnerGlow: true,
+              colors: const [Colors.teal, Colors.amber],
+              child: const Text('Inner Glow Gradient Card'),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Inner Glow Gradient Card'), findsOneWidget);
+      final card = tester.widget<ByCard>(find.byType(ByCard));
+      expect(card.enableInnerGlow, isTrue);
+    });
   });
 }

@@ -17,6 +17,9 @@ class ByCardDefaults {
   /// Default maximum distance the shadow offset will travel during tilt.
   static const double maxShadowOffset = 10.0;
 
+  /// Default opacity multiplier for the inner glow/sheen effect.
+  static const double innerGlowOpacity = 1.0;
+
   /// Default transition animation duration when card properties change.
   static const Duration animationDuration = Duration(milliseconds: 300);
 

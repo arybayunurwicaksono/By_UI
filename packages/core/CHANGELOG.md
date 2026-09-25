@@ -5,6 +5,37 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.4
+
+### Added
+* **ByAppBar**:
+  * New dynamic floating and glassmorphic app bar component family.
+  * **Scroll-Driven Floating Transition**: Smoothly animates between static edge-docked state and floating detached pill based on scroll distance threshold via ancestor `ByScrollScope` or custom `ScrollController`.
+  * **Frosted Glassmorphism**: Integrated Gaussian blur filter (`floatingBlurSigma`) and configurable surface opacity (`floatingOpacity`).
+  * **Dynamic Sensor & Motion Tilt**:
+    * Directional gradient border stroke matching physical gyroscope/accelerometer tilt on mobile (Android / iOS).
+    * Mouse cursor hover parallax tracking on desktop and web with automatic smooth return to resting pose.
+    * Spatial directional glow and dynamic shadow projection (`shadowGradient`, `shadowBlur`, `maxShadowOffset`).
+    * **Ultra-Smooth Hermite Cubic Interpolation**: Smoothstep blending between resting alignment and physical tilt vector, eliminating abrupt jumps and stutter when rotating or tilting mobile devices.
+    * **High-Refresh Physics Engine**: Game interval hardware sampling (~50-60 Hz) and per-frame `Ticker` interpolation in `ByTiltController`.
+    * **Inner Shadow & Ambient Glow Control**: Added `enableInnerShadow` (defaults to `false`) and `innerShadowOpacity` multiplier (with `enableInnerGlow` and `innerGlowOpacity` synonyms for `ByCard` API symmetry).
+    * **Even Neutral Resting Glow**: Even, balanced edge-to-edge linear gradient ambient sheen in neutral resting pose (`magnitude < 0.08`), eliminating circular hot-spots.
+  * **Notch & Status Bar Handling**:
+    * Seamlessly covers the status bar/notch area with a solid background when static at the top (`!isFloating`).
+    * Smoothly transitions notch coverage to transparent when floating so background content scrolls elegantly behind the floating pill.
+  * **Zero-Border Default & Complete Customization**:
+    * Border defaults to 0.0 (clean edge by default).
+    * Full control over borders, linear gradients, margins, corner radii, elevation, toolbar height, and custom bottom widgets (e.g. `TabBar`).
+    * Convenient static helper `getContentTopPadding(context)` for clean `extendBodyBehindAppBar` integration on `Scaffold`.
+* **ByCard**:
+  * Added dynamic inner sheen / luminous glow support (`enableInnerGlow`, `innerGlowOpacity`, `innerGlowBlur`) in `ByCard` and `ByCardPainter` reacting to directional lighting.
+  * Refined neutral pose inner glow to use balanced linear gradient across the card when resting flat.
+* **ByToast**:
+  * Added typography font size customization with `textSize` and `titleSize` across `ByToast`, `ByToastModel`, `ByToastCard`, and all preset methods (`showSuccess`, `showError`, `showWarning`, `showInfo`).
+* **Documentation & Media**:
+  * Added animated preview GIF for `ByAppBar` dynamic floating motion and gradient border parallax (`ByAppBar.gif`).
+  * Added interactive inner shadow toggle and opacity slider controls to `AppBarShowcaseScreen`.
+
 ## 0.1.3
 
 ### Added

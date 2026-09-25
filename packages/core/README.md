@@ -9,6 +9,12 @@ A modern, highly customizable Flutter UI component library featuring dynamic mot
 
 ## Preview
 
+### Dynamic Floating AppBar with Sensor & Cursor Parallax (`ByAppBar`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_appbar.gif" width="700" alt="ByAppBar Dynamic Floating & Sensor Parallax" />
+</p>
+
+### Cards, Notifications & Dialogs
 | Dynamic Motion Card | Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
 | :---: | :---: | :---: | :---: |
 | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_card.gif" width="210" alt="ByCard Dynamic Motion" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="210" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="210" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="210" alt="ByDialog Standalone Alert and Confirm" /> |
@@ -16,6 +22,14 @@ A modern, highly customizable Flutter UI component library featuring dynamic mot
 ---
 
 ## Features
+
+* **ByAppBar (Dynamic Floating, Glassmorphic & Sensor Parallax)**:
+  * **Scroll-Driven Floating Transition**: Smoothly animates between static edge-docked mode and floating detached card based on scroll threshold via ancestor `ByScrollScope` or custom `ScrollController`.
+  * **Dynamic Sensor & Motion Tilt**: Directional gradient border stroke that shifts with physical device tilt (gyroscope/accelerometer) on mobile, and adapts to mouse cursor hover parallax on desktop & web with cubic hermite smoothstep blending.
+  * **Directional Inner Shadow & Glow**: Directional inner ambient sheen (`enableInnerShadow`, `innerShadowOpacity`) with balanced edge-to-edge coverage in resting pose.
+  * **Frosted Glassmorphism**: Integrated Gaussian blur filter (`floatingBlurSigma`) and configurable surface opacity (`floatingOpacity`).
+  * **Seamless Notch Coverage**: Automatically covers top status bar area when static, and smoothly fades to transparent when floating so background content scrolls underneath.
+  * **Zero-Border Default & Complete Customization**: Fully configurable borders, margins, corner radii, elevation, toolbar height, and custom bottom widgets.
 
 * **ByCard (Standard, Gradient & Dynamic Motion Sensor)**:
   * **Zero-Boilerplate Motion (`ByCard.dynamicSensor`)**: Responsive border gradient that shifts dynamically with physical tilt and pointer motion.
@@ -56,7 +70,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.3
+  by_ui: ^0.1.4
 ```
 
 Or run:
@@ -74,6 +88,43 @@ import 'package:by_ui/by_ui.dart';
 ---
 
 ## Usage
+
+### ByAppBar
+
+#### Dynamic Floating Glassmorphic AppBar with Sensor Parallax
+
+Automatically animates to a floating pill with frosted glass blur upon scroll, while reactive border lighting shifts with device tilt and cursor hover:
+
+```dart
+Scaffold(
+  extendBodyBehindAppBar: true,
+  appBar: ByAppBar(
+    isFloatingEnabled: true,
+    scrollThreshold: 12.0,
+    enableSensor: true,
+    enableHoverTilt: true,
+    borderGradient: const LinearGradient(
+      colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
+    ),
+    borderWidth: 1.0,
+    floatingBlurSigma: 16.0,
+    floatingOpacity: 0.84,
+    enableInnerShadow: true,
+    innerShadowOpacity: 0.8,
+    child: Row(
+      children: [
+        IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
+        const Text('Dynamic Floating AppBar', style: TextStyle(fontWeight: FontWeight.bold)),
+      ],
+    ),
+  ),
+  body: ListView.builder(
+    padding: EdgeInsets.fromLTRB(16, ByAppBar.getContentTopPadding(context), 16, 24),
+    itemCount: 50,
+    itemBuilder: (_, index) => ListTile(title: Text('Item $index')),
+  ),
+);
+```
 
 ### ByCard
 

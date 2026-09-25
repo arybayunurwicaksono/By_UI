@@ -10,6 +10,12 @@ A modern, highly customizable Flutter UI component library featuring dynamic mot
 
 ## 🎬 Preview
 
+### Dynamic Floating AppBar with Sensor & Cursor Parallax (`ByAppBar`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_appbar.gif" width="700" alt="ByAppBar Dynamic Floating & Sensor Parallax" />
+</p>
+
+### Cards, Notifications & Dialogs
 | Dynamic Motion Card | Stacked Cards | Drag / Tap to Dialog | Standalone Modal Dialog |
 | :---: | :---: | :---: | :---: |
 | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_card.gif" width="210" alt="ByCard Dynamic Motion" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="210" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="210" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="210" alt="ByDialog Standalone Alert and Confirm" /> |
@@ -17,6 +23,13 @@ A modern, highly customizable Flutter UI component library featuring dynamic mot
 ---
 
 ## ✨ Highlights
+
+* 🧭 **ByAppBar (Dynamic Floating & Sensor Parallax)**:
+  * **Scroll-Driven Floating Transition**: Smoothly animates from edge-docked top navigation to detached frosted floating card based on scroll threshold via ancestor `ByScrollScope` or custom `ScrollController`.
+  * **Dynamic Sensor & Motion Tilt**: Directional gradient border stroke that shifts with physical device tilt (gyroscope/accelerometer) on mobile, and adapts to mouse cursor hover parallax on desktop & web with cubic hermite smoothstep blending.
+  * **Directional Inner Shadow & Glow**: Optional directional inner ambient sheen (`enableInnerShadow`, `innerShadowOpacity`) with balanced edge-to-edge coverage in resting pose.
+  * **Status Bar & Notch Coverage**: Automatically covers top safe area when static, and smoothly fades to transparent when floating so background content scrolls underneath.
+  * **Zero-Border Default & Complete Customization**: Fully configurable borders, margins, blur sigma (`floatingBlurSigma`), surface opacity, and custom bottom widgets.
 
 * 🎴 **ByCard (Dynamic Motion & Gradient Surfaces)**:
   * **Zero-Boilerplate Sensor Motion (`ByCard.dynamicSensor`)**: Responsive border gradient shifts with device gyroscope/accelerometer motion on mobile, and seamlessly switches to mouse cursor hover parallax on desktop & web with smooth spring return to neutral.
@@ -79,7 +92,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.3
+  by_ui: ^0.1.4
 ```
 
 Or run:
@@ -91,7 +104,24 @@ flutter pub add by_ui
 ```dart
 import 'package:by_ui/by_ui.dart';
 
-// 1. Dynamic Motion Card (Device tilt on mobile, cursor parallax on desktop/web)
+// 1. Dynamic Floating Glassmorphic AppBar with Sensor Parallax
+Scaffold(
+  extendBodyBehindAppBar: true,
+  appBar: ByAppBar(
+    isFloatingEnabled: true,
+    enableSensor: true,
+    enableHoverTilt: true,
+    borderGradient: const LinearGradient(
+      colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
+    ),
+    borderWidth: 1.0,
+    floatingBlurSigma: 16.0,
+    child: const Text('My Floating AppBar'),
+  ),
+  body: ListView(...),
+);
+
+// 2. Dynamic Motion Card (Device tilt on mobile, cursor parallax on desktop/web)
 ByCard.dynamicSensor(
   colors: const [Color(0xFF38BDF8), Color(0xFF818CF8), Color(0xFFC084FC)],
   borderWidth: 2.0,

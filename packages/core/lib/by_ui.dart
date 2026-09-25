@@ -20,3 +20,7 @@ export 'src/card/by_card_theme.dart';
 
 // Select Option Component (Development)
 export 'src/select_option/by_select_option.dart';
+
+// AppBar Component
+export 'src/app_bar/by_appbar.dart';
+export 'src/app_bar/by_scroll_scope.dart';

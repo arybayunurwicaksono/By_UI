@@ -5,7 +5,11 @@ import '../models/app_theme_store.dart';
 import '../models/toast_config_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/by_drawer.dart';
+import '../widgets/by_showcase_header.dart';
+import '../widgets/by_color_palette.dart';
+import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
+import 'app_bar_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
 import 'card_showcase_screen.dart';
 
@@ -551,95 +555,61 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     return ListenableBuilder(
       listenable: AppThemeStore.instance,
       builder: (context, _) {
-        return Scaffold(
-          backgroundColor: colors.scaffoldBg,
-          appBar: AppBar(
-            backgroundColor: colors.cardBg,
-            elevation: 0,
-            titleSpacing: 4.0,
-            leading: Builder(
-              builder: (ctx) => IconButton(
-                icon: Icon(AppIcons.menu, color: colors.textPrimary),
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
+        return ByScrollScope(
+          child: Scaffold(
+            backgroundColor: colors.scaffoldBg,
+            extendBodyBehindAppBar: true,
+            appBar: ByAppBar(
+              child: ByShowcaseHeader(
+                componentName: 'ByDialog',
+                onReset: _resetToDefaults,
+                onOpenParams: () => _showByDialogParams(context),
               ),
             ),
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
+            drawer: ByDrawer(
+              activeComponent: 'ByDialog',
+              onSelectComponent: (comp) {
+                if (comp == 'ByToast') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ToastShowcaseScreen(),
+                    ),
+                  );
+                } else if (comp == 'ByCard') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CardShowcaseScreen()),
+                  );
+                } else if (comp == 'ByAppBar') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AppBarShowcaseScreen(),
+                    ),
+                  );
+                }
+              },
+            ),
+            body: ListView(
+              padding: EdgeInsets.fromLTRB(
+                12,
+                ByAppBar.getContentTopPadding(context, extra: 10),
+                12,
+                20,
+              ),
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 3.5,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryAccent],
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'ByDialog',
-                    style: AppTextStyle.buttonPrimary.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'Showcase',
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bodyMedium.copyWith(
-                      color: colors.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Reset to Defaults',
-                icon: const Icon(AppIcons.reset, color: AppColors.primary),
-                onPressed: _resetToDefaults,
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Widget Parameters',
-                icon: const Icon(AppIcons.help, color: AppColors.primary),
-                onPressed: () => _showByDialogParams(context),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          drawer: ByDrawer(
-            activeComponent: 'ByDialog',
-            onSelectComponent: (comp) {
-              if (comp == 'ByToast') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ToastShowcaseScreen(),
-                  ),
-                );
-              } else if (comp == 'ByCard') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CardShowcaseScreen()),
-                );
-              }
-            },
-          ),
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 20),
-            children: [
-              // Quick Preset Bar (1-Click Test)
+              // 1. Active Configuration Preview Card
+              _buildConfigSummaryCard(),
+
+              const SizedBox(height: 10),
+
+              // 2. Preset Example Card
               _buildPresetPills(),
 
               const SizedBox(height: 10),
 
-              // Integrated Feature Hint
+              // 3. Integrated Feature Hint (Integrated with ByToast)
               Container(
                 padding: const EdgeInsets.all(11),
                 decoration: BoxDecoration(
@@ -679,11 +649,6 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 10),
-
-              // Live Configuration Summary Card
-              _buildConfigSummaryCard(),
 
               const SizedBox(height: 10),
 
@@ -740,102 +705,32 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(_themePresets.length, (index) {
-                        final isSelected = _selectedThemeIndex == index;
-                        final theme = _themePresets[index];
-                        final Color color = theme['color'] as Color;
-                        final Gradient? gradient = _useGradient
-                            ? theme['gradient'] as Gradient?
-                            : null;
-                        final Color accent = theme['accent'] as Color;
-                        final bool isWhite = color == Colors.white;
-
-                        return Tooltip(
-                          message: theme['name'] as String,
-                          child: GestureDetector(
-                            key: ValueKey('theme_${theme['name']}'),
-                            onTap: () =>
-                                setState(() => _selectedThemeIndex = index),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 10),
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: gradient == null ? color : null,
-                                gradient: gradient,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? (isWhite && !isDark
-                                            ? AppColors.primary
-                                            : accent)
-                                      : colors.borderSubtle,
-                                  width: isSelected ? 2.5 : 1.0,
-                                ),
-                              ),
-                              child: isSelected
-                                  ? Icon(
-                                      AppIcons.checkRaw,
-                                      size: 18,
-                                      color: isWhite
-                                          ? const Color(0xFF0F172A)
-                                          : Colors.white,
-                                    )
-                                  : null,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
+                  ByColorPalette(
+                    items: _themePresets.map((preset) => ByColorPaletteItem(
+                      label: preset.name,
+                      color: preset.accent,
+                      value: preset,
+                    )).toList(),
+                    selectedIndex: _selectedThemeIndex,
+                    onSelected: (index) =>
+                        setState(() => _selectedThemeIndex = index),
                   ),
                   const SizedBox(height: 16),
-                  Material(
-                    color: Colors.transparent,
-                    child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: AppColors.primary,
-                      title: Text(
-                        'Gradient Surface Background',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
+                  ByShowcaseSwitchTile(
+                    title: 'Gradient Surface Background',
+                    subtitle:
                         'Switches from deep solid color to rich multi-hue linear gradient',
-                        style: AppTextStyle.caption.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      value: _useGradient,
-                      onChanged: (val) => setState(() => _useGradient = val),
-                    ),
+                    value: _useGradient,
+                    onChanged: (val) => setState(() => _useGradient = val),
                   ),
-                  Material(
-                    color: Colors.transparent,
-                    child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: AppColors.primary,
-                      title: Text(
-                        'Outline Glow Border',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
+                  const SizedBox(height: 12),
+                  ByShowcaseSwitchTile(
+                    title: 'Outline Glow Border',
+                    subtitle:
                         'Adds a subtle high-contrast border matching the accent color',
-                        style: AppTextStyle.caption.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      value: _useOutlineBorder,
-                      onChanged: (val) =>
-                          setState(() => _useOutlineBorder = val),
-                    ),
+                    value: _useOutlineBorder,
+                    onChanged: (val) =>
+                        setState(() => _useOutlineBorder = val),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -1001,28 +896,13 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Material(
-                    color: Colors.transparent,
-                    child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: AppColors.primary,
-                      title: Text(
-                        'Barrier Dismissible',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
+                  ByShowcaseSwitchTile(
+                    title: 'Barrier Dismissible',
+                    subtitle:
                         'Allows closing the dialog by clicking on the dark backdrop scrim',
-                        style: AppTextStyle.caption.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      value: _barrierDismissible,
-                      onChanged: (val) =>
-                          setState(() => _barrierDismissible = val),
-                    ),
+                    value: _barrierDismissible,
+                    onChanged: (val) =>
+                        setState(() => _barrierDismissible = val),
                   ),
                 ],
               ),
@@ -1101,51 +981,22 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Material(
-                    color: Colors.transparent,
-                    child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: AppColors.primary,
-                      title: Text(
-                        'Reverse Button Order',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
+                  ByShowcaseSwitchTile(
+                    title: 'Reverse Button Order',
+                    subtitle:
                         'Places Confirm on the left and Cancel on the right',
-                        style: AppTextStyle.caption.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      value: _reverseButtonOrder,
-                      onChanged: (val) =>
-                          setState(() => _reverseButtonOrder = val),
-                    ),
+                    value: _reverseButtonOrder,
+                    onChanged: (val) =>
+                        setState(() => _reverseButtonOrder = val),
                   ),
-                  Material(
-                    color: Colors.transparent,
-                    child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: AppColors.primary,
-                      title: Text(
-                        'High-Contrast Confirm Text',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
+                  const SizedBox(height: 12),
+                  ByShowcaseSwitchTile(
+                    title: 'High-Contrast Confirm Text',
+                    subtitle:
                         'Switches confirm button text color between dark and white',
-                        style: AppTextStyle.caption.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      value: _customConfirmTextColor,
-                      onChanged: (val) =>
-                          setState(() => _customConfirmTextColor = val),
-                    ),
+                    value: _customConfirmTextColor,
+                    onChanged: (val) =>
+                        setState(() => _customConfirmTextColor = val),
                   ),
                 ],
               ),
@@ -1221,14 +1072,15 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
               ),
             ),
           ),
-        );
-      },
+        ),
+      );
+    },
     );
   }
 
   Widget _buildPresetPills() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: colors.cardBg,
         borderRadius: BorderRadius.circular(14),
@@ -1247,44 +1099,47 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'QUICK PRESETS (1-CLICK TEST)',
+            'Preset Example',
             style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildPresetBtn('Success', AppColors.success, () {
-                ByDialog.success(
-                  context,
-                  title: 'Transaction Successful',
-                  message: 'Payment #1042 was settled via QRIS Dynamic.',
-                );
-              }),
-              const SizedBox(width: 6),
-              _buildPresetBtn('Error', AppColors.error, () {
-                ByDialog.error(
-                  context,
-                  title: 'Printer Connection Failed',
-                  message: 'Unable to pair with Bluetooth printer POS-PRT-02.',
-                );
-              }),
-              const SizedBox(width: 6),
-              _buildPresetBtn('Warning', AppColors.warning, () {
-                ByDialog.warning(
-                  context,
-                  title: 'Inventory Threshold Alert',
-                  message: 'Robusta medium beans is down to 3 portions.',
-                );
-              }),
-              const SizedBox(width: 6),
-              _buildPresetBtn('Info', AppColors.info, () {
-                ByDialog.info(
-                  context,
-                  title: 'Cloud Sync in Progress',
-                  message: 'Syncing 14 local transactions to cloud server.',
-                );
-              }),
-            ],
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildPresetBtn('Success', AppColors.success, () {
+                  ByDialog.success(
+                    context,
+                    title: 'Transaction Successful',
+                    message: 'Payment #1042 was settled via QRIS Dynamic.',
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Error', AppColors.error, () {
+                  ByDialog.error(
+                    context,
+                    title: 'Printer Connection Failed',
+                    message: 'Unable to pair with Bluetooth printer POS-PRT-02.',
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Warning', AppColors.warning, () {
+                  ByDialog.warning(
+                    context,
+                    title: 'Inventory Threshold Alert',
+                    message: 'Robusta medium beans is down to 3 portions.',
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Info', AppColors.info, () {
+                  ByDialog.info(
+                    context,
+                    title: 'Cloud Sync in Progress',
+                    message: 'Syncing 14 local transactions to cloud server.',
+                  );
+                }),
+              ],
+            ),
           ),
         ],
       ),
@@ -1292,27 +1147,25 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
   }
 
   Widget _buildPresetBtn(String label, Color color, VoidCallback onTap) {
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: color.withValues(alpha: 0.35),
-                width: 1,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: color.withValues(alpha: 0.35),
+              width: 1,
             ),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: AppTextStyle.pillButton.copyWith(color: color),
-            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: AppTextStyle.pillButton.copyWith(color: color),
           ),
         ),
       ),
@@ -1327,114 +1180,98 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         ? 'Confirm Modal'
         : 'Custom Receipt';
 
-    return Container(
+    return ByCard(
+      variant: ByCardVariant.normal,
+      backgroundColor: colors.cardBg,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.circular(16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: (theme['accent'] as Color).withValues(
-            alpha: isDark ? 0.4 : 0.3,
-          ),
-          width: 1.2,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                child: Text(
-                  'ACTIVE CONFIGURATION PREVIEW',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.sectionHeader.copyWith(
-                    color: colors.textMuted,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.primaryAccent],
                   ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  AppIcons.shield,
+                  color: Colors.white,
+                  size: 20,
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: (theme['accent'] as Color).withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  typeName,
-                  style: AppTextStyle.badgeSmall.copyWith(
-                    color: theme['accent'] as Color,
-                  ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Active Configuration Preview',
+                      style: AppTextStyle.screenSubtitle.copyWith(
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Live modal surface, curve, and action styling',
+                      style: AppTextStyle.caption.copyWith(
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildSummaryRow('Theme Palette', theme['name'] as String),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Surface Type',
-            _useGradient ? 'Linear Gradient Surface' : 'Solid Deep Surface',
+          Text(
+            'The ByDialog modals render smoothly with frosted scrims, custom surface shaders, and unified action layouts.',
+            style: AppTextStyle.body.copyWith(
+              color: colors.textSecondary,
+              height: 1.45,
+            ),
           ),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Border & Radius',
-            '${_selectedCornerRadius.toInt()}px ${_useOutlineBorder ? '+ Accent Glow Border' : ''}',
-          ),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Animation',
-            '${_selectedCurve.runtimeType} (${_selectedDuration.inMilliseconds}ms)',
-          ),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Dismissible',
-            _barrierDismissible ? 'Yes (Backdrop Tap)' : 'No (Modal Locked)',
-          ),
-          const SizedBox(height: 6),
-          _buildSummaryRow(
-            'Buttons & Order',
-            '${_buttonCornerRadius.toInt()}px • ${_reverseButtonOrder ? "Reversed" : "Standard"} • ${_cancelStyleIndex == 0
-                ? "Outline"
-                : _cancelStyleIndex == 1
-                ? "Solid"
-                : "Danger"}',
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              ByMetricBadge(label: 'Type', value: typeName),
+              ByMetricBadge(label: 'Theme', value: theme['name'] as String),
+              ByMetricBadge(
+                label: 'Surface',
+                value: _useGradient ? 'Gradient' : 'Solid',
+              ),
+              ByMetricBadge(
+                label: 'Radius',
+                value: '${_selectedCornerRadius.toInt()}px',
+              ),
+              ByMetricBadge(
+                label: 'Glow Border',
+                value: _useOutlineBorder ? 'Active' : 'Off',
+              ),
+              ByMetricBadge(
+                label: 'Duration',
+                value: '${_selectedDuration.inMilliseconds}ms',
+              ),
+              ByMetricBadge(
+                label: 'Dismissible',
+                value: _barrierDismissible ? 'Backdrop Tap' : 'Locked',
+              ),
+              ByMetricBadge(
+                label: 'Btn Radius',
+                value: '${_buttonCornerRadius.toInt()}px',
+              ),
+            ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.specValue.copyWith(color: colors.textPrimary),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1493,17 +1330,11 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     required VoidCallback onTap,
     Widget? icon,
   }) {
-    return BySelectOption(
-      label: Text(label),
+    return ByShowcaseChoiceChip(
+      label: label,
       isSelected: isSelected,
-      icon: icon,
-      selectedBorderColor: AppColors.primary,
-      unselectedBorderColor: colors.borderSubtle,
-      selectedBackgroundColor: colors.chipSelectedBg,
-      unselectedBackgroundColor: colors.chipBg,
-      selectedTextColor: isDark ? Colors.white : AppColors.primaryDark,
-      unselectedTextColor: colors.textMuted,
       onTap: onTap,
+      icon: icon,
     );
   }
 }
