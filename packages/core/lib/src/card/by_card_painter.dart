@@ -335,19 +335,13 @@ class ByCardPainter extends CustomPainter {
       final Alignment begin;
       final Alignment end;
       if (shadowGradient is LinearGradient) {
-        begin = (shadowGradient as LinearGradient)
-            .begin
-            .resolve(TextDirection.ltr);
-        end = (shadowGradient as LinearGradient)
-            .end
-            .resolve(TextDirection.ltr);
+        begin =
+            (shadowGradient as LinearGradient).begin.resolve(TextDirection.ltr);
+        end = (shadowGradient as LinearGradient).end.resolve(TextDirection.ltr);
       } else if (borderGradient is LinearGradient) {
-        begin = (borderGradient as LinearGradient)
-            .begin
-            .resolve(TextDirection.ltr);
-        end = (borderGradient as LinearGradient)
-            .end
-            .resolve(TextDirection.ltr);
+        begin =
+            (borderGradient as LinearGradient).begin.resolve(TextDirection.ltr);
+        end = (borderGradient as LinearGradient).end.resolve(TextDirection.ltr);
       } else {
         begin = Alignment.topLeft;
         end = Alignment.bottomRight;

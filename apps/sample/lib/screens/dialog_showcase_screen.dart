@@ -12,6 +12,7 @@ import '../widgets/widget_params_dialog.dart';
 import 'app_bar_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
 import 'card_showcase_screen.dart';
+import 'sequence_showcase_screen.dart';
 
 /// Highly customizable interactive showcase screen for ByDialog components.
 /// Features live controls matching ByToast: Theme colors, gradients, borders,
@@ -579,13 +580,22 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 } else if (comp == 'ByCard') {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const CardShowcaseScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const CardShowcaseScreen(),
+                    ),
                   );
                 } else if (comp == 'ByAppBar') {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (_) => const AppBarShowcaseScreen(),
+                    ),
+                  );
+                } else if (comp == 'BySequence') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SequenceShowcaseScreen(),
                     ),
                   );
                 }
@@ -599,482 +609,489 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 20,
               ),
               children: [
-              // 1. Active Configuration Preview Card
-              _buildConfigSummaryCard(),
+                // 1. Active Configuration Preview Card
+                _buildConfigSummaryCard(),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // 2. Preset Example Card
-              _buildPresetPills(),
+                // 2. Preset Example Card
+                _buildPresetPills(),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // 3. Integrated Feature Hint (Integrated with ByToast)
-              Container(
-                padding: const EdgeInsets.all(11),
-                decoration: BoxDecoration(
-                  color: colors.bannerBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colors.bannerBorder),
+                // 3. Integrated Feature Hint (Integrated with ByToast)
+                Container(
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: colors.bannerBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: colors.bannerBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        AppIcons.sparkle,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Integrated with ByToast',
+                              style: AppTextStyle.bodyMedium.copyWith(
+                                color: colors.bannerText,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'ByDialog can also be opened seamlessly by tapping the text of a ByToast notification card!',
+                              style: AppTextStyle.caption.copyWith(
+                                color: colors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
+
+                const SizedBox(height: 10),
+
+                // Control Section 1: Dialog Type
+                _buildControlCard(
+                  title: '1. DIALOG TYPE & LAYOUT MODE',
+                  icon: AppIcons.dashboard,
                   children: [
-                    const Icon(
-                      AppIcons.sparkle,
-                      color: AppColors.primary,
-                      size: 20,
+                    Text(
+                      'Select Dialog Template:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
                         children: [
-                          Text(
-                            'Integrated with ByToast',
-                            style: AppTextStyle.bodyMedium.copyWith(
-                              color: colors.bannerText,
-                              fontWeight: FontWeight.w700,
-                            ),
+                          _buildChoiceChip(
+                            label: 'Alert (Single)',
+                            isSelected: _selectedDialogType == 0,
+                            onTap: () =>
+                                setState(() => _selectedDialogType = 0),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'ByDialog can also be opened seamlessly by tapping the text of a ByToast notification card!',
-                            style: AppTextStyle.caption.copyWith(
-                              color: colors.textMuted,
-                            ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Confirm (Dual)',
+                            isSelected: _selectedDialogType == 1,
+                            onTap: () =>
+                                setState(() => _selectedDialogType = 1),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Custom Receipt',
+                            isSelected: _selectedDialogType == 2,
+                            onTap: () =>
+                                setState(() => _selectedDialogType = 2),
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-              ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // Control Section 1: Dialog Type
-              _buildControlCard(
-                title: '1. DIALOG TYPE & LAYOUT MODE',
-                icon: AppIcons.dashboard,
-                children: [
-                  Text(
-                    'Select Dialog Template:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                // Control Section 2: Color Theme & Appearance
+                _buildControlCard(
+                  title: '2. COLOR THEME & SURFACE STYLING',
+                  icon: AppIcons.palette,
+                  children: [
+                    Text(
+                      'Preset Color Palette:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'Alert (Single)',
-                          isSelected: _selectedDialogType == 0,
-                          onTap: () => setState(() => _selectedDialogType = 0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Confirm (Dual)',
-                          isSelected: _selectedDialogType == 1,
-                          onTap: () => setState(() => _selectedDialogType = 1),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Custom Receipt',
-                          isSelected: _selectedDialogType == 2,
-                          onTap: () => setState(() => _selectedDialogType = 2),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    ByColorPalette(
+                      items: _themePresets
+                          .map(
+                            (preset) => ByColorPaletteItem(
+                              label: preset.name,
+                              color: preset.accent,
+                              value: preset,
+                            ),
+                          )
+                          .toList(),
+                      selectedIndex: _selectedThemeIndex,
+                      onSelected: (index) =>
+                          setState(() => _selectedThemeIndex = index),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              // Control Section 2: Color Theme & Appearance
-              _buildControlCard(
-                title: '2. COLOR THEME & SURFACE STYLING',
-                icon: AppIcons.palette,
-                children: [
-                  Text(
-                    'Preset Color Palette:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                    const SizedBox(height: 16),
+                    ByShowcaseSwitchTile(
+                      title: 'Gradient Surface Background',
+                      subtitle:
+                          'Switches from deep solid color to rich multi-hue linear gradient',
+                      value: _useGradient,
+                      onChanged: (val) => setState(() => _useGradient = val),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  ByColorPalette(
-                    items: _themePresets.map((preset) => ByColorPaletteItem(
-                      label: preset.name,
-                      color: preset.accent,
-                      value: preset,
-                    )).toList(),
-                    selectedIndex: _selectedThemeIndex,
-                    onSelected: (index) =>
-                        setState(() => _selectedThemeIndex = index),
-                  ),
-                  const SizedBox(height: 16),
-                  ByShowcaseSwitchTile(
-                    title: 'Gradient Surface Background',
-                    subtitle:
-                        'Switches from deep solid color to rich multi-hue linear gradient',
-                    value: _useGradient,
-                    onChanged: (val) => setState(() => _useGradient = val),
-                  ),
-                  const SizedBox(height: 12),
-                  ByShowcaseSwitchTile(
-                    title: 'Outline Glow Border',
-                    subtitle:
-                        'Adds a subtle high-contrast border matching the accent color',
-                    value: _useOutlineBorder,
-                    onChanged: (val) =>
-                        setState(() => _useOutlineBorder = val),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Corner Radius:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                    const SizedBox(height: 12),
+                    ByShowcaseSwitchTile(
+                      title: 'Outline Glow Border',
+                      subtitle:
+                          'Adds a subtle high-contrast border matching the accent color',
+                      value: _useOutlineBorder,
+                      onChanged: (val) =>
+                          setState(() => _useOutlineBorder = val),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: '16px (Subtle)',
-                          isSelected: _selectedCornerRadius == 16.0,
-                          onTap: () =>
-                              setState(() => _selectedCornerRadius = 16.0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: '22px (Standard)',
-                          isSelected: _selectedCornerRadius == 22.0,
-                          onTap: () =>
-                              setState(() => _selectedCornerRadius = 22.0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: '28px (Soft)',
-                          isSelected: _selectedCornerRadius == 28.0,
-                          onTap: () =>
-                              setState(() => _selectedCornerRadius = 28.0),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'Corner Radius:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              // Control Section 3: Icon & Badge
-              _buildControlCard(
-                title: '3. HEADER ICON & ACCENT BADGE',
-                icon: AppIcons.star,
-                children: [
-                  Text(
-                    'Select Header Icon:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(_iconPresets.length, (index) {
-                        final item = _iconPresets[index];
-                        final bool isSelected = _selectedIconIndex == index;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: _buildChoiceChip(
-                            label: item['name'] as String,
-                            icon: item['icon'] != null
-                                ? Icon(item['icon'] as IconData, size: 14)
-                                : null,
-                            isSelected: isSelected,
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: '16px (Subtle)',
+                            isSelected: _selectedCornerRadius == 16.0,
                             onTap: () =>
-                                setState(() => _selectedIconIndex = index),
+                                setState(() => _selectedCornerRadius = 16.0),
                           ),
-                        );
-                      }),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: '22px (Standard)',
+                            isSelected: _selectedCornerRadius == 22.0,
+                            onTap: () =>
+                                setState(() => _selectedCornerRadius = 22.0),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: '28px (Soft)',
+                            isSelected: _selectedCornerRadius == 28.0,
+                            onTap: () =>
+                                setState(() => _selectedCornerRadius = 28.0),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // Control Section 4: Animation & Behavior
-              _buildControlCard(
-                title: '4. ANIMATION & INTERACTION BEHAVIOR',
-                icon: AppIcons.motion,
-                children: [
-                  Text(
-                    'Entrance Animation Curve:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                // Control Section 3: Icon & Badge
+                _buildControlCard(
+                  title: '3. HEADER ICON & ACCENT BADGE',
+                  icon: AppIcons.star,
+                  children: [
+                    Text(
+                      'Select Header Icon:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'Cubic (Smooth)',
-                          isSelected: _selectedCurve == Curves.easeOutCubic,
-                          onTap: () => setState(
-                            () => _selectedCurve = Curves.easeOutCubic,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Back (Bouncy)',
-                          isSelected: _selectedCurve == Curves.easeOutBack,
-                          onTap: () => setState(
-                            () => _selectedCurve = Curves.easeOutBack,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Linear',
-                          isSelected: _selectedCurve == Curves.linear,
-                          onTap: () =>
-                              setState(() => _selectedCurve = Curves.linear),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: List.generate(_iconPresets.length, (index) {
+                          final item = _iconPresets[index];
+                          final bool isSelected = _selectedIconIndex == index;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: _buildChoiceChip(
+                              label: item['name'] as String,
+                              icon: item['icon'] != null
+                                  ? Icon(item['icon'] as IconData, size: 14)
+                                  : null,
+                              isSelected: isSelected,
+                              onTap: () =>
+                                  setState(() => _selectedIconIndex = index),
+                            ),
+                          );
+                        }),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Transition Duration:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Control Section 4: Animation & Behavior
+                _buildControlCard(
+                  title: '4. ANIMATION & INTERACTION BEHAVIOR',
+                  icon: AppIcons.motion,
+                  children: [
+                    Text(
+                      'Entrance Animation Curve:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'Fast (200ms)',
-                          isSelected: _selectedDuration.inMilliseconds == 200,
-                          onTap: () => setState(
-                            () => _selectedDuration = const Duration(
-                              milliseconds: 200,
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: 'Cubic (Smooth)',
+                            isSelected: _selectedCurve == Curves.easeOutCubic,
+                            onTap: () => setState(
+                              () => _selectedCurve = Curves.easeOutCubic,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Normal (320ms)',
-                          isSelected: _selectedDuration.inMilliseconds == 320,
-                          onTap: () => setState(
-                            () => _selectedDuration = const Duration(
-                              milliseconds: 320,
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Back (Bouncy)',
+                            isSelected: _selectedCurve == Curves.easeOutBack,
+                            onTap: () => setState(
+                              () => _selectedCurve = Curves.easeOutBack,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Slow (550ms)',
-                          isSelected: _selectedDuration.inMilliseconds == 550,
-                          onTap: () => setState(
-                            () => _selectedDuration = const Duration(
-                              milliseconds: 550,
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Linear',
+                            isSelected: _selectedCurve == Curves.linear,
+                            onTap: () =>
+                                setState(() => _selectedCurve = Curves.linear),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Transition Duration:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: 'Fast (200ms)',
+                            isSelected: _selectedDuration.inMilliseconds == 200,
+                            onTap: () => setState(
+                              () => _selectedDuration = const Duration(
+                                milliseconds: 200,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Normal (320ms)',
+                            isSelected: _selectedDuration.inMilliseconds == 320,
+                            onTap: () => setState(
+                              () => _selectedDuration = const Duration(
+                                milliseconds: 320,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Slow (550ms)',
+                            isSelected: _selectedDuration.inMilliseconds == 550,
+                            onTap: () => setState(
+                              () => _selectedDuration = const Duration(
+                                milliseconds: 550,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  ByShowcaseSwitchTile(
-                    title: 'Barrier Dismissible',
-                    subtitle:
-                        'Allows closing the dialog by clicking on the dark backdrop scrim',
-                    value: _barrierDismissible,
-                    onChanged: (val) =>
-                        setState(() => _barrierDismissible = val),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 10),
+                    ByShowcaseSwitchTile(
+                      title: 'Barrier Dismissible',
+                      subtitle:
+                          'Allows closing the dialog by clicking on the dark backdrop scrim',
+                      value: _barrierDismissible,
+                      onChanged: (val) =>
+                          setState(() => _barrierDismissible = val),
+                    ),
+                  ],
+                ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // Control Section 5: Button Customization & Actions
-              _buildControlCard(
-                title: '5. BUTTON ACTIONS & STYLING',
-                icon: AppIcons.button,
-                children: [
-                  Text(
-                    'Button Corner Radius:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                // Control Section 5: Button Customization & Actions
+                _buildControlCard(
+                  title: '5. BUTTON ACTIONS & STYLING',
+                  icon: AppIcons.button,
+                  children: [
+                    Text(
+                      'Button Corner Radius:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: '6px (Sharp)',
-                          isSelected: _buttonCornerRadius == 6.0,
-                          onTap: () =>
-                              setState(() => _buttonCornerRadius = 6.0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: '12px (Standard)',
-                          isSelected: _buttonCornerRadius == 12.0,
-                          onTap: () =>
-                              setState(() => _buttonCornerRadius = 12.0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: '24px (Pill)',
-                          isSelected: _buttonCornerRadius == 24.0,
-                          onTap: () =>
-                              setState(() => _buttonCornerRadius = 24.0),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: '6px (Sharp)',
+                            isSelected: _buttonCornerRadius == 6.0,
+                            onTap: () =>
+                                setState(() => _buttonCornerRadius = 6.0),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: '12px (Standard)',
+                            isSelected: _buttonCornerRadius == 12.0,
+                            onTap: () =>
+                                setState(() => _buttonCornerRadius = 12.0),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: '24px (Pill)',
+                            isSelected: _buttonCornerRadius == 24.0,
+                            onTap: () =>
+                                setState(() => _buttonCornerRadius = 24.0),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Negative (Cancel) Button Style:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                    const SizedBox(height: 10),
+                    Text(
+                      'Negative (Cancel) Button Style:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'Outline',
-                          isSelected: _cancelStyleIndex == 0,
-                          onTap: () => setState(() => _cancelStyleIndex = 0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Solid Fill',
-                          isSelected: _cancelStyleIndex == 1,
-                          onTap: () => setState(() => _cancelStyleIndex = 1),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Danger Tint',
-                          isSelected: _cancelStyleIndex == 2,
-                          onTap: () => setState(() => _cancelStyleIndex = 2),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: 'Outline',
+                            isSelected: _cancelStyleIndex == 0,
+                            onTap: () => setState(() => _cancelStyleIndex = 0),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Solid Fill',
+                            isSelected: _cancelStyleIndex == 1,
+                            onTap: () => setState(() => _cancelStyleIndex = 1),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Danger Tint',
+                            isSelected: _cancelStyleIndex == 2,
+                            onTap: () => setState(() => _cancelStyleIndex = 2),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  ByShowcaseSwitchTile(
-                    title: 'Reverse Button Order',
-                    subtitle:
-                        'Places Confirm on the left and Cancel on the right',
-                    value: _reverseButtonOrder,
-                    onChanged: (val) =>
-                        setState(() => _reverseButtonOrder = val),
-                  ),
-                  const SizedBox(height: 12),
-                  ByShowcaseSwitchTile(
-                    title: 'High-Contrast Confirm Text',
-                    subtitle:
-                        'Switches confirm button text color between dark and white',
-                    value: _customConfirmTextColor,
-                    onChanged: (val) =>
-                        setState(() => _customConfirmTextColor = val),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          bottomNavigationBar: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            decoration: BoxDecoration(
-              color: colors.cardBg,
-              border: Border(top: BorderSide(color: colors.border, width: 1)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, -4),
+                    const SizedBox(height: 12),
+                    ByShowcaseSwitchTile(
+                      title: 'Reverse Button Order',
+                      subtitle:
+                          'Places Confirm on the left and Cancel on the right',
+                      value: _reverseButtonOrder,
+                      onChanged: (val) =>
+                          setState(() => _reverseButtonOrder = val),
+                    ),
+                    const SizedBox(height: 12),
+                    ByShowcaseSwitchTile(
+                      title: 'High-Contrast Confirm Text',
+                      subtitle:
+                          'Switches confirm button text color between dark and white',
+                      value: _customConfirmTextColor,
+                      onChanged: (val) =>
+                          setState(() => _customConfirmTextColor = val),
+                    ),
+                  ],
                 ),
               ],
             ),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 3,
-                      ),
-                      icon: const Icon(AppIcons.play, size: 20),
-                      label: Text(
-                        'Trigger Dialog',
-                        style: AppTextStyle.buttonPrimary,
-                      ),
-                      onPressed: _triggerDialog,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(
-                          color: AppColors.primary,
-                          width: 1.2,
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(AppIcons.help, size: 18),
-                      label: Text(
-                        'Confirm Flow',
-                        style: AppTextStyle.buttonSecondary.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      onPressed: () {
-                        setState(() => _selectedDialogType = 1);
-                        _triggerDialog();
-                      },
-                    ),
+            bottomNavigationBar: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              decoration: BoxDecoration(
+                color: colors.cardBg,
+                border: Border(top: BorderSide(color: colors.border, width: 1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 3,
+                        ),
+                        icon: const Icon(AppIcons.play, size: 20),
+                        label: Text(
+                          'Trigger Dialog',
+                          style: AppTextStyle.buttonPrimary,
+                        ),
+                        onPressed: _triggerDialog,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 2,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.2,
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(AppIcons.help, size: 18),
+                        label: Text(
+                          'Confirm Flow',
+                          style: AppTextStyle.buttonSecondary.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() => _selectedDialogType = 1);
+                          _triggerDialog();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      );
-    },
+        );
+      },
     );
   }
 
@@ -1119,7 +1136,8 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   ByDialog.error(
                     context,
                     title: 'Printer Connection Failed',
-                    message: 'Unable to pair with Bluetooth printer POS-PRT-02.',
+                    message:
+                        'Unable to pair with Bluetooth printer POS-PRT-02.',
                   );
                 }),
                 const SizedBox(width: 8),
@@ -1157,10 +1175,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: color.withValues(alpha: 0.35),
-              width: 1,
-            ),
+            border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
           ),
           alignment: Alignment.center,
           child: Text(

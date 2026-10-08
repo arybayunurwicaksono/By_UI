@@ -414,6 +414,150 @@ class AppColors {
       gradient: LinearGradient(colors: [cyberNeonCyan, primary]),
     ),
   ];
+
+  /// Standardized background color palette for ByAppBar showcase.
+  static const List<ShowcaseColorOption> appBarColorThemes = [
+    ShowcaseColorOption('Default Theme Card', null),
+    ShowcaseColorOption('Dark Slate', darkCard),
+    ShowcaseColorOption('Pure White', Colors.white),
+    ShowcaseColorOption('Pure Black', Colors.black),
+    ShowcaseColorOption('Primary Indigo', primary),
+    ShowcaseColorOption('Violet Neon', primaryAccent),
+    ShowcaseColorOption('Sky Cyan', cyanAccent),
+    ShowcaseColorOption('Emerald Mint', success),
+    ShowcaseColorOption('Amber Sunset', warning),
+    ShowcaseColorOption('Crimson Passion', error),
+    ShowcaseColorOption('Royal Ocean', info),
+  ];
+
+  /// Standardized floating background color palette for ByAppBar showcase.
+  static const List<ShowcaseColorOption> appBarFloatingColorThemes = [
+    ShowcaseColorOption('Auto (Follows Static Background)', null),
+    ShowcaseColorOption('Dark Slate', darkCard),
+    ShowcaseColorOption('Pure White', Colors.white),
+    ShowcaseColorOption('Pure Black', Colors.black),
+    ShowcaseColorOption('Primary Indigo', primary),
+    ShowcaseColorOption('Violet Neon', primaryAccent),
+    ShowcaseColorOption('Sky Cyan', cyanAccent),
+    ShowcaseColorOption('Emerald Mint', success),
+    ShowcaseColorOption('Amber Sunset', warning),
+    ShowcaseColorOption('Crimson Passion', error),
+    ShowcaseColorOption('Royal Ocean', info),
+  ];
+
+  /// Standardized sensor border gradient presets for ByAppBar showcase.
+  static const List<ShowcaseThemePreset> appBarSensorGradients = [
+    ShowcaseThemePreset(
+      name: 'Blue & Cyan (Default)',
+      color: Color(0xFF2563EB),
+      accent: Color(0xFF06B6D4),
+      colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
+      gradient: LinearGradient(
+        colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Violet & Indigo',
+      color: primaryAccent,
+      accent: primary,
+      colors: [primaryAccent, primary],
+      gradient: LinearGradient(
+        colors: [primaryAccent, primary],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Emerald & Mint',
+      color: success,
+      accent: Color(0xFF14B8A6),
+      colors: [success, Color(0xFF14B8A6)],
+      gradient: LinearGradient(
+        colors: [success, Color(0xFF14B8A6)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Amber & Gold',
+      color: warning,
+      accent: Color(0xFFEAB308),
+      colors: [warning, Color(0xFFEAB308)],
+      gradient: LinearGradient(
+        colors: [warning, Color(0xFFEAB308)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Crimson & Passion',
+      color: error,
+      accent: Color(0xFFF43F5E),
+      colors: [error, Color(0xFFF43F5E)],
+      gradient: LinearGradient(
+        colors: [error, Color(0xFFF43F5E)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Royal Purple & Pink',
+      color: Color(0xFF7C3AED),
+      accent: Color(0xFFEC4899),
+      colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+      gradient: LinearGradient(
+        colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Sunset Glow',
+      color: Color(0xFFF97316),
+      accent: Color(0xFFA855F7),
+      colors: [Color(0xFFF97316), Color(0xFFA855F7)],
+      gradient: LinearGradient(
+        colors: [Color(0xFFF97316), Color(0xFFA855F7)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Ocean Breeze',
+      color: Color(0xFF0284C7),
+      accent: cyanAccent,
+      colors: [Color(0xFF0284C7), cyanAccent],
+      gradient: LinearGradient(
+        colors: [Color(0xFF0284C7), cyanAccent],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Electric Lime',
+      color: Color(0xFF84CC16),
+      accent: success,
+      colors: [Color(0xFF84CC16), success],
+      gradient: LinearGradient(
+        colors: [Color(0xFF84CC16), success],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    ShowcaseThemePreset(
+      name: 'Cyberpunk Neon',
+      color: Color(0xFF06B6D4),
+      accent: Color(0xFFF43F5E),
+      colors: [Color(0xFF06B6D4), Color(0xFFF43F5E)],
+      gradient: LinearGradient(
+        colors: [Color(0xFF06B6D4), Color(0xFFF43F5E)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+  ];
 }
 
 /// Immutable semantic color set representing the active theme appearance.
@@ -472,7 +616,7 @@ class AppColorPalette {
 /// Represents a named color option for showcase component pickers and swatches.
 class ShowcaseColorOption {
   final String name;
-  final Color color;
+  final Color? color;
 
   const ShowcaseColorOption(this.name, this.color);
 
@@ -491,6 +635,7 @@ class ShowcaseThemePreset {
   final Color accent;
   final Color textColor;
   final Gradient? gradient;
+  final List<Color>? colors;
 
   const ShowcaseThemePreset({
     required this.name,
@@ -498,6 +643,7 @@ class ShowcaseThemePreset {
     this.accent = AppColors.primary,
     this.textColor = Colors.white,
     this.gradient,
+    this.colors,
   });
 
   /// Allows indexed lookup for seamless backward compatibility with Map-based APIs.
@@ -513,6 +659,11 @@ class ShowcaseThemePreset {
         return textColor;
       case 'gradient':
         return gradient;
+      case 'colors':
+        return colors ??
+            (gradient is LinearGradient
+                ? (gradient as LinearGradient).colors
+                : [color, accent]);
       default:
         return null;
     }

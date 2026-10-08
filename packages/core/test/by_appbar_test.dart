@@ -140,8 +140,7 @@ void main() {
       expect(find.byType(CustomPaint), findsWidgets);
 
       // Simulate mouse hover over the app bar
-      final gesture =
-          await tester.createGesture(kind: PointerDeviceKind.mouse);
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: Offset.zero);
       await gesture.moveTo(tester.getCenter(find.text('Dynamic Border Bar')));
       await tester.pumpAndSettle();
@@ -151,7 +150,8 @@ void main() {
     },
   );
 
-  testWidgets('ByAppBar defaults to zero border width and covers notch when static', (
+  testWidgets(
+      'ByAppBar defaults to zero border width and covers notch when static', (
     WidgetTester tester,
   ) async {
     const appBar = ByAppBar();
@@ -174,7 +174,8 @@ void main() {
     // Verify notch cover is present with top background color when padding.top > 0
     final animatedOpacityFinder = find.byType(AnimatedOpacity);
     expect(animatedOpacityFinder, findsOneWidget);
-    final animatedOpacity = tester.widget<AnimatedOpacity>(animatedOpacityFinder);
+    final animatedOpacity =
+        tester.widget<AnimatedOpacity>(animatedOpacityFinder);
     expect(animatedOpacity.opacity, equals(1.0));
 
     final decoratedBoxFinder = find.descendant(

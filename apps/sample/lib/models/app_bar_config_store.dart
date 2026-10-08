@@ -14,10 +14,10 @@ class ByComponentPreset {
   });
 
   Gradient get gradient => LinearGradient(
-        colors: colors,
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+    colors: colors,
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
 
 /// Global singleton store holding user-selected ByAppBar configurations
@@ -63,106 +63,16 @@ class AppBarConfigStore extends ChangeNotifier {
   set innerGlowOpacity(double val) => innerShadowOpacity = val;
   int selectedSensorGradientIndex = 0;
 
-  static final List<Map<String, dynamic>> sensorGradients = [
-    {
-      'name': 'Blue & Cyan (Default)',
-      'colors': const [Color(0xFF2563EB), Color(0xFF06B6D4)],
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Violet & Indigo',
-      'colors': const [AppColors.primaryAccent, AppColors.primary],
-      'gradient': const LinearGradient(
-        colors: [AppColors.primaryAccent, AppColors.primary],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Emerald & Mint',
-      'colors': const [AppColors.success, Color(0xFF14B8A6)],
-      'gradient': const LinearGradient(
-        colors: [AppColors.success, Color(0xFF14B8A6)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Amber & Gold',
-      'colors': const [AppColors.warning, Color(0xFFEAB308)],
-      'gradient': const LinearGradient(
-        colors: [AppColors.warning, Color(0xFFEAB308)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Crimson & Passion',
-      'colors': const [AppColors.error, Color(0xFFF43F5E)],
-      'gradient': const LinearGradient(
-        colors: [AppColors.error, Color(0xFFF43F5E)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Royal Purple & Pink',
-      'colors': const [Color(0xFF7C3AED), Color(0xFFEC4899)],
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Sunset Glow',
-      'colors': const [Color(0xFFF97316), Color(0xFFA855F7)],
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFF97316), Color(0xFFA855F7)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Ocean Breeze',
-      'colors': const [Color(0xFF0284C7), Color(0xFF38BDF8)],
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF0284C7), Color(0xFF38BDF8)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Electric Lime',
-      'colors': const [Color(0xFF84CC16), Color(0xFF10B981)],
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF84CC16), Color(0xFF10B981)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'name': 'Cyberpunk Neon',
-      'colors': const [Color(0xFF06B6D4), Color(0xFFF43F5E)],
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF06B6D4), Color(0xFFF43F5E)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-  ];
+  static const List<ShowcaseThemePreset> sensorGradients =
+      AppColors.appBarSensorGradients;
 
-  List<Map<String, dynamic>> get sensorGradientPresets => sensorGradients;
+  List<ShowcaseThemePreset> get sensorGradientPresets => sensorGradients;
 
   String get activeSensorGradientName =>
-      sensorGradients[selectedSensorGradientIndex]['name'] as String;
+      sensorGradients[selectedSensorGradientIndex].name;
 
   Gradient get activeSensorGradient =>
-      sensorGradients[selectedSensorGradientIndex]['gradient'] as Gradient;
+      sensorGradients[selectedSensorGradientIndex].gradient!;
 
   // 5. Component Coloring Presets (Controls inner toolbar elements like badge pill & actions)
   int selectedComponentPresetIndex = 0;
@@ -246,7 +156,9 @@ class AppBarConfigStore extends ChangeNotifier {
     } else if (customColor != null) {
       this.customColor = customColor;
     }
-    if (selectedColorIndex != null) this.selectedColorIndex = selectedColorIndex;
+    if (selectedColorIndex != null) {
+      this.selectedColorIndex = selectedColorIndex;
+    }
 
     if (clearCustomFloatingColor) {
       this.customFloatingColor = null;
@@ -264,12 +176,18 @@ class AppBarConfigStore extends ChangeNotifier {
     if (borderWidth != null) this.borderWidth = borderWidth;
     if (centerTitle != null) this.centerTitle = centerTitle;
 
-    if (enableDynamicBorder != null) this.enableDynamicBorder = enableDynamicBorder;
-    if (enableDynamicSensor != null) this.enableDynamicBorder = enableDynamicSensor;
+    if (enableDynamicBorder != null) {
+      this.enableDynamicBorder = enableDynamicBorder;
+    }
+    if (enableDynamicSensor != null) {
+      this.enableDynamicBorder = enableDynamicSensor;
+    }
     if (enableSensor != null) this.enableSensor = enableSensor;
     if (enableHoverTilt != null) this.enableHoverTilt = enableHoverTilt;
     if (enableInnerShadow != null) this.enableInnerShadow = enableInnerShadow;
-    if (innerShadowOpacity != null) this.innerShadowOpacity = innerShadowOpacity;
+    if (innerShadowOpacity != null) {
+      this.innerShadowOpacity = innerShadowOpacity;
+    }
     if (innerGlowOpacity != null) this.innerShadowOpacity = innerGlowOpacity;
 
     if (selectedSensorGradientIndex != null) {

@@ -53,7 +53,8 @@ class ByShowcaseHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final Gradient effectivePillGradient = pillGradient ??
+    final Gradient effectivePillGradient =
+        pillGradient ??
         const LinearGradient(
           colors: [AppColors.primary, AppColors.primaryAccent],
         );
@@ -63,82 +64,80 @@ class ByShowcaseHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Row(
-            children: [
-              // 1. Leading Drawer Trigger
-              leading ??
-                  (automaticallyImplyLeading
-                      ? Builder(
-                          builder: (ctx) => IconButton(
-                            icon: Icon(
-                              AppIcons.menu,
-                              color: colors.textPrimary,
-                            ),
-                            onPressed: () => Scaffold.of(ctx).openDrawer(),
-                          ),
-                        )
-                      : const SizedBox(width: 12)),
-
-              const SizedBox(width: 4),
-
-              // 2. Signature Gradient Brand Badge Pill & Suffix Title
-              Expanded(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment:
-                      isCentered ? MainAxisAlignment.center : MainAxisAlignment.start,
-                  children: [
-                    if (componentName != null) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 3.5,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: effectivePillGradient,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          componentName!,
-                          style: AppTextStyle.buttonPrimary.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
+        children: [
+          // 1. Leading Drawer Trigger
+          leading ??
+              (automaticallyImplyLeading
+                  ? Builder(
+                      builder: (ctx) => IconButton(
+                        icon: Icon(AppIcons.menu, color: colors.textPrimary),
+                        onPressed: () => Scaffold.of(ctx).openDrawer(),
                       ),
-                      const SizedBox(width: 8),
-                    ],
-                    Flexible(
-                      child: Text(
-                        titleSuffix,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyle.bodyMedium.copyWith(
-                          color: colors.textMuted,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    )
+                  : const SizedBox(width: 12)),
+
+          const SizedBox(width: 4),
+
+          // 2. Signature Gradient Brand Badge Pill & Suffix Title
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: isCentered
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.start,
+              children: [
+                if (componentName != null) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3.5,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: effectivePillGradient,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      componentName!,
+                      style: AppTextStyle.buttonPrimary.copyWith(
+                        color: Colors.white,
                       ),
                     ),
-                  ],
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Flexible(
+                  child: Text(
+                    titleSuffix,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyle.bodyMedium.copyWith(
+                      color: colors.textMuted,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
-
-              // 3. Action Buttons (Uniform Rule 6.1)
-              ...?extraActions,
-              if (onReset != null)
-                IconButton(
-                  visualDensity: VisualDensity.compact,
-                  tooltip: 'Reset to Defaults',
-                  icon: Icon(AppIcons.reset, color: effectiveActionColor),
-                  onPressed: onReset,
-                ),
-              if (onOpenParams != null)
-                IconButton(
-                  visualDensity: VisualDensity.compact,
-                  tooltip: 'Widget Parameters',
-                  icon: Icon(AppIcons.help, color: effectiveActionColor),
-                  onPressed: onOpenParams,
-                ),
-              const SizedBox(width: 4),
-            ],
+              ],
+            ),
           ),
-        );
+
+          // 3. Action Buttons (Uniform Rule 6.1)
+          ...?extraActions,
+          if (onReset != null)
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Reset to Defaults',
+              icon: Icon(AppIcons.reset, color: effectiveActionColor),
+              onPressed: onReset,
+            ),
+          if (onOpenParams != null)
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Widget Parameters',
+              icon: Icon(AppIcons.help, color: effectiveActionColor),
+              onPressed: onOpenParams,
+            ),
+          const SizedBox(width: 4),
+        ],
+      ),
+    );
   }
 }

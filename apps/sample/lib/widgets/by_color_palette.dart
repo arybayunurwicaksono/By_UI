@@ -16,12 +16,7 @@ class ByColorPaletteItem {
   /// The underlying value represented by this swatch item.
   final dynamic value;
 
-  const ByColorPaletteItem({
-    this.label,
-    this.color,
-    this.gradient,
-    this.value,
-  });
+  const ByColorPaletteItem({this.label, this.color, this.gradient, this.value});
 
   /// Creates a palette item from a [ShowcaseThemePreset].
   factory ByColorPaletteItem.fromPreset(ShowcaseThemePreset preset) {
@@ -44,11 +39,7 @@ class ByColorPaletteItem {
 
   /// Creates a palette item from a solid [Color].
   factory ByColorPaletteItem.fromColor(Color color, [String? label]) {
-    return ByColorPaletteItem(
-      label: label,
-      color: color,
-      value: color,
-    );
+    return ByColorPaletteItem(label: label, color: color, value: color);
   }
 }
 
@@ -163,7 +154,8 @@ class ByColorPalette extends StatelessWidget {
         final gradient = item.gradient;
         final isWhite = color == Colors.white;
 
-        final isLight = gradient == null &&
+        final isLight =
+            gradient == null &&
             color != null &&
             (color.computeLuminance() > 0.6 || isWhite);
 
@@ -216,10 +208,7 @@ class ByColorPalette extends StatelessWidget {
         );
 
         if (item.label != null && item.label!.isNotEmpty) {
-          itemWidget = Tooltip(
-            message: item.label!,
-            child: itemWidget,
-          );
+          itemWidget = Tooltip(message: item.label!, child: itemWidget);
         }
 
         return itemWidget;

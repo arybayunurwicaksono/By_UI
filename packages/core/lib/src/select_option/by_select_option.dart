@@ -109,8 +109,8 @@ class BySelectOption extends StatelessWidget {
 
     final effectiveSelectedText =
         selectedTextColor ?? (isDark ? Colors.white : Colors.black);
-    final effectiveUnselectedText =
-        unselectedTextColor ?? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B));
+    final effectiveUnselectedText = unselectedTextColor ??
+        (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B));
 
     final effectiveRadius = borderRadius ?? BorderRadius.circular(10);
     final effectivePadding =

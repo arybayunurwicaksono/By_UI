@@ -44,7 +44,7 @@ class ByDrawer extends StatelessWidget {
                       ),
                       children: [
                         // Active Components Section
-                        _buildSectionHeader('AVAILABLE COMPONENTS (4)', colors),
+                        _buildSectionHeader('AVAILABLE COMPONENTS (5)', colors),
                         const SizedBox(height: 8),
 
                         _buildDrawerItem(
@@ -103,6 +103,21 @@ class ByDrawer extends StatelessWidget {
                           onTap: () {
                             Navigator.of(context).pop();
                             onSelectComponent?.call('ByAppBar');
+                          },
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'BySequence',
+                          subtitle: 'Sequential scroll-driven animation',
+                          icon: Icons.auto_awesome_motion_rounded,
+                          isActive: activeComponent == 'BySequence',
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
+                          colors: colors,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onSelectComponent?.call('BySequence');
                           },
                         ),
 

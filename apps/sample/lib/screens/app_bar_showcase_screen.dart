@@ -10,6 +10,7 @@ import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
 import 'card_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
+import 'sequence_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
 
 /// Interactive showcase screen for the [ByAppBar] dynamic floating component.
@@ -26,101 +27,11 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
   double _tiltY = 1.0; // 1.0 = Upright portrait
   int _lastTiltUpdateTime = 0;
 
-  // Static Background Palette for Section 2 (Rule 5.1 & Rule 5.6)
-  static final List<Map<String, dynamic>> _colorThemes = [
-    {
-      'name': 'Default Theme Card',
-      'color': null, // Uses dynamic theme cardBg
-    },
-    {
-      'name': 'Dark Slate',
-      'color': AppColors.darkCard,
-    },
-    {
-      'name': 'Pure White',
-      'color': Colors.white,
-    },
-    {
-      'name': 'Pure Black',
-      'color': Colors.black,
-    },
-    {
-      'name': 'Primary Indigo',
-      'color': AppColors.primary,
-    },
-    {
-      'name': 'Violet Neon',
-      'color': AppColors.primaryAccent,
-    },
-    {
-      'name': 'Sky Cyan',
-      'color': AppColors.cyanAccent,
-    },
-    {
-      'name': 'Emerald Mint',
-      'color': AppColors.success,
-    },
-    {
-      'name': 'Amber Sunset',
-      'color': AppColors.warning,
-    },
-    {
-      'name': 'Crimson Passion',
-      'color': AppColors.error,
-    },
-    {
-      'name': 'Royal Ocean',
-      'color': AppColors.info,
-    },
-  ];
-
-  // Floating Background Palette for Section 2 (Rule 5.1 & Rule 5.6)
-  static final List<Map<String, dynamic>> _floatingColorThemes = [
-    {
-      'name': 'Auto (Follows Static Background)',
-      'color': null, // Automatically follows static background with floatingOpacity
-    },
-    {
-      'name': 'Dark Slate',
-      'color': AppColors.darkCard,
-    },
-    {
-      'name': 'Pure White',
-      'color': Colors.white,
-    },
-    {
-      'name': 'Pure Black',
-      'color': Colors.black,
-    },
-    {
-      'name': 'Primary Indigo',
-      'color': AppColors.primary,
-    },
-    {
-      'name': 'Violet Neon',
-      'color': AppColors.primaryAccent,
-    },
-    {
-      'name': 'Sky Cyan',
-      'color': AppColors.cyanAccent,
-    },
-    {
-      'name': 'Emerald Mint',
-      'color': AppColors.success,
-    },
-    {
-      'name': 'Amber Sunset',
-      'color': AppColors.warning,
-    },
-    {
-      'name': 'Crimson Passion',
-      'color': AppColors.error,
-    },
-    {
-      'name': 'Royal Ocean',
-      'color': AppColors.info,
-    },
-  ];
+  // Static & Floating Background Palettes from AppColors (Rule 5.1 & Rule 5.6)
+  static const List<ShowcaseColorOption> _colorThemes =
+      AppColors.appBarColorThemes;
+  static const List<ShowcaseColorOption> _floatingColorThemes =
+      AppColors.appBarFloatingColorThemes;
 
   @override
   Widget build(BuildContext context) {
@@ -151,10 +62,12 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               floatingBorderRadius: BorderRadius.circular(store.borderRadius),
               floatingBlurSigma: store.blurSigma,
               floatingOpacity: store.floatingOpacity,
-              backgroundColor: store.customColor ??
+              backgroundColor:
+                  store.customColor ??
                   (isDark ? AppColors.darkCard : Colors.white),
-              floatingBackgroundColor: store.customFloatingColor
-                  ?.withValues(alpha: store.floatingOpacity), // If null, ByAppBar automatically inherits backgroundColor with floatingOpacity
+              floatingBackgroundColor: store.customFloatingColor?.withValues(
+                alpha: store.floatingOpacity,
+              ), // If null, ByAppBar automatically inherits backgroundColor with floatingOpacity
               elevation: 0.0,
               floatingElevation: store.floatingElevation,
               border: store.enableBorder && !store.enableDynamicBorder
@@ -166,7 +79,8 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               borderWidth: (store.enableBorder || store.enableDynamicBorder)
                   ? store.borderWidth
                   : 0.0,
-              floatingBorderWidth: (store.enableBorder || store.enableDynamicBorder)
+              floatingBorderWidth:
+                  (store.enableBorder || store.enableDynamicBorder)
                   ? store.borderWidth
                   : 0.0,
               borderGradient: store.enableDynamicBorder
@@ -236,6 +150,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                       builder: (_) => const CardShowcaseScreen(),
                     ),
                   );
+                } else if (comp == 'BySequence') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SequenceShowcaseScreen(),
+                    ),
+                  );
                 }
               },
             ),
@@ -276,15 +197,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                           ByShowcaseChoiceChip(
                             label: 'Enabled (Auto Floating)',
                             isSelected: store.isFloatingEnabled,
-                            onTap: () =>
-                                store.update(isFloatingEnabled: true),
+                            onTap: () => store.update(isFloatingEnabled: true),
                           ),
                           const SizedBox(width: 8),
                           ByShowcaseChoiceChip(
                             label: 'Disabled (Static Bar)',
                             isSelected: !store.isFloatingEnabled,
-                            onTap: () =>
-                                store.update(isFloatingEnabled: false),
+                            onTap: () => store.update(isFloatingEnabled: false),
                           ),
                         ],
                       ),
@@ -417,9 +336,11 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                     ByColorPalette(
                       items: _floatingColorThemes.map((theme) {
                         final Color? rawColor = theme['color'] as Color?;
-                        final Color displayColor = rawColor ??
-                            (store.customColor ?? colors.cardBg)
-                                .withValues(alpha: store.floatingOpacity);
+                        final Color displayColor =
+                            rawColor ??
+                            (store.customColor ?? colors.cardBg).withValues(
+                              alpha: store.floatingOpacity,
+                            );
                         return ByColorPaletteItem(
                           label: theme['name'] as String?,
                           color: displayColor,
@@ -563,7 +484,8 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [0.0, 2.0, 4.0, 8.0, 12.0].map((elevation) {
-                          final isSelected = store.floatingElevation == elevation;
+                          final isSelected =
+                              store.floatingElevation == elevation;
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: ByShowcaseChoiceChip(
@@ -730,14 +652,17 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                     const SizedBox(height: 8),
                     // Standard Rule 5.6: 36x36 Circular Swatches for Gradients
                     ByColorPalette(
-                      items: store.sensorGradientPresets.map((preset) => ByColorPaletteItem(
-                        label: preset['name'] as String?,
-                        gradient: preset['gradient'] as Gradient?,
-                      )).toList(),
+                      items: store.sensorGradientPresets
+                          .map(
+                            (preset) => ByColorPaletteItem(
+                              label: preset['name'] as String?,
+                              gradient: preset['gradient'] as Gradient?,
+                            ),
+                          )
+                          .toList(),
                       selectedIndex: store.selectedSensorGradientIndex,
-                      onSelected: (index) => store.update(
-                        selectedSensorGradientIndex: index,
-                      ),
+                      onSelected: (index) =>
+                          store.update(selectedSensorGradientIndex: index),
                     ),
                     const SizedBox(height: 14),
                     _buildSwitchTile(
@@ -800,14 +725,17 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                     ),
                     const SizedBox(height: 8),
                     ByColorPalette(
-                      items: store.componentPresets.map((preset) => ByColorPaletteItem(
-                        label: preset.name,
-                        gradient: preset.gradient,
-                      )).toList(),
+                      items: store.componentPresets
+                          .map(
+                            (preset) => ByColorPaletteItem(
+                              label: preset.name,
+                              gradient: preset.gradient,
+                            ),
+                          )
+                          .toList(),
                       selectedIndex: store.selectedComponentPresetIndex,
-                      onSelected: (index) => store.update(
-                        selectedComponentPresetIndex: index,
-                      ),
+                      onSelected: (index) =>
+                          store.update(selectedComponentPresetIndex: index),
                     ),
                   ],
                 ),
@@ -939,8 +867,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
         WidgetParamInfo(
           name: 'onTiltChanged',
           type: 'ValueChanged<Offset>?',
-          description:
-              'Callback triggered whenever tilt coordinates update.',
+          description: 'Callback triggered whenever tilt coordinates update.',
           defaultValue: 'null',
         ),
         WidgetParamInfo(
@@ -1200,8 +1127,9 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                 label: 'Float Color',
                 value: store.customFloatingColor == null
                     ? 'Auto (Inherited)'
-                    : _floatingColorThemes[store.selectedFloatingColorIndex]
-                        ['name'] as String,
+                    : _floatingColorThemes[store
+                              .selectedFloatingColorIndex]['name']
+                          as String,
                 colors: colors,
               ),
               _buildMetricBadge(

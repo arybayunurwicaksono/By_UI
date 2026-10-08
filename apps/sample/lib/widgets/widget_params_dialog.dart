@@ -58,10 +58,7 @@ void showWidgetParametersDialog(
                 ? Colors.white.withValues(alpha: 0.04)
                 : colors.chipBg,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: colors.border,
-              width: 1.0,
-            ),
+            border: Border.all(color: colors.border, width: 1.0),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

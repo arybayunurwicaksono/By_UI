@@ -9,6 +9,7 @@ import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
 import 'app_bar_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
+import 'sequence_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
 
 /// Interactive showcase screen for the [ByCard] spatial and normal component.
@@ -308,6 +309,13 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                       builder: (_) => const AppBarShowcaseScreen(),
                     ),
                   );
+                } else if (comp == 'BySequence') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SequenceShowcaseScreen(),
+                    ),
+                  );
                 }
               },
             ),
@@ -319,340 +327,346 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 20,
               ),
               children: [
-              // 1. Active Configuration Preview Card
-              _buildActiveConfigPreviewCard(
-                colors,
-                isDark,
-                bgOptions[_selectedBgIndex.clamp(0, bgOptions.length - 1)]['name'] as String,
-              ),
-              const SizedBox(height: 12),
+                // 1. Active Configuration Preview Card
+                _buildActiveConfigPreviewCard(
+                  colors,
+                  isDark,
+                  bgOptions[_selectedBgIndex.clamp(
+                        0,
+                        bgOptions.length - 1,
+                      )]['name']
+                      as String,
+                ),
+                const SizedBox(height: 12),
 
-              // 2. Preset Example Card
-              _buildPresetCard(colors, isDark),
-              const SizedBox(height: 12),
+                // 2. Preset Example Card
+                _buildPresetCard(colors, isDark),
+                const SizedBox(height: 12),
 
-              // 3. Standalone Widget Display (ByCard)
-              _buildHeroPreviewCard(
-                colors: colors,
-                isDark: isDark,
-                currentBg: currentBg,
-                colorA: colorA,
-                colorB: colorB,
-                borderGradient: borderGradient,
-                shadowGradient: shadowGradient,
-              ),
-              const SizedBox(height: 12),
+                // 3. Standalone Widget Display (ByCard)
+                _buildHeroPreviewCard(
+                  colors: colors,
+                  isDark: isDark,
+                  currentBg: currentBg,
+                  colorA: colorA,
+                  colorB: colorB,
+                  borderGradient: borderGradient,
+                  shadowGradient: shadowGradient,
+                ),
+                const SizedBox(height: 12),
 
-              // Control Card 1: Mode & Interactivity
-              _buildControlCard(
-                colors: colors,
-                title: '1. CARD MODE & SENSOR ACTIVATION',
-                icon: AppIcons.tune,
-                children: [
-                  _buildVariantSelector(colors, isDark),
-                  const SizedBox(height: 10),
-                  _buildSwitchTile(
-                    title: 'Physical Gyroscope & Accelerometer',
-                    subtitle: 'Streams live hardware gravity vector on mobile',
-                    value: _enableSensor,
-                    colors: colors,
-                    onChanged: (val) {
-                      setState(() {
-                        _enableSensor = val;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _buildSwitchTile(
-                    title: 'Desktop/Web Mouse Hover Parallax',
-                    subtitle: 'Tilts border highlight based on cursor position',
-                    value: _enableHoverTilt,
-                    colors: colors,
-                    onChanged: (val) {
-                      setState(() {
-                        _enableHoverTilt = val;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _buildSwitchTile(
-                    title: 'Specular Inner Glow / Sheen',
-                    subtitle:
-                        'Projects dynamic reflective light sweep inside the card layout',
-                    value: _enableInnerGlow,
-                    colors: colors,
-                    onChanged: (val) {
-                      setState(() {
-                        _enableInnerGlow = val;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  if (_enableInnerGlow) ...[
-                    const SizedBox(height: 8),
-                    _buildSliderRow(
-                      title: 'Inner Sheen Opacity',
-                      value: _innerGlowOpacity,
-                      min: 0.1,
-                      max: 1.0,
-                      suffix: 'x',
+                // Control Card 1: Mode & Interactivity
+                _buildControlCard(
+                  colors: colors,
+                  title: '1. CARD MODE & SENSOR ACTIVATION',
+                  icon: AppIcons.tune,
+                  children: [
+                    _buildVariantSelector(colors, isDark),
+                    const SizedBox(height: 10),
+                    _buildSwitchTile(
+                      title: 'Physical Gyroscope & Accelerometer',
+                      subtitle:
+                          'Streams live hardware gravity vector on mobile',
+                      value: _enableSensor,
                       colors: colors,
                       onChanged: (val) {
                         setState(() {
-                          _innerGlowOpacity = val;
+                          _enableSensor = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSwitchTile(
+                      title: 'Desktop/Web Mouse Hover Parallax',
+                      subtitle:
+                          'Tilts border highlight based on cursor position',
+                      value: _enableHoverTilt,
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _enableHoverTilt = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSwitchTile(
+                      title: 'Specular Inner Glow / Sheen',
+                      subtitle:
+                          'Projects dynamic reflective light sweep inside the card layout',
+                      value: _enableInnerGlow,
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _enableInnerGlow = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                    if (_enableInnerGlow) ...[
+                      const SizedBox(height: 8),
+                      _buildSliderRow(
+                        title: 'Inner Sheen Opacity',
+                        value: _innerGlowOpacity,
+                        min: 0.1,
+                        max: 1.0,
+                        suffix: 'x',
+                        colors: colors,
+                        onChanged: (val) {
+                          setState(() {
+                            _innerGlowOpacity = val;
+                            _activePresetIndex = -1;
+                          });
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 14),
+
+                // Control Card 2: Manual Tilt Simulation
+                _buildControlCard(
+                  colors: colors,
+                  title: '2. TILT SIMULATION (WEB / DESKTOP / TESTING)',
+                  icon: AppIcons.screenRotation,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Horizontal Tilt (Roll X)',
+                            style: AppTextStyle.fieldLabel.copyWith(
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 48,
+                          child: Text(
+                            _tiltX.toStringAsFixed(2),
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Slider(
+                      value: _tiltX,
+                      min: -1.0,
+                      max: 1.0,
+                      activeColor: AppColors.primary,
+                      inactiveColor: colors.borderSubtle,
+                      onChanged: (val) {
+                        setState(() {
+                          _tiltX = val;
+                          _enableSensor = false;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Vertical Tilt (Pitch Y)',
+                            style: AppTextStyle.fieldLabel.copyWith(
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 48,
+                          child: Text(
+                            _tiltY.toStringAsFixed(2),
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Slider(
+                      value: _tiltY,
+                      min: -1.0,
+                      max: 1.0,
+                      activeColor: AppColors.primary,
+                      inactiveColor: colors.borderSubtle,
+                      onChanged: (val) {
+                        setState(() {
+                          _tiltY = val;
+                          _enableSensor = false;
                           _activePresetIndex = -1;
                         });
                       },
                     ),
                   ],
-                ],
-              ),
-              const SizedBox(height: 14),
+                ),
+                const SizedBox(height: 14),
 
-              // Control Card 2: Manual Tilt Simulation
-              _buildControlCard(
-                colors: colors,
-                title: '2. TILT SIMULATION (WEB / DESKTOP / TESTING)',
-                icon: AppIcons.screenRotation,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Horizontal Tilt (Roll X)',
-                          style: AppTextStyle.fieldLabel.copyWith(
-                            color: colors.textSecondary,
-                          ),
+                // Control Card 3: Smooth Color Transitions
+                _buildControlCard(
+                  colors: colors,
+                  title: '3. COLOR TRANSITIONS & ACCENT PALETTE',
+                  icon: AppIcons.palette,
+                  children: [
+                    Text(
+                      'Card Background Color (Tap to Animate):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: bgOptions,
+                      selectedIndex: _selectedBgIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedBgIndex = index;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Border Gradient — Color A (Start Tone):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: gradientColorOptions,
+                      selectedIndex: _selectedGradientColorAIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedGradientColorAIndex = index;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Border Gradient — Color B (End Tone):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: gradientColorOptions,
+                      selectedIndex: _selectedGradientColorBIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedGradientColorBIndex = index;
+                          _activePresetIndex = -1;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    // Live Gradient Preview Bar
+                    Container(
+                      height: 28,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(colors: [colorA, colorB]),
+                        border: Border.all(color: colors.border),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Gradient Preview (A → B)',
+                        style: AppTextStyle.captionBold.copyWith(
+                          color: Colors.white,
+                          shadows: [
+                            const Shadow(
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              color: Colors.black87,
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(
-                        width: 48,
-                        child: Text(
-                          _tiltX.toStringAsFixed(2),
-                          style: AppTextStyle.badge.copyWith(
-                            color: colors.textPrimary,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Slider(
-                    value: _tiltX,
-                    min: -1.0,
-                    max: 1.0,
-                    activeColor: AppColors.primary,
-                    inactiveColor: colors.borderSubtle,
-                    onChanged: (val) {
-                      setState(() {
-                        _tiltX = val;
-                        _enableSensor = false;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Vertical Tilt (Pitch Y)',
-                          style: AppTextStyle.fieldLabel.copyWith(
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text(
-                          _tiltY.toStringAsFixed(2),
-                          style: AppTextStyle.badge.copyWith(
-                            color: colors.textPrimary,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Slider(
-                    value: _tiltY,
-                    min: -1.0,
-                    max: 1.0,
-                    activeColor: AppColors.primary,
-                    inactiveColor: colors.borderSubtle,
-                    onChanged: (val) {
-                      setState(() {
-                        _tiltY = val;
-                        _enableSensor = false;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
 
-              // Control Card 3: Smooth Color Transitions
-              _buildControlCard(
-                colors: colors,
-                title: '3. COLOR TRANSITIONS & ACCENT PALETTE',
-                icon: AppIcons.palette,
-                children: [
-                  Text(
-                    'Card Background Color (Tap to Animate):',
-                    style: AppTextStyle.fieldLabel.copyWith(
-                      color: colors.textSecondary,
+                // Control Card 4: Geometry & Lighting
+                _buildControlCard(
+                  colors: colors,
+                  title: '4. GEOMETRY & LIGHTING ADJUSTMENTS',
+                  icon: AppIcons.tune,
+                  children: [
+                    _buildSliderRow(
+                      title: 'Border Width',
+                      value: _borderWidth,
+                      min: 0.0,
+                      max: 4.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _borderWidth = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  ByColorPalette.fromOptions(
-                    options: bgOptions,
-                    selectedIndex: _selectedBgIndex,
-                    onSelected: (index) {
-                      setState(() {
-                        _selectedBgIndex = index;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Border Gradient — Color A (Start Tone):',
-                    style: AppTextStyle.fieldLabel.copyWith(
-                      color: colors.textSecondary,
+                    _buildSliderRow(
+                      title: 'Border Radius',
+                      value: _borderRadius,
+                      min: 6.0,
+                      max: 32.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _borderRadius = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  ByColorPalette.fromOptions(
-                    options: gradientColorOptions,
-                    selectedIndex: _selectedGradientColorAIndex,
-                    onSelected: (index) {
-                      setState(() {
-                        _selectedGradientColorAIndex = index;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Border Gradient — Color B (End Tone):',
-                    style: AppTextStyle.fieldLabel.copyWith(
-                      color: colors.textSecondary,
+                    _buildSliderRow(
+                      title: 'Shadow / Glow Blur',
+                      value: _shadowBlur,
+                      min: 0.0,
+                      max: 36.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _shadowBlur = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  ByColorPalette.fromOptions(
-                    options: gradientColorOptions,
-                    selectedIndex: _selectedGradientColorBIndex,
-                    onSelected: (index) {
-                      setState(() {
-                        _selectedGradientColorBIndex = index;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  // Live Gradient Preview Bar
-                  Container(
-                    height: 28,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      gradient: LinearGradient(colors: [colorA, colorB]),
-                      border: Border.all(color: colors.border),
+                    _buildSliderRow(
+                      title: 'Max Shadow Shift',
+                      value: _maxShadowOffset,
+                      min: 2.0,
+                      max: 24.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _maxShadowOffset = val;
+                          _activePresetIndex = -1;
+                        });
+                      },
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Gradient Preview (A → B)',
-                      style: AppTextStyle.captionBold.copyWith(
-                        color: Colors.white,
-                        shadows: [
-                          const Shadow(
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            color: Colors.black87,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-
-              // Control Card 4: Geometry & Lighting
-              _buildControlCard(
-                colors: colors,
-                title: '4. GEOMETRY & LIGHTING ADJUSTMENTS',
-                icon: AppIcons.tune,
-                children: [
-                  _buildSliderRow(
-                    title: 'Border Width',
-                    value: _borderWidth,
-                    min: 0.0,
-                    max: 4.0,
-                    suffix: 'px',
-                    colors: colors,
-                    onChanged: (val) {
-                      setState(() {
-                        _borderWidth = val;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  _buildSliderRow(
-                    title: 'Border Radius',
-                    value: _borderRadius,
-                    min: 6.0,
-                    max: 32.0,
-                    suffix: 'px',
-                    colors: colors,
-                    onChanged: (val) {
-                      setState(() {
-                        _borderRadius = val;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  _buildSliderRow(
-                    title: 'Shadow / Glow Blur',
-                    value: _shadowBlur,
-                    min: 0.0,
-                    max: 36.0,
-                    suffix: 'px',
-                    colors: colors,
-                    onChanged: (val) {
-                      setState(() {
-                        _shadowBlur = val;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                  _buildSliderRow(
-                    title: 'Max Shadow Shift',
-                    value: _maxShadowOffset,
-                    min: 2.0,
-                    max: 24.0,
-                    suffix: 'px',
-                    colors: colors,
-                    onChanged: (val) {
-                      setState(() {
-                        _maxShadowOffset = val;
-                        _activePresetIndex = -1;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
+        );
+      },
     );
   }
 
@@ -816,11 +830,7 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
         color: const Color(0xFF64748B),
         icon: AppIcons.cardNormal,
       ),
-      (
-        name: 'Elevated Clean',
-        color: AppColors.primary,
-        icon: AppIcons.star,
-      ),
+      (name: 'Elevated Clean', color: AppColors.primary, icon: AppIcons.star),
     ];
 
     return Container(
@@ -998,10 +1008,7 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 label: 'Radius',
                 value: '${_borderRadius.toInt()}px',
               ),
-              ByMetricBadge(
-                label: 'Blur',
-                value: '${_shadowBlur.toInt()}px',
-              ),
+              ByMetricBadge(label: 'Blur', value: '${_shadowBlur.toInt()}px'),
               ByMetricBadge(
                 label: 'Vector',
                 value:

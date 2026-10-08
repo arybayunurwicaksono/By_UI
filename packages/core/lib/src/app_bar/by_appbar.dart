@@ -476,7 +476,8 @@ class _ByAppBarState extends State<ByAppBar> {
               tilt: _tiltController.tiltNotifier.value,
               borderRadius: effectiveBorderRadius,
               borderWidth: effectiveBorderWidth,
-              borderGradient: widget.borderGradient ?? ByAppBar.defaultSensorGradient,
+              borderGradient:
+                  widget.borderGradient ?? ByAppBar.defaultSensorGradient,
               shadowGradient: widget.shadowGradient,
               shadowBlur: widget.shadowBlur,
               maxShadowOffset: widget.maxShadowOffset,
@@ -736,8 +737,7 @@ class _ByAppBarSensorPainter extends CustomPainter {
 
       final Alignment resolvedStaticBegin =
           staticBegin.resolve(TextDirection.ltr);
-      final Alignment resolvedStaticEnd =
-          staticEnd.resolve(TextDirection.ltr);
+      final Alignment resolvedStaticEnd = staticEnd.resolve(TextDirection.ltr);
 
       // Smoothly blend between static resting alignment and directional lighting vector
       final double dirX = magnitude > 0.001 ? tilt.dx / magnitude : 0.0;

@@ -367,60 +367,59 @@ void main() {
     },
   );
 
-  testWidgets(
-    'Drawer navigates to ByAppBar showcase and renders live controls',
-    (WidgetTester tester) async {
-      await tester.pumpWidget(const ByUISampleApp());
-      await tester.pumpAndSettle();
+  testWidgets('Drawer navigates to ByAppBar showcase and renders live controls', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const ByUISampleApp());
+    await tester.pumpAndSettle();
 
-      // Open drawer
-      await tester.tap(find.byIcon(Icons.menu_rounded));
-      await tester.pumpAndSettle();
+    // Open drawer
+    await tester.tap(find.byIcon(Icons.menu_rounded));
+    await tester.pumpAndSettle();
 
-      final drawerScrollable = find.descendant(
-        of: find.byType(Drawer),
-        matching: find.byType(Scrollable),
-      );
-      final byAppBarDrawerItem = find.text('ByAppBar');
-      await tester.scrollUntilVisible(
-        byAppBarDrawerItem,
-        100,
-        scrollable: drawerScrollable,
-      );
-      await tester.pumpAndSettle();
+    final drawerScrollable = find.descendant(
+      of: find.byType(Drawer),
+      matching: find.byType(Scrollable),
+    );
+    final byAppBarDrawerItem = find.text('ByAppBar');
+    await tester.scrollUntilVisible(
+      byAppBarDrawerItem,
+      100,
+      scrollable: drawerScrollable,
+    );
+    await tester.pumpAndSettle();
 
-      // Tap ByAppBar drawer item
-      expect(byAppBarDrawerItem, findsOneWidget);
-      await tester.tap(byAppBarDrawerItem);
-      await tester.pumpAndSettle();
+    // Tap ByAppBar drawer item
+    expect(byAppBarDrawerItem, findsOneWidget);
+    await tester.tap(byAppBarDrawerItem);
+    await tester.pumpAndSettle();
 
-      // Verify ByAppBar showcase screen rendered with Active Configuration Preview
-      expect(find.text('Active Configuration Preview'), findsOneWidget);
+    // Verify ByAppBar showcase screen rendered with Active Configuration Preview
+    expect(find.text('Active Configuration Preview'), findsOneWidget);
 
-      final screenScrollable = find.descendant(
-        of: find.byType(Scaffold),
-        matching: find.byWidgetPredicate(
-          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
-        ),
-      );
-      final section1 = find.text('1. FLOATING DYNAMICS & SCROLL BEHAVIOR');
-      await tester.scrollUntilVisible(
-        section1,
-        150,
-        scrollable: screenScrollable,
-      );
-      await tester.pumpAndSettle();
-      expect(section1, findsOneWidget);
-      final section2 = find.text('2. COLOR THEME & GLASSMORPHIC OPACITY');
-      await tester.scrollUntilVisible(
-        section2,
-        150,
-        scrollable: screenScrollable,
-      );
-      await tester.pumpAndSettle();
-      expect(section2, findsOneWidget);
-    },
-  );
+    final screenScrollable = find.descendant(
+      of: find.byType(Scaffold),
+      matching: find.byWidgetPredicate(
+        (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+      ),
+    );
+    final section1 = find.text('1. FLOATING DYNAMICS & SCROLL BEHAVIOR');
+    await tester.scrollUntilVisible(
+      section1,
+      150,
+      scrollable: screenScrollable,
+    );
+    await tester.pumpAndSettle();
+    expect(section1, findsOneWidget);
+    final section2 = find.text('2. COLOR THEME & GLASSMORPHIC OPACITY');
+    await tester.scrollUntilVisible(
+      section2,
+      150,
+      scrollable: screenScrollable,
+    );
+    await tester.pumpAndSettle();
+    expect(section2, findsOneWidget);
+  });
 
   testWidgets(
     'ByAppBar allows Scaffold.body content to scroll behind floating app bar without clipping',
@@ -447,5 +446,55 @@ void main() {
       expect(find.byType(ByAppBar), findsOneWidget);
     },
   );
-}
 
+  testWidgets(
+    'Drawer navigates to BySequence showcase and renders live controls',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const ByUISampleApp());
+      await tester.pumpAndSettle();
+
+      // Open drawer
+      await tester.tap(find.byIcon(Icons.menu_rounded));
+      await tester.pumpAndSettle();
+
+      final drawerScrollable = find.descendant(
+        of: find.byType(Drawer),
+        matching: find.byType(Scrollable),
+      );
+      final bySequenceDrawerItem = find.text('BySequence');
+      await tester.scrollUntilVisible(
+        bySequenceDrawerItem,
+        100,
+        scrollable: drawerScrollable,
+      );
+      await tester.pumpAndSettle();
+
+      // Tap BySequence drawer item
+      expect(bySequenceDrawerItem, findsOneWidget);
+      await tester.tap(bySequenceDrawerItem);
+      await tester.pumpAndSettle();
+
+      // Verify BySequence showcase screen loaded
+      expect(find.text('BySequence'), findsWidgets);
+      expect(find.text('Showcase'), findsOneWidget);
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
+      expect(find.text('Preset Example'), findsOneWidget);
+
+      final section1 = find.text('1. CONTAINER VIEWPORT & SCROLLER');
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pumpAndSettle();
+      expect(section1, findsOneWidget);
+
+      // Verify help button opens parameter dialog for BySequence
+      final helpButton = find.byTooltip('Widget Parameters');
+      expect(helpButton, findsOneWidget);
+      await tester.tap(helpButton);
+      await tester.pumpAndSettle();
+      expect(find.text('children'), findsOneWidget);
+      expect(find.text('animation'), findsOneWidget);
+      expect(find.text('Close'), findsOneWidget);
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+    },
+  );
+}

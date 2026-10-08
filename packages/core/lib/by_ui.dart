@@ -24,3 +24,10 @@ export 'src/select_option/by_select_option.dart';
 // AppBar Component
 export 'src/app_bar/by_appbar.dart';
 export 'src/app_bar/by_scroll_scope.dart';
+
+// Sequence Component
+export 'src/sequence/by_sequence.dart';
+export 'src/sequence/by_sequence_animation.dart';
+export 'src/sequence/by_sequence_controller.dart';
+export 'src/sequence/by_sequence_item.dart';
+export 'src/sequence/by_sequence_range.dart';

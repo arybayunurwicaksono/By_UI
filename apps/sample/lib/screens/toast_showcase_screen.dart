@@ -12,6 +12,7 @@ import '../widgets/widget_params_dialog.dart';
 import 'app_bar_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
 import 'card_showcase_screen.dart';
+import 'sequence_showcase_screen.dart';
 
 /// Interactive showcase screen for the ByToast component.
 class ToastShowcaseScreen extends StatefulWidget {
@@ -578,13 +579,22 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                 } else if (comp == 'ByCard') {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const CardShowcaseScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const CardShowcaseScreen(),
+                    ),
                   );
                 } else if (comp == 'ByAppBar') {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (_) => const AppBarShowcaseScreen(),
+                    ),
+                  );
+                } else if (comp == 'BySequence') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SequenceShowcaseScreen(),
                     ),
                   );
                 }
@@ -598,641 +608,653 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                 24,
               ),
               children: [
-              // 1. Active Configuration Preview Card
-              _buildConfigSummaryCard(),
+                // 1. Active Configuration Preview Card
+                _buildConfigSummaryCard(),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 2. Preset Example Card
-              _buildPresetPills(),
+                // 2. Preset Example Card
+                _buildPresetPills(),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 3. Visual Hint for Tap-to-Dialog feature
-              if (_enableTapToDialog)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: colors.bannerBg,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: colors.bannerBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        AppIcons.touch,
-                        color: AppColors.primary,
-                        size: 22,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          '💡 How to try: Simply tap on the toast text to open the detail dialog!',
-                          style: AppTextStyle.hint.copyWith(
-                            color: colors.bannerText,
+                // 3. Visual Hint for Tap-to-Dialog feature
+                if (_enableTapToDialog)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colors.bannerBg,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: colors.bannerBorder),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          AppIcons.touch,
+                          color: AppColors.primary,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '💡 How to try: Simply tap on the toast text to open the detail dialog!',
+                            style: AppTextStyle.hint.copyWith(
+                              color: colors.bannerText,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+
+                const SizedBox(height: 16),
+
+                // Main Controls Section 1: Position & Slide Direction
+                _buildControlCard(
+                  title: '1. SCREEN ANCHOR & SLIDE DIRECTION',
+                  icon: AppIcons.position,
+                  children: [
+                    Text(
+                      'Screen Anchor Position:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: 'Top (Center)',
+                            isSelected: _position == ByToastPosition.top,
+                            onTap: () {
+                              setState(() {
+                                _position = ByToastPosition.top;
+                                _slideDirection = ByToastSlideDirection.fromTop;
+                                ToastConfigStore.instance.position = _position;
+                                ToastConfigStore.instance.slideDirection =
+                                    _slideDirection;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Bottom (Center)',
+                            isSelected: _position == ByToastPosition.bottom,
+                            onTap: () {
+                              setState(() {
+                                _position = ByToastPosition.bottom;
+                                _slideDirection =
+                                    ByToastSlideDirection.fromBottom;
+                                ToastConfigStore.instance.position = _position;
+                                ToastConfigStore.instance.slideDirection =
+                                    _slideDirection;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Top-Left',
+                            isSelected: _position == ByToastPosition.topLeft,
+                            onTap: () {
+                              setState(() {
+                                _position = ByToastPosition.topLeft;
+                                _slideDirection =
+                                    ByToastSlideDirection.fromLeft;
+                                ToastConfigStore.instance.position = _position;
+                                ToastConfigStore.instance.slideDirection =
+                                    _slideDirection;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Top-Right',
+                            isSelected: _position == ByToastPosition.topRight,
+                            onTap: () {
+                              setState(() {
+                                _position = ByToastPosition.topRight;
+                                _slideDirection =
+                                    ByToastSlideDirection.fromRight;
+                                ToastConfigStore.instance.position = _position;
+                                ToastConfigStore.instance.slideDirection =
+                                    _slideDirection;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Bottom-Left',
+                            isSelected: _position == ByToastPosition.bottomLeft,
+                            onTap: () {
+                              setState(() {
+                                _position = ByToastPosition.bottomLeft;
+                                _slideDirection =
+                                    ByToastSlideDirection.fromLeft;
+                                ToastConfigStore.instance.position = _position;
+                                ToastConfigStore.instance.slideDirection =
+                                    _slideDirection;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Bottom-Right',
+                            isSelected:
+                                _position == ByToastPosition.bottomRight,
+                            onTap: () {
+                              setState(() {
+                                _position = ByToastPosition.bottomRight;
+                                _slideDirection =
+                                    ByToastSlideDirection.fromRight;
+                                ToastConfigStore.instance.position = _position;
+                                ToastConfigStore.instance.slideDirection =
+                                    _slideDirection;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Entrance Slide Direction:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildSmallChip(
+                            'From Top',
+                            ByToastSlideDirection.fromTop,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildSmallChip(
+                            'From Bottom',
+                            ByToastSlideDirection.fromBottom,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildSmallChip(
+                            'From Left',
+                            ByToastSlideDirection.fromLeft,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildSmallChip(
+                            'From Right',
+                            ByToastSlideDirection.fromRight,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 10),
 
-              // Main Controls Section 1: Position & Slide Direction
-              _buildControlCard(
-                title: '1. SCREEN ANCHOR & SLIDE DIRECTION',
-                icon: AppIcons.position,
-                children: [
-                  Text(
-                    'Screen Anchor Position:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'Top (Center)',
-                          isSelected: _position == ByToastPosition.top,
-                          onTap: () {
-                            setState(() {
-                              _position = ByToastPosition.top;
-                              _slideDirection = ByToastSlideDirection.fromTop;
-                              ToastConfigStore.instance.position = _position;
-                              ToastConfigStore.instance.slideDirection =
-                                  _slideDirection;
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Bottom (Center)',
-                          isSelected: _position == ByToastPosition.bottom,
-                          onTap: () {
-                            setState(() {
-                              _position = ByToastPosition.bottom;
-                              _slideDirection =
-                                  ByToastSlideDirection.fromBottom;
-                              ToastConfigStore.instance.position = _position;
-                              ToastConfigStore.instance.slideDirection =
-                                  _slideDirection;
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Top-Left',
-                          isSelected: _position == ByToastPosition.topLeft,
-                          onTap: () {
-                            setState(() {
-                              _position = ByToastPosition.topLeft;
-                              _slideDirection = ByToastSlideDirection.fromLeft;
-                              ToastConfigStore.instance.position = _position;
-                              ToastConfigStore.instance.slideDirection =
-                                  _slideDirection;
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Top-Right',
-                          isSelected: _position == ByToastPosition.topRight,
-                          onTap: () {
-                            setState(() {
-                              _position = ByToastPosition.topRight;
-                              _slideDirection = ByToastSlideDirection.fromRight;
-                              ToastConfigStore.instance.position = _position;
-                              ToastConfigStore.instance.slideDirection =
-                                  _slideDirection;
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Bottom-Left',
-                          isSelected: _position == ByToastPosition.bottomLeft,
-                          onTap: () {
-                            setState(() {
-                              _position = ByToastPosition.bottomLeft;
-                              _slideDirection = ByToastSlideDirection.fromLeft;
-                              ToastConfigStore.instance.position = _position;
-                              ToastConfigStore.instance.slideDirection =
-                                  _slideDirection;
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Bottom-Right',
-                          isSelected: _position == ByToastPosition.bottomRight,
-                          onTap: () {
-                            setState(() {
-                              _position = ByToastPosition.bottomRight;
-                              _slideDirection = ByToastSlideDirection.fromRight;
-                              ToastConfigStore.instance.position = _position;
-                              ToastConfigStore.instance.slideDirection =
-                                  _slideDirection;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Entrance Slide Direction:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildSmallChip(
-                          'From Top',
-                          ByToastSlideDirection.fromTop,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildSmallChip(
-                          'From Bottom',
-                          ByToastSlideDirection.fromBottom,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildSmallChip(
-                          'From Left',
-                          ByToastSlideDirection.fromLeft,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildSmallChip(
-                          'From Right',
-                          ByToastSlideDirection.fromRight,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              // Section 2: Animation Style & Curves
-              _buildControlCard(
-                title: '2. ANIMATION STYLE & CURVES',
-                icon: AppIcons.animation,
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildAnimChip(
-                          'Slide & Fade',
-                          ByToastAnimationType.slideAndFade,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildAnimChip(
-                          'Bounce / Spring',
-                          ByToastAnimationType.bounce,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildAnimChip(
-                          'Scale & Fade',
-                          ByToastAnimationType.scaleAndFade,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildAnimChip(
-                          'Slide Only',
-                          ByToastAnimationType.slideOnly,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildAnimChip(
-                          'Fade Only',
-                          ByToastAnimationType.fadeOnly,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              // Section 3: Icons & Close Button
-              _buildControlCard(
-                title: '3. ICONS (LEFT & RIGHT) & CLOSE BUTTON',
-                icon: AppIcons.button,
-                children: [
-                  // Left Icon (Prefix)
-                  Text(
-                    'Left Icon (Prefix):',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'None',
-                          isSelected: _selectedLeftIconIndex == 0,
-                          onTap: () =>
-                              setState(() => _selectedLeftIconIndex = 0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Bell Icon',
-                          isSelected: _selectedLeftIconIndex == 1,
-                          onTap: () =>
-                              setState(() => _selectedLeftIconIndex = 1),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Checkmark',
-                          isSelected: _selectedLeftIconIndex == 2,
-                          onTap: () =>
-                              setState(() => _selectedLeftIconIndex = 2),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Info Icon',
-                          isSelected: _selectedLeftIconIndex == 3,
-                          onTap: () =>
-                              setState(() => _selectedLeftIconIndex = 3),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Right Action (Suffix)
-                  Text(
-                    'Right Action (Suffix):',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'None',
-                          isSelected: _selectedRightActionIndex == 0,
-                          onTap: () =>
-                              setState(() => _selectedRightActionIndex = 0),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Chevron Right',
-                          isSelected: _selectedRightActionIndex == 1,
-                          onTap: () =>
-                              setState(() => _selectedRightActionIndex = 1),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Undo Button',
-                          isSelected: _selectedRightActionIndex == 2,
-                          onTap: () =>
-                              setState(() => _selectedRightActionIndex = 2),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Close Button Toggle
-                  ByShowcaseSwitchTile(
-                    title: 'Show Close Button (\'X\')',
-                    subtitle: 'Can be toggled active or inactive independently',
-                    value: _showCloseButton,
-                    onChanged: (val) =>
-                        setState(() => _showCloseButton = val),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              // Section 4: Tap & Drag-to-Dialog Morphing Feature
-              _buildControlCard(
-                title: '4. EXPAND TO DIALOG (TAP & DRAG)',
-                icon: AppIcons.external,
-                children: [
-                  ByShowcaseSwitchTile(
-                    title: 'Enable Expand to Dialog (Tap & Drag)',
-                    subtitle:
-                        'Tap message text or drag toast towards screen center to morph into dialog',
-                    value: _enableTapToDialog,
-                    onChanged: (val) =>
-                        setState(() => _enableTapToDialog = val),
-                  ),
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 280),
-                    curve: Curves.easeInOutCubic,
-                    child: _enableTapToDialog
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 10),
-                              Text(
-                                'Dialog Content Mode:',
-                                style: AppTextStyle.sectionLabel.copyWith(
-                                  color: labelTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    _buildChoiceChip(
-                                      label: 'Option 1: Default Text',
-                                      isSelected: _selectedDialogMode == 0,
-                                      onTap: () => setState(
-                                        () => _selectedDialogMode = 0,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _buildChoiceChip(
-                                      label: 'Option 2: Custom Receipt',
-                                      isSelected: _selectedDialogMode == 1,
-                                      onTap: () => setState(
-                                        () => _selectedDialogMode = 1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              // Section 5: Coloring & Themes
-              _buildControlCard(
-                title: '5. COLORING (SOLID COLOR & GRADIENT)',
-                icon: AppIcons.palette,
-                children: [
-                  Text(
-                    'Preset Color Palette:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ByColorPalette.fromPresets(
-                    presets: _colorThemes,
-                    selectedIndex: _selectedColorIndex,
-                    onSelected: (index) =>
-                        setState(() => _selectedColorIndex = index),
-                  ),
-                  const SizedBox(height: 14),
-                  _buildToggleChip(
-                    label: 'Subtle Outline Border',
-                    isSelected: _useOutlineBorder,
-                    onChanged: (val) => setState(() => _useOutlineBorder = val),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Background Opacity:',
-                        style: AppTextStyle.sectionLabel.copyWith(
-                          color: labelTextColor,
-                        ),
+                // Section 2: Animation Style & Curves
+                _buildControlCard(
+                  title: '2. ANIMATION STYLE & CURVES',
+                  icon: AppIcons.animation,
+                  children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildAnimChip(
+                            'Slide & Fade',
+                            ByToastAnimationType.slideAndFade,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildAnimChip(
+                            'Bounce / Spring',
+                            ByToastAnimationType.bounce,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildAnimChip(
+                            'Scale & Fade',
+                            ByToastAnimationType.scaleAndFade,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildAnimChip(
+                            'Slide Only',
+                            ByToastAnimationType.slideOnly,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildAnimChip(
+                            'Fade Only',
+                            ByToastAnimationType.fadeOnly,
+                          ),
+                        ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 9,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.badgeBg,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: colors.badgeBorder),
-                        ),
-                        child: Text(
-                          '${(_backgroundOpacity * 100).round()}%',
-                          style: AppTextStyle.badge.copyWith(
-                            color: colors.badgeText,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                // Section 3: Icons & Close Button
+                _buildControlCard(
+                  title: '3. ICONS (LEFT & RIGHT) & CLOSE BUTTON',
+                  icon: AppIcons.button,
+                  children: [
+                    // Left Icon (Prefix)
+                    Text(
+                      'Left Icon (Prefix):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: 'None',
+                            isSelected: _selectedLeftIconIndex == 0,
+                            onTap: () =>
+                                setState(() => _selectedLeftIconIndex = 0),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Bell Icon',
+                            isSelected: _selectedLeftIconIndex == 1,
+                            onTap: () =>
+                                setState(() => _selectedLeftIconIndex = 1),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Checkmark',
+                            isSelected: _selectedLeftIconIndex == 2,
+                            onTap: () =>
+                                setState(() => _selectedLeftIconIndex = 2),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Info Icon',
+                            isSelected: _selectedLeftIconIndex == 3,
+                            onTap: () =>
+                                setState(() => _selectedLeftIconIndex = 3),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Right Action (Suffix)
+                    Text(
+                      'Right Action (Suffix):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: 'None',
+                            isSelected: _selectedRightActionIndex == 0,
+                            onTap: () =>
+                                setState(() => _selectedRightActionIndex = 0),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Chevron Right',
+                            isSelected: _selectedRightActionIndex == 1,
+                            onTap: () =>
+                                setState(() => _selectedRightActionIndex = 1),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Undo Button',
+                            isSelected: _selectedRightActionIndex == 2,
+                            onTap: () =>
+                                setState(() => _selectedRightActionIndex = 2),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Close Button Toggle
+                    ByShowcaseSwitchTile(
+                      title: 'Show Close Button (\'X\')',
+                      subtitle:
+                          'Can be toggled active or inactive independently',
+                      value: _showCloseButton,
+                      onChanged: (val) =>
+                          setState(() => _showCloseButton = val),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Section 4: Tap & Drag-to-Dialog Morphing Feature
+                _buildControlCard(
+                  title: '4. EXPAND TO DIALOG (TAP & DRAG)',
+                  icon: AppIcons.external,
+                  children: [
+                    ByShowcaseSwitchTile(
+                      title: 'Enable Expand to Dialog (Tap & Drag)',
+                      subtitle:
+                          'Tap message text or drag toast towards screen center to morph into dialog',
+                      value: _enableTapToDialog,
+                      onChanged: (val) =>
+                          setState(() => _enableTapToDialog = val),
+                    ),
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeInOutCubic,
+                      child: _enableTapToDialog
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Dialog Content Mode:',
+                                  style: AppTextStyle.sectionLabel.copyWith(
+                                    color: labelTextColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      _buildChoiceChip(
+                                        label: 'Option 1: Default Text',
+                                        isSelected: _selectedDialogMode == 0,
+                                        onTap: () => setState(
+                                          () => _selectedDialogMode = 0,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _buildChoiceChip(
+                                        label: 'Option 2: Custom Receipt',
+                                        isSelected: _selectedDialogMode == 1,
+                                        onTap: () => setState(
+                                          () => _selectedDialogMode = 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                // Section 5: Coloring & Themes
+                _buildControlCard(
+                  title: '5. COLORING (SOLID COLOR & GRADIENT)',
+                  icon: AppIcons.palette,
+                  children: [
+                    Text(
+                      'Preset Color Palette:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromPresets(
+                      presets: _colorThemes,
+                      selectedIndex: _selectedColorIndex,
+                      onSelected: (index) =>
+                          setState(() => _selectedColorIndex = index),
+                    ),
+                    const SizedBox(height: 14),
+                    _buildToggleChip(
+                      label: 'Subtle Outline Border',
+                      isSelected: _useOutlineBorder,
+                      onChanged: (val) =>
+                          setState(() => _useOutlineBorder = val),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Background Opacity:',
+                          style: AppTextStyle.sectionLabel.copyWith(
+                            color: labelTextColor,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: AppColors.primary,
-                      inactiveTrackColor: colors.borderSubtle,
-                      thumbColor: AppColors.primaryLight,
-                      overlayColor: AppColors.primary.withValues(alpha: 0.18),
-                      trackHeight: 4.0,
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 7.0,
-                      ),
-                    ),
-                    child: Slider(
-                      value: _backgroundOpacity,
-                      min: 0.0,
-                      max: 1.0,
-                      divisions: 20,
-                      onChanged: (val) {
-                        setState(() => _backgroundOpacity = val);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              // Section 6: Text Truncation & Overflow (maxLines & ellipsis)
-              _buildControlCard(
-                title: '6. TEXT TRUNCATION & OVERFLOW (MAXLINES & ELLIPSIS)',
-                icon: AppIcons.wrapText,
-                children: [
-                  Text(
-                    'Max Lines Clamp:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: '1 Line',
-                          isSelected: _maxLines == 1,
-                          onTap: () => setState(() => _maxLines = 1),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: '2 Lines',
-                          isSelected: _maxLines == 2,
-                          onTap: () => setState(() => _maxLines = 2),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: '3 Lines (Default)',
-                          isSelected: _maxLines == 3,
-                          onTap: () => setState(() => _maxLines = 3),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Unlimited (null)',
-                          isSelected: _maxLines == null,
-                          onTap: () => setState(() => _maxLines = null),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${(_backgroundOpacity * 100).round()}%',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Text Overflow Behavior:',
-                    style: AppTextStyle.sectionLabel.copyWith(
-                      color: labelTextColor,
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _backgroundOpacity,
+                        min: 0.0,
+                        max: 1.0,
+                        divisions: 20,
+                        onChanged: (val) {
+                          setState(() => _backgroundOpacity = val);
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildChoiceChip(
-                          label: 'Ellipsis (...) (Default)',
-                          isSelected: _overflow == TextOverflow.ellipsis,
-                          onTap: () =>
-                              setState(() => _overflow = TextOverflow.ellipsis),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Clip (Cut off)',
-                          isSelected: _overflow == TextOverflow.clip,
-                          onTap: () =>
-                              setState(() => _overflow = TextOverflow.clip),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Fade',
-                          isSelected: _overflow == TextOverflow.fade,
-                          onTap: () =>
-                              setState(() => _overflow = TextOverflow.fade),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildChoiceChip(
-                          label: 'Visible',
-                          isSelected: _overflow == TextOverflow.visible,
-                          onTap: () =>
-                              setState(() => _overflow = TextOverflow.visible),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: _buildToggleChip(
-                      label: _isMultiLine
-                          ? 'Long Multi-line Text Active (Tap toast to view full dialog)'
-                          : 'Switch to Long Multi-line Text (Test 3 Lines & Ellipsis)',
-                      isSelected: _isMultiLine,
-                      onChanged: (val) => setState(() => _isMultiLine = val),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  ],
+                ),
 
-          // Fixed Bottom Navigation Bar for Triggers
-          bottomNavigationBar: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            key: ByToast.bottomBarKey,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            decoration: BoxDecoration(
-              color: colors.cardBg,
-              border: Border(top: BorderSide(color: colors.border, width: 1)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, -4),
+                const SizedBox(height: 14),
+
+                // Section 6: Text Truncation & Overflow (maxLines & ellipsis)
+                _buildControlCard(
+                  title: '6. TEXT TRUNCATION & OVERFLOW (MAXLINES & ELLIPSIS)',
+                  icon: AppIcons.wrapText,
+                  children: [
+                    Text(
+                      'Max Lines Clamp:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: '1 Line',
+                            isSelected: _maxLines == 1,
+                            onTap: () => setState(() => _maxLines = 1),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: '2 Lines',
+                            isSelected: _maxLines == 2,
+                            onTap: () => setState(() => _maxLines = 2),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: '3 Lines (Default)',
+                            isSelected: _maxLines == 3,
+                            onTap: () => setState(() => _maxLines = 3),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Unlimited (null)',
+                            isSelected: _maxLines == null,
+                            onTap: () => setState(() => _maxLines = null),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Text Overflow Behavior:',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildChoiceChip(
+                            label: 'Ellipsis (...) (Default)',
+                            isSelected: _overflow == TextOverflow.ellipsis,
+                            onTap: () => setState(
+                              () => _overflow = TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Clip (Cut off)',
+                            isSelected: _overflow == TextOverflow.clip,
+                            onTap: () =>
+                                setState(() => _overflow = TextOverflow.clip),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Fade',
+                            isSelected: _overflow == TextOverflow.fade,
+                            onTap: () =>
+                                setState(() => _overflow = TextOverflow.fade),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildChoiceChip(
+                            label: 'Visible',
+                            isSelected: _overflow == TextOverflow.visible,
+                            onTap: () => setState(
+                              () => _overflow = TextOverflow.visible,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: _buildToggleChip(
+                        label: _isMultiLine
+                            ? 'Long Multi-line Text Active (Tap toast to view full dialog)'
+                            : 'Switch to Long Multi-line Text (Test 3 Lines & Ellipsis)',
+                        isSelected: _isMultiLine,
+                        onChanged: (val) => setState(() => _isMultiLine = val),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 3,
-                      ),
-                      icon: const Icon(AppIcons.play, size: 20),
-                      label: Text('Trigger', style: AppTextStyle.buttonPrimary),
-                      onPressed: () => _triggerToast(),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primaryAccent,
-                        side: const BorderSide(
-                          color: AppColors.primaryAccent,
-                          width: 1.2,
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(AppIcons.bolt, size: 18),
-                      label: Text(
-                        'Stack x3',
-                        style: AppTextStyle.buttonSecondary.copyWith(
-                          color: AppColors.primaryAccent,
-                        ),
-                      ),
-                      onPressed: _triggerRapidFireStack,
-                    ),
+
+            // Fixed Bottom Navigation Bar for Triggers
+            bottomNavigationBar: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              key: ByToast.bottomBarKey,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              decoration: BoxDecoration(
+                color: colors.cardBg,
+                border: Border(top: BorderSide(color: colors.border, width: 1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 3,
+                        ),
+                        icon: const Icon(AppIcons.play, size: 20),
+                        label: Text(
+                          'Trigger',
+                          style: AppTextStyle.buttonPrimary,
+                        ),
+                        onPressed: () => _triggerToast(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 2,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primaryAccent,
+                          side: const BorderSide(
+                            color: AppColors.primaryAccent,
+                            width: 1.2,
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(AppIcons.bolt, size: 18),
+                        label: Text(
+                          'Stack x3',
+                          style: AppTextStyle.buttonSecondary.copyWith(
+                            color: AppColors.primaryAccent,
+                          ),
+                        ),
+                        onPressed: _triggerRapidFireStack,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      );
-    },
+        );
+      },
     );
   }
 
@@ -1368,17 +1390,13 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
               ),
               ByMetricBadge(label: 'Prefix', value: leftIconLabel),
               ByMetricBadge(label: 'Suffix', value: rightActionLabel),
-              ByMetricBadge(
-                label: 'Max Lines',
-                value: '${_maxLines ?? 'All'}',
-              ),
+              ByMetricBadge(label: 'Max Lines', value: '${_maxLines ?? 'All'}'),
             ],
           ),
         ],
       ),
     );
   }
-
 
   Widget _buildPresetPills() {
     return Container(
@@ -1491,10 +1509,7 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: color.withValues(alpha: 0.35),
-              width: 1,
-            ),
+            border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
           ),
           alignment: Alignment.center,
           child: Text(

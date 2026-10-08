@@ -57,11 +57,7 @@ class ByMetricBadge extends StatelessWidget {
   final String label;
   final String value;
 
-  const ByMetricBadge({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const ByMetricBadge({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -148,10 +144,12 @@ class ByShowcaseSwitchTile extends StatelessWidget {
           value: value,
           onChanged: onChanged,
           activeTrackColor: AppColors.primary,
-          inactiveTrackColor:
-              isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
-          trackOutlineColor:
-              const WidgetStatePropertyAll<Color>(Colors.transparent),
+          inactiveTrackColor: isDark
+              ? const Color(0xFF334155)
+              : const Color(0xFFCBD5E1),
+          trackOutlineColor: const WidgetStatePropertyAll<Color>(
+            Colors.transparent,
+          ),
           thumbColor: const WidgetStatePropertyAll<Color>(Colors.white),
         ),
       ],

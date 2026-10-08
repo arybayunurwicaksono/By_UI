@@ -1,6 +1,6 @@
 # ByUI
 
-A modern, highly customizable Flutter UI component library featuring dynamic motion cards, fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
+A modern, highly customizable Flutter UI component library featuring sequential scroll-driven animations, dynamic motion cards, fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
 
 [![pub package](https://img.shields.io/pub/v/by_ui.svg)](https://pub.dev/packages/by_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -22,6 +22,15 @@ A modern, highly customizable Flutter UI component library featuring dynamic mot
 ---
 
 ## Features
+
+* **BySequence (Sequential Scroll-Driven Animations)**:
+  * **Zero-Boilerplate Scroll Reveal**: Progressively reveals children sequentially as the user scrolls without manual controllers or interpolators.
+  * **GSAP-Inspired Motion Engine**:
+    * **1:1 Continuous Scrubbing**: Direct bidirectional sync between scroll progress and animation transitions.
+    * **Dynamic Batch Pacing (`ScrollTrigger.batch`)**: Automatic batch grouping with configurable stagger wave delays.
+    * **Trigger Line & Gating**: Relative trigger points, initial visible fractions (`initialVisibleFraction`), and item counts (`initialVisibleCount`).
+  * **Composability**: Per-item overrides via `BySequenceItem`, multi-property `BySequenceAnimation`, and headless observation with `BySequenceController`.
+  * **Dual Orientation**: Smooth support for both vertical and horizontal scrollable flows.
 
 * **ByAppBar (Dynamic Floating, Glassmorphic & Sensor Parallax)**:
   * **Scroll-Driven Floating Transition**: Smoothly animates between static edge-docked mode and floating detached card based on scroll threshold via ancestor `ByScrollScope` or custom `ScrollController`.
@@ -70,7 +79,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.4
+  by_ui: ^0.1.5
 ```
 
 Or run:
@@ -287,6 +296,33 @@ final confirmed = await ByDialog.confirm(
 if (confirmed == true) {
   // Handle confirmed action
 }
+```
+
+---
+
+### BySequence
+
+#### 10. Sequential Scroll-Driven Animations
+
+Create fluid, scroll-linked sequence reveals with zero boilerplate controllers or interpolation math:
+
+```dart
+BySequence(
+  // 1:1 scroll scrubbing (GSAP style) or timed entrance transition
+  scrub: true,
+  trigger: 0.85, // Triggers at 85% viewport threshold
+  spacing: 16.0,
+  // Custom transform animation (opacity + slide up)
+  animation: const BySequenceAnimation(
+    opacity: BySequenceRange(0.0, 1.0),
+    translateY: BySequenceRange(40.0, 0.0),
+  ),
+  children: [
+    FeatureCard(title: 'Step 1: Discover'),
+    FeatureCard(title: 'Step 2: Configure'),
+    FeatureCard(title: 'Step 3: Deploy'),
+  ],
+)
 ```
 
 ---

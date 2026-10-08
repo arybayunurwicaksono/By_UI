@@ -5,6 +5,25 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.5
+
+### Added
+* **BySequence**:
+  * New sequential, scroll-driven widget reveal and animation component family.
+  * **Zero-Boilerplate Scroll Animations**: Progressively reveals children as the viewport scrolls without requiring manual `ScrollController`, `AnimationController`, or coordinate math.
+  * **GSAP-Inspired Motion System**:
+    * **1:1 Continuous Scrubbing**: Direct bidirectional sync between scroll offset and animation progress (`scrub: true`).
+    * **Dynamic Batch Pacing (`ScrollTrigger.batch`)**: Automatic item grouping (`groupSize`) with configurable cascading stagger delays (`groupStaggerDelay`, `groupStagger`).
+    * **Viewport Trigger Line**: Relative trigger threshold positioning from top to bottom (`trigger: 0.0` to `1.0`).
+    * **Initial Viewport Gating**: Support for `initialVisibleFraction` and `initialVisibleCount` so initial items render crisp and ready while subsequent items animate on scroll.
+    * **Reverse & Replay Controls**: Bidirectional reverse unwinding on scroll-up (`reverse: true`) and entry replay triggers (`replay: true`).
+  * **Granular Composition & Customization**:
+    * **BySequenceAnimation**: Configurable transformation presets and custom ranges for opacity, translateX, translateY, scale, and rotation.
+    * **BySequenceItem**: Per-item animation, duration, curve, and trigger overrides.
+    * **BySequenceController**: Headless controller for fine-grained progress observation and callback hooks (`onProgress`, `onItemProgress`, `onItemEnter`, `onSequenceComplete`).
+    * **BySequenceRange**: Mathematical range interpolation utility with smooth `lerpDouble`.
+  * **Multi-Orientation Layout**: Full support for both vertical (`Axis.vertical`) and horizontal (`Axis.horizontal`) sequences.
+
 ## 0.1.4
 
 ### Added
