@@ -46,6 +46,10 @@ class ByCardPainter extends CustomPainter {
   /// Custom blur radius for the inner glow. Defaults to [shadowBlur] if omitted.
   final double? innerGlowBlur;
 
+  /// Opacity multiplier for the sensor/base border stroke (0.0 to 1.0).
+  /// Used by dynamic border sequential handover to hold/fade-in the sensor border.
+  final double sensorBorderOpacity;
+
   /// Creates a [ByCardPainter].
   ByCardPainter({
     required this.variant,
@@ -62,6 +66,7 @@ class ByCardPainter extends CustomPainter {
     this.enableInnerGlow = false,
     this.innerGlowOpacity,
     this.innerGlowBlur,
+    this.sensorBorderOpacity = 1.0,
     super.repaint,
   });
 
@@ -184,16 +189,27 @@ class ByCardPainter extends CustomPainter {
   }
 
   void _paintBorder(Canvas canvas, RRect rrect, Rect rect) {
+    if (sensorBorderOpacity <= 0.001) return;
+
     final RRect borderRRect = rrect.deflate(borderWidth / 2);
     final Paint borderPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = borderWidth;
+
+    final bool needsLayer = sensorBorderOpacity < 0.999;
+    if (needsLayer) {
+      canvas.saveLayer(
+        borderRRect.outerRect.inflate(borderWidth * 2),
+        Paint()..color = Color.fromRGBO(255, 255, 255, sensorBorderOpacity),
+      );
+    }
 
     if (variant == ByCardVariant.normal) {
       if (borderColor != null && borderColor!.a > 0) {
         borderPaint.color = borderColor!;
         canvas.drawRRect(borderRRect, borderPaint);
       }
+      if (needsLayer) canvas.restore();
       return;
     }
 
@@ -284,14 +300,16 @@ class ByCardPainter extends CustomPainter {
     }
 
     canvas.drawRRect(borderRRect, borderPaint);
+    if (needsLayer) canvas.restore();
   }
 
   void _paintInnerGlow(Canvas canvas, RRect rrect, Rect rect) {
     final double blur = innerGlowBlur ?? shadowBlur;
     if (blur <= 0) return;
 
-    final double opacity = (innerGlowOpacity ?? 1.0).clamp(0.0, 1.0);
-    if (opacity <= 0) return;
+    final double opacity =
+        ((innerGlowOpacity ?? 1.0) * sensorBorderOpacity).clamp(0.0, 1.0);
+    if (opacity <= 0.005) return;
 
     // Resolve sheen colors: prefer shadowGradient, fallback to borderGradient, then defaults
     List<Color> sheenColors = const [
@@ -394,6 +412,7 @@ class ByCardPainter extends CustomPainter {
         oldDelegate.maxShadowOffset != maxShadowOffset ||
         oldDelegate.enableInnerGlow != enableInnerGlow ||
         oldDelegate.innerGlowOpacity != innerGlowOpacity ||
-        oldDelegate.innerGlowBlur != innerGlowBlur;
+        oldDelegate.innerGlowBlur != innerGlowBlur ||
+        oldDelegate.sensorBorderOpacity != sensorBorderOpacity;
   }
 }

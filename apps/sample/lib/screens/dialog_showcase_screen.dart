@@ -10,6 +10,7 @@ import '../widgets/by_color_palette.dart';
 import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
 import 'app_bar_showcase_screen.dart';
+import 'button_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
 import 'card_showcase_screen.dart';
 import 'sequence_showcase_screen.dart';
@@ -51,6 +52,19 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
   bool _reverseButtonOrder = false;
   int _cancelStyleIndex = 0; // 0: Outline, 1: Solid Fill, 2: Danger Tint
   bool _customConfirmTextColor = false;
+
+  // Pulse Dynamic Border
+  bool _enablePulseBorder = false;
+  ByBorderOrigin _pulseOrigin = ByBorderOrigin.topCenter;
+  int _pulseDurationMs = 1400;
+  double _pulseBeamLength = 0.28;
+  double _pulseWidth = 2.0;
+  double _pulseShadowBlur = 3.0;
+  double _pulseShadowWidth = 2.0;
+  double _pulseShadowLength = 0.28;
+  int _selectedPulseShadowColorIndex = 0;
+  int _selectedPulseColorAIndex = 0;
+  int _selectedPulseColorBIndex = 2;
 
   // Available Theme Colors
   final List<ShowcaseThemePreset> _themePresets = AppColors.dialogThemePresets;
@@ -96,6 +110,40 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         ? (isDark ? Colors.black : Colors.white)
         : null;
 
+    final pulseColorA =
+        AppColors.gradientColorOptions[_selectedPulseColorAIndex.clamp(
+              0,
+              AppColors.gradientColorOptions.length - 1,
+            )]['color']
+            as Color;
+    final pulseColorB =
+        AppColors.gradientColorOptions[_selectedPulseColorBIndex.clamp(
+              0,
+              AppColors.gradientColorOptions.length - 1,
+            )]['color']
+            as Color;
+    final pulseShadowColor =
+        AppColors.gradientColorOptions[_selectedPulseShadowColorIndex.clamp(
+              0,
+              AppColors.gradientColorOptions.length - 1,
+            )]['color']
+            as Color;
+
+    final dynamicBorderConfig = _enablePulseBorder
+        ? ByDynamicBorder(
+            autoStart: true,
+            origin: _pulseOrigin,
+            duration: Duration(milliseconds: _pulseDurationMs),
+            beamLength: _pulseBeamLength,
+            width: _pulseWidth,
+            shadowColor: pulseShadowColor,
+            shadowBlur: _pulseShadowBlur,
+            shadowWidth: _pulseShadowWidth,
+            shadowLength: _pulseShadowLength,
+            colors: [pulseColorA, pulseColorB],
+          )
+        : null;
+
     if (_selectedDialogType == 0) {
       // Alert Dialog
       ByDialog.alert(
@@ -114,6 +162,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         textColor: textColor,
         borderRadius: radius,
         border: border,
+        dynamicBorder: dynamicBorderConfig,
         barrierDismissible: _barrierDismissible,
         transitionDuration: _selectedDuration,
         enterCurve: _selectedCurve,
@@ -148,6 +197,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         textColor: textColor,
         borderRadius: radius,
         border: border,
+        dynamicBorder: dynamicBorderConfig,
         barrierDismissible: _barrierDismissible,
         transitionDuration: _selectedDuration,
         enterCurve: _selectedCurve,
@@ -169,6 +219,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
         barrierDismissible: _barrierDismissible,
         transitionDuration: _selectedDuration,
         enterCurve: _selectedCurve,
+        dynamicBorder: dynamicBorderConfig,
         builder: (ctx) {
           final screenSize = MediaQuery.of(ctx).size;
           final double cardWidth = min(screenSize.width - 40.0, 380.0);
@@ -313,30 +364,25 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                SizedBox(
+                ByButton(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 13),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: const Icon(AppIcons.print, size: 18),
-                    label: Text(
-                      'Print Thermal Receipt',
-                      style: AppTextStyle.buttonPrimary,
-                    ),
-                    onPressed: () {
-                      Navigator.of(ctx, rootNavigator: true).pop();
-                      ToastConfigStore.instance.showFeedback(
-                        context,
-                        message: 'Printing thermal receipt...',
-                        icon: AppIcons.print,
-                      );
-                    },
+                  variant: ByButtonVariant.filled,
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  borderWidth: 0.0,
+                  prefix: const Icon(AppIcons.print, size: 18),
+                  onPressed: () {
+                    Navigator.of(ctx, rootNavigator: true).pop();
+                    ToastConfigStore.instance.showFeedback(
+                      context,
+                      message: 'Printing thermal receipt...',
+                      icon: AppIcons.print,
+                    );
+                  },
+                  child: Text(
+                    'Print Thermal Receipt',
+                    style: AppTextStyle.buttonPrimary,
                   ),
                 ),
               ],
@@ -396,12 +442,25 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
       _reverseButtonOrder = false;
       _cancelStyleIndex = 0;
       _customConfirmTextColor = false;
+      _enablePulseBorder = false;
+      _pulseOrigin = ByBorderOrigin.topCenter;
+      _pulseDurationMs = 1400;
+      _pulseBeamLength = 0.28;
+      _pulseWidth = 2.0;
+      _pulseShadowBlur = 3.0;
+      _pulseShadowWidth = 2.0;
+      _pulseShadowLength = 0.28;
+      _selectedPulseShadowColorIndex = 0;
+      _selectedPulseColorAIndex = 0;
+      _selectedPulseColorBIndex = 2;
     });
   }
 
   void _showByDialogParams(BuildContext context) {
     showWidgetParametersDialog(
       context,
+      howToTry:
+          '💡 How to try: Tap any preset button to preview smooth shrink-wrap dialog animations, or test drag gestures!',
       parameters: const [
         WidgetParamInfo(
           name: 'title',
@@ -547,6 +606,12 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
           description: 'Easing curve for the entry modal animation.',
           defaultValue: 'Curves.easeOutCubic',
         ),
+        WidgetParamInfo(
+          name: 'dynamicBorder',
+          type: 'ByDynamicBorder?',
+          description:
+              'Additive 3-phase traveling pulse dynamic border (Point A -> Point A) wrapping the dialog card.',
+        ),
       ],
     );
   }
@@ -596,6 +661,13 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const SequenceShowcaseScreen(),
+                    ),
+                  );
+                } else if (comp == 'ByButton') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ButtonShowcaseScreen(),
                     ),
                   );
                 }
@@ -1017,6 +1089,428 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 10),
+
+                // Control Section 6: Pulse Dynamic Border
+                _buildControlCard(
+                  title: '6. PULSE DYNAMIC BORDER (ONE-SHOT TRAVELING BEAM)',
+                  icon: AppIcons.tune,
+                  children: [
+                    ByShowcaseSwitchTile(
+                      title: 'Enable Pulse Dynamic Border',
+                      subtitle:
+                          'Traces a neon laser circuit from Point A back to Point A around the modal card',
+                      value: _enablePulseBorder,
+                      onChanged: (val) {
+                        setState(() {
+                          _enablePulseBorder = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Pulse Origin (Point A):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildPulseOriginSelector(),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Circuit Duration:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseDurationMs}ms',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseDurationMs.toDouble(),
+                        min: 400.0,
+                        max: 3000.0,
+                        divisions: 26,
+                        onChanged: (val) {
+                          setState(() => _pulseDurationMs = val.toInt());
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Beam Length (% Perimeter):',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${(_pulseBeamLength * 100).toInt()}%',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseBeamLength,
+                        min: 0.10,
+                        max: 0.50,
+                        divisions: 20,
+                        onChanged: (val) {
+                          setState(() => _pulseBeamLength = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Beam Stroke Width:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseWidth.toStringAsFixed(1)}px',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseWidth,
+                        min: 1.0,
+                        max: 6.0,
+                        divisions: 25,
+                        onChanged: (val) {
+                          setState(() => _pulseWidth = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Outer Shadow Length (% Perimeter):',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${(_pulseShadowLength * 100).toInt()}%',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseShadowLength,
+                        min: 0.05,
+                        max: 0.80,
+                        divisions: 15,
+                        onChanged: (val) {
+                          setState(() => _pulseShadowLength = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Outer Shadow Thickness:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseShadowWidth.toStringAsFixed(1)}px',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseShadowWidth,
+                        min: 0.5,
+                        max: 8.0,
+                        divisions: 15,
+                        onChanged: (val) {
+                          setState(() => _pulseShadowWidth = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Outer Shadow Blur Radius:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseShadowBlur.toStringAsFixed(1)}px',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseShadowBlur,
+                        min: 0.0,
+                        max: 16.0,
+                        divisions: 16,
+                        onChanged: (val) {
+                          setState(() => _pulseShadowBlur = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Beam Color — Start Tone (A):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: _selectedPulseColorAIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseColorAIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Beam Color — End Tone (B):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: _selectedPulseColorBIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseColorBIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Outer Shadow Color (Decoupled):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: _selectedPulseShadowColorIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseShadowColorIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    ByButton(
+                      width: double.infinity,
+                      variant: ByButtonVariant.filled,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      borderWidth: 0.0,
+                      prefix: const Icon(Icons.bolt_rounded, size: 20),
+                      onPressed: () {
+                        setState(() {
+                          _enablePulseBorder = true;
+                        });
+                        _triggerDialog();
+                      },
+                      child: const Text('Open Dialog with Pulse Border'),
+                    ),
+                  ],
+                ),
               ],
             ),
             bottomNavigationBar: AnimatedContainer(
@@ -1039,50 +1533,41 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 3,
-                        ),
-                        icon: const Icon(AppIcons.play, size: 20),
-                        label: Text(
+                      child: ByButton(
+                        width: double.infinity,
+                        variant: ByButtonVariant.filled,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        borderWidth: 0.0,
+                        prefix: const Icon(AppIcons.play, size: 20),
+                        onPressed: _triggerDialog,
+                        child: Text(
                           'Trigger Dialog',
                           style: AppTextStyle.buttonPrimary,
                         ),
-                        onPressed: _triggerDialog,
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       flex: 2,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: const BorderSide(
-                            color: AppColors.primary,
-                            width: 1.2,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: const Icon(AppIcons.help, size: 18),
-                        label: Text(
+                      child: ByButton.outline(
+                        width: double.infinity,
+                        borderColor: AppColors.primary,
+                        foregroundColor: AppColors.primary,
+                        borderWidth: 1.2,
+                        borderRadius: BorderRadius.circular(12),
+                        prefix: const Icon(AppIcons.help, size: 18),
+                        onPressed: () {
+                          setState(() => _selectedDialogType = 1);
+                          _triggerDialog();
+                        },
+                        child: Text(
                           'Confirm Flow',
                           style: AppTextStyle.buttonSecondary.copyWith(
                             color: AppColors.primary,
                           ),
                         ),
-                        onPressed: () {
-                          setState(() => _selectedDialogType = 1);
-                          _triggerDialog();
-                        },
                       ),
                     ),
                   ],
@@ -1154,6 +1639,23 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                     context,
                     title: 'Cloud Sync in Progress',
                     message: 'Syncing 14 local transactions to cloud server.',
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Laser Pulse', const Color(0xFF38BDF8), () {
+                  setState(() {
+                    _enablePulseBorder = true;
+                  });
+                  ByDialog.alert(
+                    context,
+                    title: 'Laser Circuit Initialized',
+                    message:
+                        'One-shot neon pulse dynamic border has completed a full perimeter sweep.',
+                    buttonText: 'Acknowledge',
+                    dynamicBorder: const ByDynamicBorder(
+                      colors: [Color(0xFF38BDF8), Color(0xFF6366F1)],
+                      duration: Duration(milliseconds: 1400),
+                    ),
                   );
                 }),
               ],
@@ -1283,6 +1785,12 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 label: 'Btn Radius',
                 value: '${_buttonCornerRadius.toInt()}px',
               ),
+              ByMetricBadge(
+                label: 'Pulse Border',
+                value: _enablePulseBorder
+                    ? '${(_pulseDurationMs / 1000).toStringAsFixed(1)}s'
+                    : 'Off',
+              ),
             ],
           ),
         ],
@@ -1350,6 +1858,40 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
       isSelected: isSelected,
       onTap: onTap,
       icon: icon,
+    );
+  }
+
+  Widget _buildPulseOriginSelector() {
+    final origins = [
+      (origin: ByBorderOrigin.topCenter, label: 'Top Center'),
+      (origin: ByBorderOrigin.topLeft, label: 'Top Left'),
+      (origin: ByBorderOrigin.topRight, label: 'Top Right'),
+      (origin: ByBorderOrigin.bottomCenter, label: 'Bottom Center'),
+      (origin: ByBorderOrigin.bottomLeft, label: 'Bottom Left'),
+      (origin: ByBorderOrigin.bottomRight, label: 'Bottom Right'),
+      (origin: ByBorderOrigin.centerLeft, label: 'Center Left'),
+      (origin: ByBorderOrigin.centerRight, label: 'Center Right'),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: origins.map((item) {
+          final isSelected = _pulseOrigin == item.origin;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: _buildChoiceChip(
+              label: item.label,
+              isSelected: isSelected,
+              onTap: () {
+                setState(() {
+                  _pulseOrigin = item.origin;
+                });
+              },
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

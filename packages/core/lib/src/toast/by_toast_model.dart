@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dynamic_border/by_dynamic_border.dart';
 import 'by_toast_enums.dart';
 
 /// Data model representing an active toast item in the ByUI toast system.
@@ -152,6 +153,9 @@ class ByToastModel {
   /// If null, the dialog height automatically adjusts to fit the content dynamically.
   final double? dialogHeight;
 
+  /// Optional traveling pulse dynamic border configuration.
+  final ByDynamicBorder? dynamicBorder;
+
   /// Whether tap-to-expand gesture is active on this toast.
   bool get canTapToExpand =>
       enableTapToExpand ??
@@ -263,6 +267,7 @@ class ByToastModel {
     this.dialogAnimationDuration = const Duration(milliseconds: 380),
     this.dialogEnterCurve = Curves.easeOutCubic,
     this.dialogExitCurve = Curves.easeInCubic,
+    this.dynamicBorder,
   });
 }
 

@@ -10,6 +10,7 @@ import '../widgets/by_color_palette.dart';
 import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
 import 'app_bar_showcase_screen.dart';
+import 'button_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
 import 'card_showcase_screen.dart';
 import 'sequence_showcase_screen.dart';
@@ -48,6 +49,19 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
   bool _enableTapToDialog = true;
   int _selectedDialogMode =
       0; // 0: Default Text (Option 1), 1: Custom Receipt Widget (Option 2)
+
+  // Pulse Dynamic Border
+  bool _enablePulseBorder = false;
+  ByBorderOrigin _pulseOrigin = ByBorderOrigin.topCenter;
+  int _pulseDurationMs = 1400;
+  double _pulseBeamLength = 0.28;
+  double _pulseWidth = 2.0;
+  double _pulseShadowBlur = 3.0;
+  double _pulseShadowWidth = 2.0;
+  double _pulseShadowLength = 0.28;
+  int _selectedPulseShadowColorIndex = 0;
+  int _selectedPulseColorAIndex = 0;
+  int _selectedPulseColorBIndex = 2;
 
   final List<ShowcaseThemePreset> _colorThemes = AppColors.toastThemePresets;
 
@@ -296,6 +310,40 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
       }
     }
 
+    final pulseColorA =
+        AppColors.gradientColorOptions[_selectedPulseColorAIndex.clamp(
+              0,
+              AppColors.gradientColorOptions.length - 1,
+            )]['color']
+            as Color;
+    final pulseColorB =
+        AppColors.gradientColorOptions[_selectedPulseColorBIndex.clamp(
+              0,
+              AppColors.gradientColorOptions.length - 1,
+            )]['color']
+            as Color;
+    final pulseShadowColor =
+        AppColors.gradientColorOptions[_selectedPulseShadowColorIndex.clamp(
+              0,
+              AppColors.gradientColorOptions.length - 1,
+            )]['color']
+            as Color;
+
+    final dynamicBorderConfig = _enablePulseBorder
+        ? ByDynamicBorder(
+            autoStart: true,
+            origin: _pulseOrigin,
+            duration: Duration(milliseconds: _pulseDurationMs),
+            beamLength: _pulseBeamLength,
+            width: _pulseWidth,
+            shadowColor: pulseShadowColor,
+            shadowBlur: _pulseShadowBlur,
+            shadowWidth: _pulseShadowWidth,
+            shadowLength: _pulseShadowLength,
+            colors: [pulseColorA, pulseColorB],
+          )
+        : null;
+
     ByToast.show(
       context,
       message: message,
@@ -318,6 +366,7 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
               width: 1.2,
             )
           : null,
+      dynamicBorder: dynamicBorderConfig,
       enterCurve: _animationType == ByToastAnimationType.bounce
           ? Curves.easeOutBack
           : Curves.easeOutCubic,
@@ -393,6 +442,17 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
       _selectedRightActionIndex = 1;
       _enableTapToDialog = true;
       _selectedDialogMode = 0;
+      _enablePulseBorder = false;
+      _pulseOrigin = ByBorderOrigin.topCenter;
+      _pulseDurationMs = 1400;
+      _pulseBeamLength = 0.28;
+      _pulseWidth = 2.0;
+      _pulseShadowBlur = 3.0;
+      _pulseShadowWidth = 2.0;
+      _pulseShadowLength = 0.28;
+      _selectedPulseShadowColorIndex = 0;
+      _selectedPulseColorAIndex = 0;
+      _selectedPulseColorBIndex = 2;
     });
     ByToast.clear();
   }
@@ -400,6 +460,8 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
   void _showByToastParams(BuildContext context) {
     showWidgetParametersDialog(
       context,
+      howToTry:
+          '💡 How to try: Tap the toast message to open the detail dialog, or swipe away to dismiss.',
       parameters: const [
         WidgetParamInfo(
           name: 'message',
@@ -545,6 +607,12 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
           description:
               'Custom widget builder for the morph detail dialog on tap.',
         ),
+        WidgetParamInfo(
+          name: 'dynamicBorder',
+          type: 'ByDynamicBorder?',
+          description:
+              'Additive 3-phase traveling pulse dynamic border (Point A -> Point A) wrapping the toast card.',
+        ),
       ],
     );
   }
@@ -597,6 +665,13 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                       builder: (_) => const SequenceShowcaseScreen(),
                     ),
                   );
+                } else if (comp == 'ByButton') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ButtonShowcaseScreen(),
+                    ),
+                  );
                 }
               },
             ),
@@ -618,35 +693,8 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
 
                 const SizedBox(height: 16),
 
-                // 3. Visual Hint for Tap-to-Dialog feature
-                if (_enableTapToDialog)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colors.bannerBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: colors.bannerBorder),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          AppIcons.touch,
-                          color: AppColors.primary,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            '💡 How to try: Simply tap on the toast text to open the detail dialog!',
-                            style: AppTextStyle.hint.copyWith(
-                              color: colors.bannerText,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                // 3. Integrated Feature Hint (Integrated with ByDialog)
+                _buildIntegrationCard(colors),
 
                 const SizedBox(height: 16),
 
@@ -1179,6 +1227,431 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 14),
+
+                // Section 7: Pulse Dynamic Border
+                _buildControlCard(
+                  title: '7. PULSE DYNAMIC BORDER (ONE-SHOT TRAVELING BEAM)',
+                  icon: AppIcons.tune,
+                  children: [
+                    ByShowcaseSwitchTile(
+                      title: 'Enable Pulse Dynamic Border',
+                      subtitle:
+                          'Traces a neon laser circuit from Point A back to Point A on toast surface',
+                      value: _enablePulseBorder,
+                      onChanged: (val) {
+                        setState(() {
+                          _enablePulseBorder = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Pulse Origin (Point A):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildPulseOriginSelector(),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Circuit Duration:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseDurationMs}ms',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseDurationMs.toDouble(),
+                        min: 400.0,
+                        max: 3000.0,
+                        divisions: 26,
+                        onChanged: (val) {
+                          setState(() => _pulseDurationMs = val.toInt());
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Beam Length (% Perimeter):',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${(_pulseBeamLength * 100).toInt()}%',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseBeamLength,
+                        min: 0.10,
+                        max: 0.50,
+                        divisions: 20,
+                        onChanged: (val) {
+                          setState(() => _pulseBeamLength = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Beam Stroke Width:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseWidth.toStringAsFixed(1)}px',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseWidth,
+                        min: 1.0,
+                        max: 6.0,
+                        divisions: 25,
+                        onChanged: (val) {
+                          setState(() => _pulseWidth = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Outer Shadow Length (% Perimeter):',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${(_pulseShadowLength * 100).toInt()}%',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseShadowLength,
+                        min: 0.05,
+                        max: 0.80,
+                        divisions: 15,
+                        onChanged: (val) {
+                          setState(() => _pulseShadowLength = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Outer Shadow Thickness:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseShadowWidth.toStringAsFixed(1)}px',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseShadowWidth,
+                        min: 0.5,
+                        max: 8.0,
+                        divisions: 15,
+                        onChanged: (val) {
+                          setState(() => _pulseShadowWidth = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Outer Shadow Blur Radius:',
+                            style: AppTextStyle.sectionLabel.copyWith(
+                              color: labelTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.badgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.badgeBorder),
+                          ),
+                          child: Text(
+                            '${_pulseShadowBlur.toStringAsFixed(1)}px',
+                            style: AppTextStyle.badge.copyWith(
+                              color: colors.badgeText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary,
+                        inactiveTrackColor: colors.borderSubtle,
+                        thumbColor: AppColors.primaryLight,
+                        overlayColor: AppColors.primary.withValues(alpha: 0.18),
+                        trackHeight: 4.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7.0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: _pulseShadowBlur,
+                        min: 0.0,
+                        max: 16.0,
+                        divisions: 16,
+                        onChanged: (val) {
+                          setState(() => _pulseShadowBlur = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Beam Color — Start Tone (A):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: _selectedPulseColorAIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseColorAIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Beam Color — End Tone (B):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: _selectedPulseColorBIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseColorBIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Outer Shadow Color (Decoupled):',
+                      style: AppTextStyle.sectionLabel.copyWith(
+                        color: labelTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: _selectedPulseShadowColorIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseShadowColorIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    ByButton(
+                      width: double.infinity,
+                      variant: ByButtonVariant.filled,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      borderWidth: 0.0,
+                      prefix: const Icon(Icons.bolt_rounded, size: 20),
+                      onPressed: () {
+                        setState(() {
+                          _enablePulseBorder = true;
+                        });
+                        _triggerToast(
+                          customMessage:
+                              '⚡ Laser pulse beam running circuit from ${_pulseOrigin.name}!',
+                        );
+                      },
+                      child: const Text('Test Toast with Pulse Border'),
+                    ),
+                  ],
+                ),
               ],
             ),
 
@@ -1205,47 +1678,38 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 3,
-                        ),
-                        icon: const Icon(AppIcons.play, size: 20),
-                        label: Text(
+                      child: ByButton(
+                        width: double.infinity,
+                        variant: ByButtonVariant.filled,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        borderWidth: 0.0,
+                        prefix: const Icon(AppIcons.play, size: 20),
+                        onPressed: () => _triggerToast(),
+                        child: Text(
                           'Trigger',
                           style: AppTextStyle.buttonPrimary,
                         ),
-                        onPressed: () => _triggerToast(),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       flex: 2,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primaryAccent,
-                          side: const BorderSide(
-                            color: AppColors.primaryAccent,
-                            width: 1.2,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: const Icon(AppIcons.bolt, size: 18),
-                        label: Text(
+                      child: ByButton.outline(
+                        width: double.infinity,
+                        borderColor: AppColors.primaryAccent,
+                        foregroundColor: AppColors.primaryAccent,
+                        borderWidth: 1.2,
+                        borderRadius: BorderRadius.circular(12),
+                        prefix: const Icon(AppIcons.bolt, size: 18),
+                        onPressed: _triggerRapidFireStack,
+                        child: Text(
                           'Stack x3',
                           style: AppTextStyle.buttonSecondary.copyWith(
                             color: AppColors.primaryAccent,
                           ),
                         ),
-                        onPressed: _triggerRapidFireStack,
                       ),
                     ),
                   ],
@@ -1391,6 +1855,12 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
               ByMetricBadge(label: 'Prefix', value: leftIconLabel),
               ByMetricBadge(label: 'Suffix', value: rightActionLabel),
               ByMetricBadge(label: 'Max Lines', value: '${_maxLines ?? 'All'}'),
+              ByMetricBadge(
+                label: 'Pulse Border',
+                value: _enablePulseBorder
+                    ? '${(_pulseDurationMs / 1000).toStringAsFixed(1)}s'
+                    : 'Off',
+              ),
             ],
           ),
         ],
@@ -1490,6 +1960,25 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                     overflow: _overflow,
                   );
                 }),
+                const SizedBox(width: 8),
+                _buildPresetBtn('Laser Pulse', const Color(0xFF38BDF8), () {
+                  setState(() {
+                    _enablePulseBorder = true;
+                  });
+                  ByToast.show(
+                    context,
+                    message: 'Pulse border circuit active on toast entrance!',
+                    position: _position,
+                    slideDirection: _slideDirection,
+                    backgroundOpacity: _backgroundOpacity,
+                    dynamicBorder: const ByDynamicBorder(
+                      colors: [Color(0xFF38BDF8), Color(0xFF6366F1)],
+                      duration: Duration(milliseconds: 1400),
+                    ),
+                    maxLines: _maxLines,
+                    overflow: _overflow,
+                  );
+                }),
               ],
             ),
           ),
@@ -1517,6 +2006,42 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
             style: AppTextStyle.pillButton.copyWith(color: color),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildIntegrationCard(AppColorPalette colors) {
+    return Container(
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: colors.bannerBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.bannerBorder),
+      ),
+      child: Row(
+        children: [
+          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Integrated with ByDialog',
+                  style: AppTextStyle.bodyMedium.copyWith(
+                    color: colors.bannerText,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'ByToast seamlessly integrates with ByDialog to morph notifications directly into rich interactive modal dialogs on tap or swipe.',
+                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1606,6 +2131,40 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
       selectedTextColor: isDark ? Colors.white : Colors.black,
       unselectedTextColor: colors.textMuted,
       onTap: () => onChanged(!isSelected),
+    );
+  }
+
+  Widget _buildPulseOriginSelector() {
+    final origins = [
+      (origin: ByBorderOrigin.topCenter, label: 'Top Center'),
+      (origin: ByBorderOrigin.topLeft, label: 'Top Left'),
+      (origin: ByBorderOrigin.topRight, label: 'Top Right'),
+      (origin: ByBorderOrigin.bottomCenter, label: 'Bottom Center'),
+      (origin: ByBorderOrigin.bottomLeft, label: 'Bottom Left'),
+      (origin: ByBorderOrigin.bottomRight, label: 'Bottom Right'),
+      (origin: ByBorderOrigin.centerLeft, label: 'Center Left'),
+      (origin: ByBorderOrigin.centerRight, label: 'Center Right'),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: origins.map((item) {
+          final isSelected = _pulseOrigin == item.origin;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: _buildChoiceChip(
+              label: item.label,
+              isSelected: isSelected,
+              onTap: () {
+                setState(() {
+                  _pulseOrigin = item.origin;
+                });
+              },
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 

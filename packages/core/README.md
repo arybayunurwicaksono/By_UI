@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/logo_by_ui.jpg" width="400" alt="ByUI Logo" />
+</p>
+
 # ByUI
 
-A modern, highly customizable Flutter UI component library featuring sequential scroll-driven animations, dynamic motion cards, fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
+A modern, highly customizable Flutter UI component library featuring dynamic border buttons, sequential scroll-driven animations, dynamic motion cards, fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
 
 [![pub package](https://img.shields.io/pub/v/by_ui.svg)](https://pub.dev/packages/by_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -8,6 +12,16 @@ A modern, highly customizable Flutter UI component library featuring sequential 
 ---
 
 ## Preview
+
+### Dynamic Border Beam & State Transitions (`ByButton`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_button.gif" width="700" alt="ByButton Dynamic Perimeter Pulse & State Transition" />
+</p>
+
+### Sequential Scroll-Driven Animations (`BySequence`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_sequence.gif" width="700" alt="BySequence Scroll Reveal and Scrubbing" />
+</p>
 
 ### Dynamic Floating AppBar with Sensor & Cursor Parallax (`ByAppBar`)
 <p align="center">
@@ -22,6 +36,16 @@ A modern, highly customizable Flutter UI component library featuring sequential 
 ---
 
 ## Features
+
+* **ByButton (Flagship Interactive Button & Dynamic Border Pulse)**:
+  * **Dynamic Perimeter Beam Sweep (`ByDynamicBorderLayer`)**: High-energy gradient beam that traces the continuous rounded perimeter and corner curves of the button.
+  * **State-Transition Energy Pulse**: Automatically triggers a vibrant border pulse when transitioning from disabled to enabled mode (`enableTransitionPulseColors`).
+  * **Autonomous Async State**: Passing a `Future Function()` to `onPressed` automatically engages the loading state with a 3-phase circular pulse spinner.
+  * **Zero Content Shift**: Maintains button geometry during loading state to prevent layout jank and abrupt size shifts.
+  * **Independent Border Widths**: Independent tuning for resting border (`borderWidth`) versus loading border (`loadingBorderWidth`).
+  * **4 Visual Variants**: `filled`, `gradient`, `outline`, and `ghost`.
+  * **5 Size Presets**: `xs`, `sm`, `md`, `lg`, and `xl` with customizable padding, font sizes, and corner radiuses.
+  * **Rich Decorators**: Leading widgets (`prefix`), trailing widgets (`suffix`), and corner notification badges (`badge`, `badgeAlignment`).
 
 * **BySequence (Sequential Scroll-Driven Animations)**:
   * **Zero-Boilerplate Scroll Reveal**: Progressively reveals children sequentially as the user scrolls without manual controllers or interpolators.
@@ -79,7 +103,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.5
+  by_ui: ^0.1.6
 ```
 
 Or run:
@@ -97,6 +121,58 @@ import 'package:by_ui/by_ui.dart';
 ---
 
 ## Usage
+
+### ByButton
+
+#### 1. Outlined Button with Dynamic Circular Loading Pulse
+Configured with independent border widths and custom multi-color pulse beams during async operations:
+
+```dart
+ByButton(
+  variant: ByButtonVariant.outline,
+  borderWidth: 1.5,
+  loadingBorderWidth: 2.0,
+  loadingPulseColors: const [
+    Color(0xFF38BDF8),
+    Color(0xFF818CF8),
+    Color(0xFFC084FC),
+  ],
+  prefix: const Icon(Icons.bolt_rounded, size: 18),
+  onPressed: () async {
+    await Future.delayed(const Duration(seconds: 2));
+  },
+  child: const Text('Dynamic Pulse Button'),
+);
+```
+
+#### 2. Auto-Async Loading State with Circular Pulse Spinner
+Passing an asynchronous callback automatically switches the button to loading mode while preserving dimensions:
+
+```dart
+ByButton(
+  variant: ByButtonVariant.filled,
+  prefix: const Icon(Icons.cloud_upload_rounded),
+  onPressed: () async {
+    await Future.delayed(const Duration(seconds: 2));
+  },
+  child: const Text('Upload Changes'),
+);
+```
+
+#### 3. State Transition Pulse on Enable
+Automatically triggers an energetic contrast pulse whenever the button becomes active:
+
+```dart
+ByButton(
+  isEnabled: isTermsAccepted,
+  enableStateTransitionPulse: true,
+  enableTransitionPulseColors: const [Color(0xFF10B981), Color(0xFF06B6D4)],
+  onPressed: () => submitForm(),
+  child: const Text('Accept & Continue'),
+);
+```
+
+---
 
 ### ByAppBar
 

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sample/main.dart';
 import 'package:sample/models/app_theme_store.dart';
 import 'package:sample/models/toast_config_store.dart';
+import 'package:sample/screens/button_showcase_screen.dart';
 
 void main() {
   setUp(() {
@@ -139,6 +140,8 @@ void main() {
         200,
         scrollable: verticalScrollable,
       );
+      // Drag down slightly so the swatch moves below the floating AppBar
+      await tester.drag(verticalScrollable, const Offset(0, 100));
       await tester.pumpAndSettle();
       expect(toastWhiteFinder, findsOneWidget);
       await tester.tap(toastWhiteFinder);
@@ -310,12 +313,23 @@ void main() {
       // Verify CardShowcaseScreen loaded
       expect(find.text('ByCard'), findsWidgets);
       expect(find.text('Showcase'), findsOneWidget);
-      expect(find.text('ByCard Interactive Pass'), findsOneWidget);
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
       expect(find.text('Spatial Aurora'), findsOneWidget);
+      expect(find.text('Integrated with ByDynamicBorder'), findsOneWidget);
 
       final verticalScrollable = find.byWidgetPredicate(
         (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
       );
+
+      final heroPassFinder = find.text('ByCard Interactive Pass');
+      await tester.scrollUntilVisible(
+        heroPassFinder,
+        100,
+        scrollable: verticalScrollable,
+      );
+      await tester.pumpAndSettle();
+
+      expect(heroPassFinder, findsOneWidget);
 
       final colorSectionFinder = find.text(
         '3. COLOR TRANSITIONS & ACCENT PALETTE',
@@ -495,6 +509,105 @@ void main() {
       expect(find.text('Close'), findsOneWidget);
       await tester.tap(find.text('Close'));
       await tester.pumpAndSettle();
+    },
+  );
+
+  testWidgets(
+    'Drawer navigates to ByButton showcase and renders live controls',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const ByUISampleApp());
+      await tester.pumpAndSettle();
+
+      // Open drawer
+      await tester.tap(find.byIcon(Icons.menu_rounded));
+      await tester.pumpAndSettle();
+
+      final drawerScrollable = find.descendant(
+        of: find.byType(Drawer),
+        matching: find.byType(Scrollable),
+      );
+      final byButtonDrawerItem = find.text('ByButton');
+      await tester.scrollUntilVisible(
+        byButtonDrawerItem,
+        100,
+        scrollable: drawerScrollable,
+      );
+      await tester.pumpAndSettle();
+
+      // Tap ByButton drawer item
+      expect(byButtonDrawerItem, findsOneWidget);
+      await tester.tap(byButtonDrawerItem);
+      await tester.pumpAndSettle();
+
+      // Verify ByButton showcase screen loaded
+      expect(find.text('ByButton'), findsWidgets);
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
+      expect(find.text('Preset Example'), findsOneWidget);
+      expect(find.text('Idle Border'), findsOneWidget);
+      expect(find.text('Loading Border'), findsOneWidget);
+
+      // Verify help button opens parameter dialog for ByButton
+      final helpButton = find.byTooltip('Widget Parameters');
+      expect(helpButton, findsOneWidget);
+      await tester.tap(helpButton);
+      await tester.pumpAndSettle();
+      expect(find.text('borderWidth'), findsWidgets);
+      expect(find.text('loadingBorderWidth'), findsOneWidget);
+      expect(find.text('borderColor'), findsOneWidget);
+      expect(find.text('successIconColor'), findsOneWidget);
+      expect(find.text('errorIconColor'), findsOneWidget);
+      expect(find.text('Close'), findsOneWidget);
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+    },
+  );
+
+  testWidgets(
+    'Button showcase Enabled State switch triggers state transition pulse',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: ButtonShowcaseScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      final switchFinder = find.text('Enabled State');
+      expect(switchFinder, findsOneWidget);
+
+      // Tap the switch to toggle to disabled
+      await tester.tap(switchFinder);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final layerFinder = find.descendant(
+        of: find.byType(ByButton),
+        matching: find.byType(ByDynamicBorderLayer),
+      );
+      expect(layerFinder, findsOneWidget);
+      final layer = tester.widget<ByDynamicBorderLayer>(layerFinder);
+      expect(layer.config.repeatCount, equals(1));
+      expect(
+        layer.config.colors.first.toARGB32(),
+        equals(ByButtonDefaults.disableTransitionPulseColors.first.toARGB32()),
+      );
+
+      // Wait for the disable pulse to complete (1400ms)
+      await tester.pump(const Duration(milliseconds: 1400));
+
+      // Now toggle back to ENABLED
+      await tester.tap(switchFinder);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final layerFinder2 = find.descendant(
+        of: find.byType(ByButton),
+        matching: find.byType(ByDynamicBorderLayer),
+      );
+      final layer2 = tester.widget<ByDynamicBorderLayer>(layerFinder2);
+      expect(layer2.config.repeatCount, equals(1));
+      expect(
+        layer2.config.colors.first.toARGB32(),
+        isIn([Colors.white.toARGB32(), Colors.black.toARGB32()]),
+      );
     },
   );
 }

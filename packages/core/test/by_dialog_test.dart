@@ -32,6 +32,7 @@ void main() {
       expect(find.text('Alert Title'), findsOneWidget);
       expect(find.text('Alert Message Content'), findsOneWidget);
       expect(find.text('OK'), findsOneWidget);
+      expect(find.byType(ByButton), findsOneWidget);
 
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
@@ -70,6 +71,7 @@ void main() {
         expect(find.text('Confirm Title'), findsOneWidget);
         expect(find.text('Cancel'), findsOneWidget);
         expect(find.text('Confirm'), findsOneWidget);
+        expect(find.byType(ByButton), findsNWidgets(2));
 
         await tester.tap(find.text('Cancel'));
         await tester.pumpAndSettle();
@@ -79,6 +81,8 @@ void main() {
         // Test confirm
         await tester.tap(find.text('Show Confirm'));
         await tester.pumpAndSettle();
+
+        expect(find.byType(ByButton), findsNWidgets(2));
 
         await tester.tap(find.text('Confirm'));
         await tester.pumpAndSettle();
@@ -128,6 +132,7 @@ void main() {
         // Verify custom button labels are rendered
         expect(find.text('Accept'), findsOneWidget);
         expect(find.text('Dismiss'), findsOneWidget);
+        expect(find.byType(ByButton), findsNWidgets(2));
 
         // Verify reversed order: Accept should be rendered to the left of Dismiss
         final acceptOffset = tester.getTopLeft(find.text('Accept'));
@@ -147,6 +152,38 @@ void main() {
         await tester.tap(find.text('Accept'));
         await tester.pumpAndSettle();
         expect(onConfirmCalled, isTrue);
+      },
+    );
+
+    testWidgets(
+      'ByDialog positive button defaults to zero border',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByDialog.alert(
+                      context,
+                      title: 'Border Test',
+                      message: 'Checking zero border on positive button',
+                    );
+                  },
+                  child: const Text('Open'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+
+        final buttonFinder = find.byType(ByButton);
+        expect(buttonFinder, findsOneWidget);
+        final byButton = tester.widget<ByButton>(buttonFinder);
+        expect(byButton.borderWidth, equals(0.0));
       },
     );
   });

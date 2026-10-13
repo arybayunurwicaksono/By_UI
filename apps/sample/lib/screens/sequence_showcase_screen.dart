@@ -7,6 +7,7 @@ import '../widgets/by_showcase_header.dart';
 import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
 import 'app_bar_showcase_screen.dart';
+import 'button_showcase_screen.dart';
 import 'card_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
@@ -237,6 +238,8 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
   void _showParamsDialog(BuildContext context) {
     showWidgetParametersDialog(
       context,
+      howToTry:
+          '💡 How to try: Scroll down and up smoothly to observe choreographed sequential cascade entrances and exits!',
       parameters: const [
         WidgetParamInfo(
           name: 'children',
@@ -524,6 +527,13 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
                         builder: (_) => const AppBarShowcaseScreen(),
                       ),
                     );
+                  } else if (comp == 'ByButton') {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ButtonShowcaseScreen(),
+                      ),
+                    );
                   }
                 },
               ),
@@ -555,6 +565,10 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
 
                         // 2. Preset Example Card
                         _buildPresetCard(colors, isDark),
+                        const SizedBox(height: 12),
+
+                        // 3. Integrated Feature Hint (Integrated with ByCard)
+                        _buildIntegrationCard(colors),
                         const SizedBox(height: 12),
 
                         // 4. Standalone Widget Display (Hero Interactive Live Preview)
@@ -1604,6 +1618,42 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildIntegrationCard(AppColorPalette colors) {
+    return Container(
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: colors.bannerBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.bannerBorder),
+      ),
+      child: Row(
+        children: [
+          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Integrated with ByCard',
+                  style: AppTextStyle.bodyMedium.copyWith(
+                    color: colors.bannerText,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'BySequence smoothly orchestrates staggered entrance cascades and scroll-scrubbed pacing for ByCard collections.',
+                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

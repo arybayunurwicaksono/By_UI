@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:by_ui/by_ui.dart';
 import '../theme/app_theme.dart';
 
 /// Specification for styling inner components inside ByAppBar (brand pill, accents, action buttons).
@@ -77,6 +78,24 @@ class AppBarConfigStore extends ChangeNotifier {
   // 5. Component Coloring Presets (Controls inner toolbar elements like badge pill & actions)
   int selectedComponentPresetIndex = 0;
 
+  // 6. Pulse Dynamic Border (Traveling neon laser beam Point A -> Point A)
+  bool enablePulseBorder = false;
+  bool pulseAutoStart = false;
+  int pulseOriginIndex = 0;
+  int pulseDurationMs = 1400;
+  double pulseBeamLength = 0.28;
+  double pulseWidth = 2.0;
+  double pulseShadowBlur = 3.0;
+  double pulseShadowWidth = 2.0;
+  double pulseShadowLength = 0.28;
+  int selectedPulseShadowColorIndex = 0;
+  double get pulseGlowBlur => pulseShadowBlur;
+  set pulseGlowBlur(double val) => pulseShadowBlur = val;
+  int sensorResumeDelayMs = 300;
+  int sensorEntranceDurationMs = 400;
+  int selectedPulseColorAIndex = 0;
+  int selectedPulseColorBIndex = 2;
+
   static const List<ByComponentPreset> componentPresetDefinitions = [
     ByComponentPreset(
       name: 'Indigo Neon (Default)',
@@ -115,6 +134,14 @@ class AppBarConfigStore extends ChangeNotifier {
   ByComponentPreset get activeComponentPreset =>
       componentPresetDefinitions[selectedComponentPresetIndex];
 
+  ByBorderOrigin get pulseOrigin {
+    if (pulseOriginIndex >= 0 &&
+        pulseOriginIndex < ByBorderOrigin.values.length) {
+      return ByBorderOrigin.values[pulseOriginIndex];
+    }
+    return ByBorderOrigin.topCenter;
+  }
+
   void update({
     bool? isFloatingEnabled,
     double? scrollThreshold,
@@ -143,6 +170,21 @@ class AppBarConfigStore extends ChangeNotifier {
     double? innerGlowOpacity,
     int? selectedSensorGradientIndex,
     int? selectedComponentPresetIndex,
+    bool? enablePulseBorder,
+    bool? pulseAutoStart,
+    int? pulseOriginIndex,
+    int? pulseDurationMs,
+    double? pulseBeamLength,
+    double? pulseWidth,
+    double? pulseShadowBlur,
+    double? pulseShadowWidth,
+    double? pulseShadowLength,
+    int? selectedPulseShadowColorIndex,
+    double? pulseGlowBlur,
+    int? sensorResumeDelayMs,
+    int? sensorEntranceDurationMs,
+    int? selectedPulseColorAIndex,
+    int? selectedPulseColorBIndex,
   }) {
     if (isFloatingEnabled != null) this.isFloatingEnabled = isFloatingEnabled;
     if (scrollThreshold != null) this.scrollThreshold = scrollThreshold;
@@ -197,6 +239,32 @@ class AppBarConfigStore extends ChangeNotifier {
       this.selectedComponentPresetIndex = selectedComponentPresetIndex;
     }
 
+    if (enablePulseBorder != null) this.enablePulseBorder = enablePulseBorder;
+    if (pulseAutoStart != null) this.pulseAutoStart = pulseAutoStart;
+    if (pulseOriginIndex != null) this.pulseOriginIndex = pulseOriginIndex;
+    if (pulseDurationMs != null) this.pulseDurationMs = pulseDurationMs;
+    if (pulseBeamLength != null) this.pulseBeamLength = pulseBeamLength;
+    if (pulseWidth != null) this.pulseWidth = pulseWidth;
+    if (pulseShadowBlur != null) this.pulseShadowBlur = pulseShadowBlur;
+    if (pulseShadowWidth != null) this.pulseShadowWidth = pulseShadowWidth;
+    if (pulseShadowLength != null) this.pulseShadowLength = pulseShadowLength;
+    if (selectedPulseShadowColorIndex != null) {
+      this.selectedPulseShadowColorIndex = selectedPulseShadowColorIndex;
+    }
+    if (pulseGlowBlur != null) this.pulseShadowBlur = pulseGlowBlur;
+    if (sensorResumeDelayMs != null) {
+      this.sensorResumeDelayMs = sensorResumeDelayMs;
+    }
+    if (sensorEntranceDurationMs != null) {
+      this.sensorEntranceDurationMs = sensorEntranceDurationMs;
+    }
+    if (selectedPulseColorAIndex != null) {
+      this.selectedPulseColorAIndex = selectedPulseColorAIndex;
+    }
+    if (selectedPulseColorBIndex != null) {
+      this.selectedPulseColorBIndex = selectedPulseColorBIndex;
+    }
+
     notifyListeners();
   }
 
@@ -228,6 +296,21 @@ class AppBarConfigStore extends ChangeNotifier {
     innerShadowOpacity = 1.0;
     selectedSensorGradientIndex = 0;
     selectedComponentPresetIndex = 0;
+
+    enablePulseBorder = false;
+    pulseAutoStart = false;
+    pulseOriginIndex = 0;
+    pulseDurationMs = 1400;
+    pulseBeamLength = 0.28;
+    pulseWidth = 2.0;
+    pulseShadowBlur = 3.0;
+    pulseShadowWidth = 2.0;
+    pulseShadowLength = 0.28;
+    selectedPulseShadowColorIndex = 0;
+    sensorResumeDelayMs = 300;
+    sensorEntranceDurationMs = 400;
+    selectedPulseColorAIndex = 0;
+    selectedPulseColorBIndex = 2;
 
     notifyListeners();
   }

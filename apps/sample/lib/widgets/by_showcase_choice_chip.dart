@@ -117,42 +117,47 @@ class ByShowcaseSwitchTile extends StatelessWidget {
     final colors = AppColors.of(context);
     final isDark = AppThemeStore.instance.isDarkMode(context);
 
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTextStyle.fieldLabel.copyWith(
-                  color: colors.textPrimary,
-                ),
-              ),
-              if (subtitle != null && subtitle!.isNotEmpty) ...[
-                const SizedBox(height: 2),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => onChanged(!value),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  subtitle!,
-                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                  title,
+                  style: AppTextStyle.fieldLabel.copyWith(
+                    color: colors.textPrimary,
+                  ),
                 ),
+                if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style:
+                        AppTextStyle.caption.copyWith(color: colors.textMuted),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeTrackColor: AppColors.primary,
-          inactiveTrackColor: isDark
-              ? const Color(0xFF334155)
-              : const Color(0xFFCBD5E1),
-          trackOutlineColor: const WidgetStatePropertyAll<Color>(
-            Colors.transparent,
+          const SizedBox(width: 12),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeTrackColor: AppColors.primary,
+            inactiveTrackColor: isDark
+                ? const Color(0xFF334155)
+                : const Color(0xFFCBD5E1),
+            trackOutlineColor: const WidgetStatePropertyAll<Color>(
+              Colors.transparent,
+            ),
+            thumbColor: const WidgetStatePropertyAll<Color>(Colors.white),
           ),
-          thumbColor: const WidgetStatePropertyAll<Color>(Colors.white),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

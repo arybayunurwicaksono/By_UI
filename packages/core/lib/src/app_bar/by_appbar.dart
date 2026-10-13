@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../card/by_card_controller.dart';
+import '../dynamic_border/by_dynamic_border.dart';
+import '../dynamic_border/by_dynamic_border_controller.dart';
+import '../dynamic_border/by_dynamic_border_layer.dart';
 import 'by_scroll_scope.dart';
 
 /// Reusable top navigation AppBar component for the ByUI library.
@@ -174,6 +178,9 @@ class ByAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// Clipping behavior for child content.
   final Clip clipBehavior;
 
+  /// Optional traveling pulse dynamic border configuration.
+  final ByDynamicBorder? dynamicBorder;
+
   const ByAppBar({
     super.key,
     this.child,
@@ -215,6 +222,7 @@ class ByAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.manualTilt,
     this.onTiltChanged,
     this.clipBehavior = Clip.antiAlias,
+    this.dynamicBorder,
   });
 
   /// Helper providing the recommended top content padding for scrollables
@@ -237,10 +245,13 @@ class ByAppBar extends StatefulWidget implements PreferredSizeWidget {
   State<ByAppBar> createState() => _ByAppBarState();
 }
 
-class _ByAppBarState extends State<ByAppBar> {
+class _ByAppBarState extends State<ByAppBar> with TickerProviderStateMixin {
   bool _isScrolledLocal = false;
   ValueNotifier<bool>? _scopeNotifier;
   late ByTiltController _tiltController;
+  late AnimationController _sensorBorderController;
+  Timer? _sensorResumeTimer;
+  ByDynamicBorderController? _internalPulseController;
 
   bool get _isMobilePlatform {
     if (kIsWeb) return false;
@@ -253,6 +264,40 @@ class _ByAppBarState extends State<ByAppBar> {
     super.initState();
     widget.scrollController?.addListener(_onControllerScroll);
     _initTiltController();
+    _initSensorBorderController();
+  }
+
+  void _initSensorBorderController() {
+    final bool hasPulse =
+        widget.dynamicBorder != null && widget.dynamicBorder!.enabled;
+    final bool startHeld = hasPulse && widget.dynamicBorder!.autoStart;
+
+    _sensorBorderController = AnimationController(
+      vsync: this,
+      duration: widget.dynamicBorder?.sensorEntranceDuration ??
+          const Duration(milliseconds: 400),
+      value: startHeld ? 0.0 : 1.0,
+    );
+  }
+
+  void _handlePulseStart() {
+    _sensorResumeTimer?.cancel();
+    if (_sensorBorderController.value > 0.0) {
+      _sensorBorderController.value = 0.0;
+    }
+  }
+
+  void _handlePulseComplete() {
+    _sensorResumeTimer?.cancel();
+    final Duration delay = widget.dynamicBorder?.sensorResumeDelay ??
+        const Duration(milliseconds: 300);
+    _sensorResumeTimer = Timer(delay, () {
+      if (mounted) {
+        final Curve curve =
+            widget.dynamicBorder?.sensorEntranceCurve ?? Curves.easeIn;
+        _sensorBorderController.animateTo(1.0, curve: curve);
+      }
+    });
   }
 
   void _initTiltController() {
@@ -307,10 +352,19 @@ class _ByAppBarState extends State<ByAppBar> {
       _tiltController.dispose();
       _initTiltController();
     }
+
+    if (widget.dynamicBorder?.sensorEntranceDuration !=
+        oldWidget.dynamicBorder?.sensorEntranceDuration) {
+      _sensorBorderController.duration =
+          widget.dynamicBorder?.sensorEntranceDuration ??
+              const Duration(milliseconds: 400);
+    }
   }
 
   @override
   void dispose() {
+    _sensorResumeTimer?.cancel();
+    _sensorBorderController.dispose();
     widget.scrollController?.removeListener(_onControllerScroll);
     _scopeNotifier?.removeListener(_onScopeScroll);
     _tiltController.dispose();
@@ -468,12 +522,16 @@ class _ByAppBarState extends State<ByAppBar> {
     // Dynamic Sensor Border & Directional Glow Painting
     if (hasSensorOrGradientBorder) {
       innerBar = ListenableBuilder(
-        listenable: _tiltController.tiltNotifier,
+        listenable: Listenable.merge([
+          _tiltController.tiltNotifier,
+          _sensorBorderController,
+        ]),
         child: toolbarContent,
         builder: (context, child) {
           return CustomPaint(
             painter: _ByAppBarSensorPainter(
               tilt: _tiltController.tiltNotifier.value,
+              sensorBorderOpacity: _sensorBorderController.value,
               borderRadius: effectiveBorderRadius,
               borderWidth: effectiveBorderWidth,
               borderGradient:
@@ -526,6 +584,42 @@ class _ByAppBarState extends State<ByAppBar> {
 
     final double topSafeArea = MediaQuery.paddingOf(context).top;
 
+    Widget barSurface = ClipRRect(
+      borderRadius: effectiveBorderRadius,
+      clipBehavior: widget.clipBehavior,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blurVal, sigmaY: blurVal),
+        child: AnimatedContainer(
+          duration: widget.animationDuration,
+          curve: widget.animationCurve,
+          decoration: BoxDecoration(
+            color: effectiveGradient == null ? effectiveBgColor : null,
+            gradient: effectiveGradient,
+            borderRadius: effectiveBorderRadius,
+            border: effectiveBorder,
+          ),
+          child: innerBar,
+        ),
+      ),
+    );
+
+    if (widget.dynamicBorder != null && widget.dynamicBorder!.enabled) {
+      final effectiveDynamicBorder = widget.dynamicBorder!.controller != null
+          ? widget.dynamicBorder!
+          : widget.dynamicBorder!.copyWith(
+              controller: _internalPulseController ??=
+                  ByDynamicBorderController(),
+            );
+
+      barSurface = ByDynamicBorderLayer(
+        config: effectiveDynamicBorder,
+        borderRadius: effectiveBorderRadius,
+        onPulseStart: _handlePulseStart,
+        onPulseComplete: _handlePulseComplete,
+        child: barSurface,
+      );
+    }
+
     final Widget barContent = AnimatedContainer(
       duration: widget.animationDuration,
       curve: widget.animationCurve,
@@ -534,24 +628,7 @@ class _ByAppBarState extends State<ByAppBar> {
         borderRadius: effectiveBorderRadius,
         boxShadow: effectiveShadows,
       ),
-      child: ClipRRect(
-        borderRadius: effectiveBorderRadius,
-        clipBehavior: widget.clipBehavior,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurVal, sigmaY: blurVal),
-          child: AnimatedContainer(
-            duration: widget.animationDuration,
-            curve: widget.animationCurve,
-            decoration: BoxDecoration(
-              color: effectiveGradient == null ? effectiveBgColor : null,
-              gradient: effectiveGradient,
-              borderRadius: effectiveBorderRadius,
-              border: effectiveBorder,
-            ),
-            child: innerBar,
-          ),
-        ),
-      ),
+      child: barSurface,
     );
 
     final Widget safeAreaContent = SafeArea(
@@ -591,6 +668,7 @@ class _ByAppBarState extends State<ByAppBar> {
 /// for [ByAppBar] based on physical sensor tilt or cursor hover.
 class _ByAppBarSensorPainter extends CustomPainter {
   final Offset tilt;
+  final double sensorBorderOpacity;
   final BorderRadius borderRadius;
   final double borderWidth;
   final Gradient borderGradient;
@@ -604,6 +682,7 @@ class _ByAppBarSensorPainter extends CustomPainter {
 
   _ByAppBarSensorPainter({
     required this.tilt,
+    this.sensorBorderOpacity = 1.0,
     required this.borderRadius,
     required this.borderWidth,
     required this.borderGradient,
@@ -644,8 +723,9 @@ class _ByAppBarSensorPainter extends CustomPainter {
 
     // 2. Paint Directional Spatial Glow when floating with tilt
     if (enableInnerShadow && isFloating && shadowBlur > 0) {
-      final double opacity = (innerShadowOpacity ?? 1.0).clamp(0.0, 1.0);
-      if (opacity > 0) {
+      final double opacity =
+          ((innerShadowOpacity ?? 1.0) * sensorBorderOpacity).clamp(0.0, 1.0);
+      if (opacity > 0.005) {
         final Offset shadowOffset = magnitude < 0.08
             ? Offset.zero
             : Offset(tilt.dx * maxShadowOffset, tilt.dy * maxShadowOffset);
@@ -721,7 +801,15 @@ class _ByAppBarSensorPainter extends CustomPainter {
     }
 
     // 3. Paint Dynamic Gradient Border Stroke
-    if (borderWidth > 0) {
+    if (borderWidth > 0 && sensorBorderOpacity > 0.001) {
+      final bool needsOpacityLayer = sensorBorderOpacity < 0.999;
+      if (needsOpacityLayer) {
+        canvas.saveLayer(
+          rect.inflate(borderWidth),
+          Paint()..color = Color.fromRGBO(0, 0, 0, sensorBorderOpacity),
+        );
+      }
+
       final RRect borderRRect = rrect.deflate(borderWidth / 2);
       final Paint borderPaint = Paint()
         ..style = PaintingStyle.stroke
@@ -804,12 +892,17 @@ class _ByAppBarSensorPainter extends CustomPainter {
       } else {
         canvas.drawRRect(borderRRect, borderPaint);
       }
+
+      if (needsOpacityLayer) {
+        canvas.restore();
+      }
     }
   }
 
   @override
   bool shouldRepaint(covariant _ByAppBarSensorPainter oldDelegate) {
     return oldDelegate.tilt != tilt ||
+        oldDelegate.sensorBorderOpacity != sensorBorderOpacity ||
         oldDelegate.borderWidth != borderWidth ||
         oldDelegate.borderRadius != borderRadius ||
         oldDelegate.borderGradient != borderGradient ||

@@ -1,5 +1,10 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import '../dynamic_border/by_dynamic_border.dart';
+import '../dynamic_border/by_dynamic_border_controller.dart';
+import '../dynamic_border/by_dynamic_border_layer.dart';
 import 'by_card_controller.dart';
 import 'by_card_enums.dart';
 import 'by_card_painter.dart';
@@ -85,6 +90,13 @@ class ByCard extends ImplicitlyAnimatedWidget {
   /// Clipping behavior for content extending beyond the rounded card bounds.
   final Clip clipBehavior;
 
+  /// Optional traveling pulse dynamic border configuration.
+  ///
+  /// When provided and active, renders a 3-phase traveling laser beam around the
+  /// card perimeter. In [ByCardVariant.dynamicSensor] mode, the base sensor border
+  /// is held/hidden during the pulse, and eases back in after completion.
+  final ByDynamicBorder? dynamicBorder;
+
   /// Creates a [ByCard].
   const ByCard({
     super.key,
@@ -108,6 +120,7 @@ class ByCard extends ImplicitlyAnimatedWidget {
     this.enableInnerGlow = false,
     this.innerGlowOpacity,
     this.innerGlowBlur,
+    this.dynamicBorder,
     this.onTap,
     this.clipBehavior = Clip.antiAlias,
     super.duration = ByCardDefaults.animationDuration,
@@ -129,6 +142,7 @@ class ByCard extends ImplicitlyAnimatedWidget {
     this.enableInnerGlow = false,
     this.innerGlowOpacity,
     this.innerGlowBlur,
+    this.dynamicBorder,
     this.backgroundColor,
     this.borderRadius = ByCardDefaults.borderRadius,
     this.padding = const EdgeInsets.all(16.0),
@@ -161,6 +175,7 @@ class ByCard extends ImplicitlyAnimatedWidget {
     this.enableInnerGlow = false,
     this.innerGlowOpacity,
     this.innerGlowBlur,
+    this.dynamicBorder,
     this.backgroundColor,
     this.borderRadius = ByCardDefaults.borderRadius,
     this.padding = const EdgeInsets.all(16.0),
@@ -197,6 +212,9 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
   Tween<double>? _innerGlowBlurTween;
 
   late ByTiltController _tiltController;
+  late AnimationController _sensorBorderController;
+  Timer? _sensorResumeTimer;
+  ByDynamicBorderController? _internalPulseController;
 
   bool get _isMobilePlatform {
     if (kIsWeb) return false;
@@ -208,6 +226,40 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
   void initState() {
     super.initState();
     _initTiltController();
+    _initSensorBorderController();
+  }
+
+  void _initSensorBorderController() {
+    final bool hasPulse =
+        widget.dynamicBorder != null && widget.dynamicBorder!.enabled;
+    final bool startHeld = hasPulse && widget.dynamicBorder!.autoStart;
+
+    _sensorBorderController = AnimationController(
+      vsync: const _ByCardTickerProvider(),
+      duration: widget.dynamicBorder?.sensorEntranceDuration ??
+          const Duration(milliseconds: 400),
+      value: startHeld ? 0.0 : 1.0,
+    );
+  }
+
+  void _handlePulseStart() {
+    _sensorResumeTimer?.cancel();
+    if (_sensorBorderController.value > 0.0) {
+      _sensorBorderController.value = 0.0;
+    }
+  }
+
+  void _handlePulseComplete() {
+    _sensorResumeTimer?.cancel();
+    final Duration delay = widget.dynamicBorder?.sensorResumeDelay ??
+        const Duration(milliseconds: 300);
+    _sensorResumeTimer = Timer(delay, () {
+      if (mounted) {
+        final Curve curve =
+            widget.dynamicBorder?.sensorEntranceCurve ?? Curves.easeIn;
+        _sensorBorderController.animateTo(1.0, curve: curve);
+      }
+    });
   }
 
   void _initTiltController() {
@@ -243,6 +295,13 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
 
     final bool sensorChanged = widget.enableSensor != oldWidget.enableSensor;
     final bool variantChanged = widget.variant != oldWidget.variant;
+
+    if (widget.dynamicBorder?.sensorEntranceDuration !=
+        oldWidget.dynamicBorder?.sensorEntranceDuration) {
+      _sensorBorderController.duration =
+          widget.dynamicBorder?.sensorEntranceDuration ??
+              const Duration(milliseconds: 400);
+    }
 
     if (sensorChanged || variantChanged) {
       _tiltController.dispose();
@@ -299,6 +358,9 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
 
   @override
   void dispose() {
+    _sensorResumeTimer?.cancel();
+    _sensorBorderController.dispose();
+    _internalPulseController?.dispose();
     _tiltController.dispose();
     super.dispose();
   }
@@ -340,20 +402,35 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
       );
     }
 
+    final VoidCallback? effectiveOnTap = (widget.onTap != null ||
+            (widget.dynamicBorder != null && widget.dynamicBorder!.enabled))
+        ? () {
+            if (widget.dynamicBorder != null && widget.dynamicBorder!.enabled) {
+              final ctrl =
+                  widget.dynamicBorder!.controller ?? _internalPulseController;
+              ctrl?.pulse();
+            }
+            widget.onTap?.call();
+          }
+        : null;
+
     if (widget.onTap != null) {
       content = Material(
         color: Colors.transparent,
         borderRadius: resolvedRadius,
         child: InkWell(
           borderRadius: resolvedRadius,
-          onTap: widget.onTap,
+          onTap: effectiveOnTap,
           child: content,
         ),
       );
     }
 
     Widget cardCore = ListenableBuilder(
-      listenable: _tiltController.tiltNotifier,
+      listenable: Listenable.merge([
+        _tiltController.tiltNotifier,
+        _sensorBorderController,
+      ]),
       builder: (context, _) {
         return CustomPaint(
           painter: ByCardPainter(
@@ -371,11 +448,29 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
             enableInnerGlow: widget.enableInnerGlow,
             innerGlowOpacity: resolvedInnerGlowOpacity,
             innerGlowBlur: resolvedInnerGlowBlur,
+            sensorBorderOpacity: _sensorBorderController.value,
           ),
           child: content,
         );
       },
     );
+
+    if (widget.dynamicBorder != null && widget.dynamicBorder!.enabled) {
+      final effectiveDynamicBorder = widget.dynamicBorder!.controller != null
+          ? widget.dynamicBorder!
+          : widget.dynamicBorder!.copyWith(
+              controller: _internalPulseController ??=
+                  ByDynamicBorderController(),
+            );
+
+      cardCore = ByDynamicBorderLayer(
+        config: effectiveDynamicBorder,
+        borderRadius: resolvedRadius,
+        onPulseStart: _handlePulseStart,
+        onPulseComplete: _handlePulseComplete,
+        child: cardCore,
+      );
+    }
 
     if (widget.enableHoverTilt &&
         widget.variant == ByCardVariant.dynamicSensor) {
@@ -412,4 +507,11 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
 
     return cardCore;
   }
+}
+
+class _ByCardTickerProvider implements TickerProvider {
+  const _ByCardTickerProvider();
+
+  @override
+  Ticker createTicker(TickerCallback onTick) => Ticker(onTick);
 }

@@ -112,6 +112,39 @@ class ExampleHomePage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const Text(
+              'ByButton (Dynamic Border & Auto-Async Loading):',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            ByButton(
+              variant: ByButtonVariant.outline,
+              borderWidth: 1.5,
+              loadingBorderWidth: 2.0,
+              enableStateTransitionPulse: true,
+              enableTransitionPulseColors: const [
+                Color(0xFF38BDF8),
+                Color(0xFF818CF8),
+                Color(0xFFC084FC),
+              ],
+              loadingPulseColors: const [
+                Color(0xFF38BDF8),
+                Color(0xFF818CF8),
+                Color(0xFFC084FC),
+              ],
+              prefix: const Icon(Icons.bolt_rounded, size: 18),
+              onPressed: () async {
+                await Future.delayed(const Duration(seconds: 2));
+                if (context.mounted) {
+                  ByToast.showSuccess(
+                    context,
+                    message: 'Async task completed with dynamic border!',
+                  );
+                }
+              },
+              child: const Text('Outline Button (Tap for Async Loading)'),
+            ),
+            const SizedBox(height: 24),
+            const Text(
               'BySequence (Sequential Scroll Reveal):',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),

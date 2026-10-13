@@ -5,6 +5,48 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.6
+
+### Added
+* **ByButton**:
+  * Flagship, interactive button component family combining tactile ergonomics, fluid spatial animations, autonomous async state handling, and dynamic perimeter border pulses.
+  * **Visual Variants**:
+    * `ByButtonVariant.filled`: High-contrast filled action button.
+    * `ByButtonVariant.gradient`: Vibrant multi-color gradient surface.
+    * `ByButtonVariant.outline`: Clean bordered button with transparent backdrop.
+    * `ByButtonVariant.ghost`: Minimal text button with subtle hover elevation.
+  * **Comprehensive State Management**:
+    * Interactive states: `idle`, `hover`, `pressed`, `loading`, and `disabled`.
+    * Autonomous asynchronous execution: passing a `Future<void> Function()` to `onPressed` automatically triggers the loading state until completion.
+    * Dedicated transactional state support (`ByButtonState.idle`, `ByButtonState.loading`, `ByButtonState.success`, `ByButtonState.error`).
+    * Preserved button geometry during loading state to prevent layout reflows and content shifts.
+    * 3-phase circular pulse spinner with customizable loading indicator widget (`loadingWidget`).
+  * **Dynamic Perimeter Border Pulses (`ByDynamicBorderLayer`)**:
+    * Perimeter beam sweep animation following rounded rectangle geometry (`RRect`), including corner arcs.
+    * Customizable beam color, gradient, length (`beamLength`), duration (`pulseDuration`), and easing curve.
+    * Periodic background pulses (`periodicPulseInterval`) for persistent ambient call-to-actions.
+    * State transition border pulses: automatically sweeps an energetic contrast pulse when transitioning from disabled to enabled state (`enableTransitionPulseColors`).
+    * Manual trigger controls via `ByDynamicBorderController.pulse()`.
+  * **Independent Border Widths**:
+    * Fine-grained control over resting border width (`borderWidth`) and active loading border width (`loadingBorderWidth`).
+  * **Theming & Ergonomics**:
+    * Five predefined size presets: `ByButtonSize.xs`, `ByButtonSize.sm`, `ByButtonSize.md`, `ByButtonSize.lg`, and `ByButtonSize.xl`.
+    * Prefix leading widget, suffix trailing widget, spacing, floating corner badges (`badge`, `badgeAlignment`).
+    * Unified styling via `ByButtonStyle` and tokens in `ByButtonDefaults`.
+* **ByDynamicBorder**:
+  * Standalone dynamic perimeter border layer system (`ByDynamicBorder`, `ByDynamicBorderLayer`, `ByDynamicBorderController`).
+  * Geometric perimeter interpolation calculating straight edge runs and corner arc sweeps.
+* **ByDialog Dogfooding**:
+  * Integrated `ByButton` as the primary button engine in `ByDialog.confirm` and `ByDialog.alert` for cohesive design and tactile interaction.
+* **Documentation & Media**:
+  * Added animated preview GIF for `BySequence` (`by_sequence.gif`).
+  * Added animated preview GIF for `ByButton` dynamic border pulse (`by_button.gif`).
+  * Added official library logo banner (`logo_by_ui.jpg`).
+
+### Fixed
+* Prevented framework `setState() or markNeedsBuild() called during build` assertion when triggering dynamic border animation controllers during widget build phases.
+* Synchronized disabled-to-enabled transition pulse default colors to match surface contrast palettes.
+
 ## 0.1.5
 
 ### Added

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dynamic_border/by_dynamic_border.dart';
 import 'by_toast_container.dart';
 import 'by_toast_enums.dart';
 import 'by_toast_model.dart';
@@ -85,6 +86,7 @@ abstract class ByToast {
     Duration dialogAnimationDuration = const Duration(milliseconds: 380),
     Curve dialogEnterCurve = Curves.easeOutCubic,
     Curve dialogExitCurve = Curves.easeInCubic,
+    ByDynamicBorder? dynamicBorder,
   }) {
     final overlay =
         Overlay.maybeOf(context, rootOverlay: true) ?? Overlay.maybeOf(context);
@@ -161,6 +163,7 @@ abstract class ByToast {
       dialogAnimationDuration: dialogAnimationDuration,
       dialogEnterCurve: dialogEnterCurve,
       dialogExitCurve: dialogExitCurve,
+      dynamicBorder: dynamicBorder,
     );
 
     // Insert new toast at the front of stack (newest first)
@@ -232,6 +235,7 @@ abstract class ByToast {
     double? dialogHeight,
     bool? enableTapToExpand,
     bool? enableDragToExpand,
+    ByDynamicBorder? dynamicBorder,
   }) {
     show(
       context,
@@ -273,6 +277,7 @@ abstract class ByToast {
       detailBuilder: detailBuilder,
       dialogHeight: dialogHeight,
       enableTapToExpand: enableTapToExpand ?? enableDragToExpand,
+      dynamicBorder: dynamicBorder,
     );
   }
 
@@ -318,6 +323,7 @@ abstract class ByToast {
     double? dialogHeight,
     bool? enableTapToExpand,
     bool? enableDragToExpand,
+    ByDynamicBorder? dynamicBorder,
   }) {
     show(
       context,
@@ -359,6 +365,7 @@ abstract class ByToast {
       detailBuilder: detailBuilder,
       dialogHeight: dialogHeight,
       enableTapToExpand: enableTapToExpand ?? enableDragToExpand,
+      dynamicBorder: dynamicBorder,
     );
   }
 
@@ -404,6 +411,7 @@ abstract class ByToast {
     double? dialogHeight,
     bool? enableTapToExpand,
     bool? enableDragToExpand,
+    ByDynamicBorder? dynamicBorder,
   }) {
     show(
       context,
@@ -445,6 +453,7 @@ abstract class ByToast {
       detailBuilder: detailBuilder,
       dialogHeight: dialogHeight,
       enableTapToExpand: enableTapToExpand ?? enableDragToExpand,
+      dynamicBorder: dynamicBorder,
     );
   }
 
@@ -490,6 +499,7 @@ abstract class ByToast {
     double? dialogHeight,
     bool? enableTapToExpand,
     bool? enableDragToExpand,
+    ByDynamicBorder? dynamicBorder,
   }) {
     show(
       context,
@@ -531,6 +541,7 @@ abstract class ByToast {
       detailBuilder: detailBuilder,
       dialogHeight: dialogHeight,
       enableTapToExpand: enableTapToExpand ?? enableDragToExpand,
+      dynamicBorder: dynamicBorder,
     );
   }
 

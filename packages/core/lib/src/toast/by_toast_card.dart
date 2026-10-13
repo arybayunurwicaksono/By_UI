@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../dynamic_border/by_dynamic_border_layer.dart';
 import 'by_toast_enums.dart';
 import 'by_toast_model.dart';
 
@@ -426,6 +427,14 @@ class _ByToastCardState extends State<ByToastCard>
         ],
       ),
     );
+
+    if (item.dynamicBorder != null && item.dynamicBorder!.enabled) {
+      cardContent = ByDynamicBorderLayer(
+        config: item.dynamicBorder!,
+        borderRadius: item.borderRadius ?? BorderRadius.circular(14),
+        child: cardContent,
+      );
+    }
 
     // Interactive drag wrapper for swipe-to-dismiss & drag-to-center expand
     Widget animatedBody = Transform.translate(

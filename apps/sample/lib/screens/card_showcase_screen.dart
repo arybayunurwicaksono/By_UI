@@ -8,6 +8,7 @@ import '../widgets/by_color_palette.dart';
 import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
 import 'app_bar_showcase_screen.dart';
+import 'button_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
 import 'sequence_showcase_screen.dart';
 import 'toast_showcase_screen.dart';
@@ -46,8 +47,32 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
   // Active preset tracking (-1 if custom)
   int _activePresetIndex = 0;
 
+  // Pulse Dynamic Border configuration
+  bool _enablePulseBorder = true;
+  bool _pulseAutoStart = true;
+  ByBorderOrigin _pulseOrigin = ByBorderOrigin.topCenter;
+  int _pulseDurationMs = 1400;
+  double _pulseBeamLength = 0.28;
+  double _pulseWidth = 2.0;
+  double _pulseShadowBlur = 3.0;
+  double _pulseShadowWidth = 2.0;
+  double _pulseShadowLength = 0.28;
+  int _selectedPulseShadowColorIndex = 0;
+  int _sensorResumeDelayMs = 300;
+  int _sensorEntranceDurationMs = 400;
+  int _selectedPulseColorAIndex = 0;
+  int _selectedPulseColorBIndex = 2;
+  final ByDynamicBorderController _pulseController =
+      ByDynamicBorderController();
+
   // Throttling timestamp to prevent 60 Hz setState CPU contention
   int _lastTiltUpdateTime = 0;
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
   void _resetToDefaults() {
     setState(() {
@@ -66,12 +91,28 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
       _selectedGradientColorAIndex = 0;
       _selectedGradientColorBIndex = 2;
       _activePresetIndex = 0;
+      _enablePulseBorder = true;
+      _pulseAutoStart = true;
+      _pulseOrigin = ByBorderOrigin.topCenter;
+      _pulseDurationMs = 1400;
+      _pulseBeamLength = 0.28;
+      _pulseWidth = 2.0;
+      _pulseShadowBlur = 3.0;
+      _pulseShadowWidth = 2.0;
+      _pulseShadowLength = 0.28;
+      _selectedPulseShadowColorIndex = 0;
+      _sensorResumeDelayMs = 300;
+      _sensorEntranceDurationMs = 400;
+      _selectedPulseColorAIndex = 0;
+      _selectedPulseColorBIndex = 2;
     });
   }
 
   void _showByCardParams(BuildContext context) {
     showWidgetParametersDialog(
       context,
+      howToTry:
+          '💡 How to try: Tilt your physical device or drag across the card to experience 3D parallax depth and pulse dynamic border!',
       parameters: const [
         WidgetParamInfo(
           name: 'child',
@@ -222,6 +263,12 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
           description: 'Easing curve used for implicit animated transitions.',
           defaultValue: 'Curves.easeOutCubic',
         ),
+        WidgetParamInfo(
+          name: 'dynamicBorder',
+          type: 'ByDynamicBorder?',
+          description:
+              'Configures additive 3-phase traveling pulse dynamic border (Point A -> Point A). Coordinates sequential handover with dynamicSensor mode.',
+        ),
       ],
     );
   }
@@ -251,6 +298,25 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 as Color;
         final colorB =
             gradientColorOptions[_selectedGradientColorBIndex.clamp(
+                  0,
+                  gradientColorOptions.length - 1,
+                )]['color']
+                as Color;
+
+        final pulseColorA =
+            gradientColorOptions[_selectedPulseColorAIndex.clamp(
+                  0,
+                  gradientColorOptions.length - 1,
+                )]['color']
+                as Color;
+        final pulseColorB =
+            gradientColorOptions[_selectedPulseColorBIndex.clamp(
+                  0,
+                  gradientColorOptions.length - 1,
+                )]['color']
+                as Color;
+        final pulseShadowColor =
+            gradientColorOptions[_selectedPulseShadowColorIndex.clamp(
                   0,
                   gradientColorOptions.length - 1,
                 )]['color']
@@ -316,6 +382,13 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                       builder: (_) => const SequenceShowcaseScreen(),
                     ),
                   );
+                } else if (comp == 'ByButton') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ButtonShowcaseScreen(),
+                    ),
+                  );
                 }
               },
             ),
@@ -343,13 +416,20 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 _buildPresetCard(colors, isDark),
                 const SizedBox(height: 12),
 
-                // 3. Standalone Widget Display (ByCard)
+                // 3. Integrated Feature Hint (Integrated with ByDynamicBorder)
+                _buildIntegrationCard(colors),
+                const SizedBox(height: 12),
+
+                // 4. Standalone Widget Display (ByCard)
                 _buildHeroPreviewCard(
                   colors: colors,
                   isDark: isDark,
                   currentBg: currentBg,
                   colorA: colorA,
                   colorB: colorB,
+                  pulseColorA: pulseColorA,
+                  pulseColorB: pulseColorB,
+                  pulseShadowColor: pulseShadowColor,
                   borderGradient: borderGradient,
                   shadowGradient: shadowGradient,
                 ),
@@ -662,11 +742,261 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 14),
+
+                // Control Card 5: Pulse Dynamic Border
+                _buildControlCard(
+                  colors: colors,
+                  title: '5. PULSE DYNAMIC BORDER (ONE-SHOT TRAVELING BEAM)',
+                  icon: AppIcons.tune,
+                  children: [
+                    _buildSwitchTile(
+                      title: 'Enable Pulse Dynamic Border',
+                      subtitle:
+                          'Traces a neon laser circuit from Point A back to Point A',
+                      value: _enablePulseBorder,
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _enablePulseBorder = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSwitchTile(
+                      title: 'Auto-Start on Entrance',
+                      subtitle:
+                          'Executes traveling beam automatically when loaded',
+                      value: _pulseAutoStart,
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _pulseAutoStart = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Pulse Origin (Point A):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildOriginSelector(colors, isDark),
+                    const SizedBox(height: 12),
+                    _buildSliderRow(
+                      title: 'Circuit Duration',
+                      value: _pulseDurationMs.toDouble(),
+                      min: 400.0,
+                      max: 3000.0,
+                      suffix: 'ms',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _pulseDurationMs = val.toInt();
+                        });
+                      },
+                    ),
+                    _buildSliderRow(
+                      title: 'Beam Length (% Perimeter)',
+                      value: _pulseBeamLength,
+                      min: 0.10,
+                      max: 0.50,
+                      suffix: 'x',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _pulseBeamLength = val;
+                        });
+                      },
+                    ),
+                    _buildSliderRow(
+                      title: 'Beam Stroke Width',
+                      value: _pulseWidth,
+                      min: 1.0,
+                      max: 6.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _pulseWidth = val;
+                        });
+                      },
+                    ),
+                    _buildSliderRow(
+                      title: 'Outer Shadow Length (% Perimeter)',
+                      value: _pulseShadowLength,
+                      min: 0.05,
+                      max: 0.80,
+                      suffix: 'x',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _pulseShadowLength = val;
+                        });
+                      },
+                    ),
+                    _buildSliderRow(
+                      title: 'Outer Shadow Thickness',
+                      value: _pulseShadowWidth,
+                      min: 0.5,
+                      max: 8.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _pulseShadowWidth = val;
+                        });
+                      },
+                    ),
+                    _buildSliderRow(
+                      title: 'Outer Shadow Blur Radius',
+                      value: _pulseShadowBlur,
+                      min: 0.0,
+                      max: 16.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _pulseShadowBlur = val;
+                        });
+                      },
+                    ),
+                    _buildSliderRow(
+                      title: 'Sensor Resume Delay (Rest Buffer)',
+                      value: _sensorResumeDelayMs.toDouble(),
+                      min: 0.0,
+                      max: 1000.0,
+                      suffix: 'ms',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _sensorResumeDelayMs = val.toInt();
+                        });
+                      },
+                    ),
+                    _buildSliderRow(
+                      title: 'Sensor Border Entrance Duration',
+                      value: _sensorEntranceDurationMs.toDouble(),
+                      min: 100.0,
+                      max: 1000.0,
+                      suffix: 'ms',
+                      colors: colors,
+                      onChanged: (val) {
+                        setState(() {
+                          _sensorEntranceDurationMs = val.toInt();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Beam Color — Start Tone (A):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: gradientColorOptions,
+                      selectedIndex: _selectedPulseColorAIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseColorAIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Beam Color — End Tone (B):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: gradientColorOptions,
+                      selectedIndex: _selectedPulseColorBIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseColorBIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Outer Shadow Color (Decoupled):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: gradientColorOptions,
+                      selectedIndex: _selectedPulseShadowColorIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _selectedPulseShadowColorIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    ByButton(
+                      width: double.infinity,
+                      variant: ByButtonVariant.filled,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      borderWidth: 0.0,
+                      prefix: const Icon(Icons.bolt_rounded, size: 20),
+                      onPressed: _enablePulseBorder
+                          ? () => _pulseController.pulse()
+                          : null,
+                      child: const Text(
+                        'Trigger Pulse Now (Point A → Point A)',
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildOriginSelector(AppColorPalette colors, bool isDark) {
+    final origins = [
+      (origin: ByBorderOrigin.topCenter, label: 'Top Center'),
+      (origin: ByBorderOrigin.topLeft, label: 'Top Left'),
+      (origin: ByBorderOrigin.topRight, label: 'Top Right'),
+      (origin: ByBorderOrigin.bottomCenter, label: 'Bottom Center'),
+      (origin: ByBorderOrigin.bottomLeft, label: 'Bottom Left'),
+      (origin: ByBorderOrigin.bottomRight, label: 'Bottom Right'),
+      (origin: ByBorderOrigin.centerLeft, label: 'Center Left'),
+      (origin: ByBorderOrigin.centerRight, label: 'Center Right'),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: origins.map((item) {
+          final isSelected = _pulseOrigin == item.origin;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ByShowcaseChoiceChip(
+              label: item.label,
+              isSelected: isSelected,
+              onTap: () {
+                setState(() {
+                  _pulseOrigin = item.origin;
+                });
+              },
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -676,6 +1006,9 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
     required Color currentBg,
     required Color colorA,
     required Color colorB,
+    required Color pulseColorA,
+    required Color pulseColorB,
+    required Color pulseShadowColor,
     required Gradient borderGradient,
     required Gradient shadowGradient,
   }) {
@@ -686,6 +1019,25 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
         enableHoverTilt: _enableHoverTilt,
         enableInnerGlow: _enableInnerGlow,
         innerGlowOpacity: _innerGlowOpacity,
+        dynamicBorder: _enablePulseBorder
+            ? ByDynamicBorder(
+                controller: _pulseController,
+                autoStart: _pulseAutoStart,
+                origin: _pulseOrigin,
+                duration: Duration(milliseconds: _pulseDurationMs),
+                beamLength: _pulseBeamLength,
+                width: _pulseWidth,
+                shadowColor: pulseShadowColor,
+                shadowBlur: _pulseShadowBlur,
+                shadowWidth: _pulseShadowWidth,
+                shadowLength: _pulseShadowLength,
+                colors: [pulseColorA, pulseColorB],
+                sensorResumeDelay: Duration(milliseconds: _sensorResumeDelayMs),
+                sensorEntranceDuration: Duration(
+                  milliseconds: _sensorEntranceDurationMs,
+                ),
+              )
+            : null,
         manualTilt: _enableSensor ? null : Offset(_tiltX, _tiltY),
         onTiltChanged: (tilt) {
           if (_enableSensor && mounted) {
@@ -724,6 +1076,9 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 ),
               ],
         onTap: () {
+          if (_enablePulseBorder) {
+            _pulseController.pulse();
+          }
           // Tap feedback: smoothly cycle background color
           setState(() {
             _selectedBgIndex = (_selectedBgIndex + 1) % 6;
@@ -917,6 +1272,42 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
     );
   }
 
+  Widget _buildIntegrationCard(AppColorPalette colors) {
+    return Container(
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: colors.bannerBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.bannerBorder),
+      ),
+      child: Row(
+        children: [
+          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Integrated with ByDynamicBorder',
+                  style: AppTextStyle.bodyMedium.copyWith(
+                    color: colors.bannerText,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'ByCard integrates ByDynamicBorder to sweep interactive highlight beams along its perimeter upon physical sensor tilt or hover.',
+                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActiveConfigPreviewCard(
     AppColorPalette colors,
     bool isDark,
@@ -1013,6 +1404,12 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 label: 'Vector',
                 value:
                     '(${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
+              ),
+              ByMetricBadge(
+                label: 'Pulse Border',
+                value: _enablePulseBorder
+                    ? '${(_pulseDurationMs / 1000).toStringAsFixed(1)}s'
+                    : 'Off',
               ),
             ],
           ),

@@ -25,9 +25,20 @@ export 'src/select_option/by_select_option.dart';
 export 'src/app_bar/by_appbar.dart';
 export 'src/app_bar/by_scroll_scope.dart';
 
+// Dynamic Border Component
+export 'src/dynamic_border/by_dynamic_border.dart';
+export 'src/dynamic_border/by_dynamic_border_controller.dart';
+export 'src/dynamic_border/by_dynamic_border_layer.dart';
+
 // Sequence Component
 export 'src/sequence/by_sequence.dart';
 export 'src/sequence/by_sequence_animation.dart';
 export 'src/sequence/by_sequence_controller.dart';
 export 'src/sequence/by_sequence_item.dart';
 export 'src/sequence/by_sequence_range.dart';
+
+// Button Component
+export 'src/button/by_button.dart';
+export 'src/button/by_button_defaults.dart';
+export 'src/button/by_button_enums.dart';
+export 'src/button/by_button_style.dart';

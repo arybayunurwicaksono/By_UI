@@ -8,6 +8,7 @@ import '../widgets/by_showcase_header.dart';
 import '../widgets/by_color_palette.dart';
 import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
+import 'button_showcase_screen.dart';
 import 'card_showcase_screen.dart';
 import 'dialog_showcase_screen.dart';
 import 'sequence_showcase_screen.dart';
@@ -27,6 +28,15 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
   double _tiltY = 1.0; // 1.0 = Upright portrait
   int _lastTiltUpdateTime = 0;
 
+  final ByDynamicBorderController _pulseController =
+      ByDynamicBorderController();
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
   // Static & Floating Background Palettes from AppColors (Rule 5.1 & Rule 5.6)
   static const List<ShowcaseColorOption> _colorThemes =
       AppColors.appBarColorThemes;
@@ -44,6 +54,26 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
         final colors = AppColors.of(context);
         final isDark = AppThemeStore.instance.isDarkMode(context);
         final store = AppBarConfigStore.instance;
+
+        final pulseColorA =
+            AppColors.gradientColorOptions[store.selectedPulseColorAIndex.clamp(
+                  0,
+                  AppColors.gradientColorOptions.length - 1,
+                )]['color']
+                as Color;
+        final pulseColorB =
+            AppColors.gradientColorOptions[store.selectedPulseColorBIndex.clamp(
+                  0,
+                  AppColors.gradientColorOptions.length - 1,
+                )]['color']
+                as Color;
+        final pulseShadowColor =
+            AppColors.gradientColorOptions[store.selectedPulseShadowColorIndex
+                    .clamp(
+                      0,
+                      AppColors.gradientColorOptions.length - 1,
+                    )]['color']
+                as Color;
 
         return ByScrollScope(
           child: Scaffold(
@@ -95,6 +125,27 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               enableHoverTilt: store.enableHoverTilt,
               enableInnerShadow: store.enableInnerShadow,
               innerShadowOpacity: store.innerShadowOpacity,
+              dynamicBorder: store.enablePulseBorder
+                  ? ByDynamicBorder(
+                      controller: _pulseController,
+                      autoStart: store.pulseAutoStart,
+                      origin: store.pulseOrigin,
+                      duration: Duration(milliseconds: store.pulseDurationMs),
+                      beamLength: store.pulseBeamLength,
+                      width: store.pulseWidth,
+                      shadowColor: pulseShadowColor,
+                      shadowBlur: store.pulseShadowBlur,
+                      shadowWidth: store.pulseShadowWidth,
+                      shadowLength: store.pulseShadowLength,
+                      colors: [pulseColorA, pulseColorB],
+                      sensorResumeDelay: Duration(
+                        milliseconds: store.sensorResumeDelayMs,
+                      ),
+                      sensorEntranceDuration: Duration(
+                        milliseconds: store.sensorEntranceDurationMs,
+                      ),
+                    )
+                  : null,
               manualTilt: (store.enableDynamicBorder && store.enableSensor)
                   ? null
                   : Offset(_tiltX, _tiltY),
@@ -157,6 +208,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                       builder: (_) => const SequenceShowcaseScreen(),
                     ),
                   );
+                } else if (comp == 'ByButton') {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ButtonShowcaseScreen(),
+                    ),
+                  );
                 }
               },
             ),
@@ -175,6 +233,10 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
 
                 // 2. Preset Example Card
                 _buildPresetCard(colors, isDark, store),
+                const SizedBox(height: 14),
+
+                // 3. Integrated Feature Hint (Integrated with ByDynamicBorder)
+                _buildIntegrationCard(colors),
                 const SizedBox(height: 14),
 
                 // Section 1: Floating Dynamics & Scroll Behavior
@@ -739,6 +801,176 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 14),
+
+                // Section 6: Pulse Dynamic Border (Traveling neon laser beam Point A -> Point A)
+                _buildControlCard(
+                  colors: colors,
+                  title: '6. PULSE DYNAMIC BORDER (ONE-SHOT TRAVELING BEAM)',
+                  icon: Icons.bolt_rounded,
+                  children: [
+                    _buildSwitchTile(
+                      title: 'Enable Pulse Dynamic Border',
+                      subtitle:
+                          'Traces a neon laser circuit from Point A back to Point A',
+                      value: store.enablePulseBorder,
+                      colors: colors,
+                      onChanged: (val) => store.update(enablePulseBorder: val),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSwitchTile(
+                      title: 'Auto-Start on Entrance',
+                      subtitle:
+                          'Executes traveling beam automatically when loaded',
+                      value: store.pulseAutoStart,
+                      colors: colors,
+                      onChanged: (val) => store.update(pulseAutoStart: val),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Pulse Origin (Point A):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildPulseOriginSelector(store),
+                    const SizedBox(height: 12),
+                    _buildSliderRow(
+                      title: 'Circuit Duration',
+                      value: store.pulseDurationMs.toDouble(),
+                      min: 400.0,
+                      max: 3000.0,
+                      suffix: 'ms',
+                      colors: colors,
+                      onChanged: (val) =>
+                          store.update(pulseDurationMs: val.toInt()),
+                    ),
+                    _buildSliderRow(
+                      title: 'Beam Length (% Perimeter)',
+                      value: store.pulseBeamLength,
+                      min: 0.10,
+                      max: 0.50,
+                      suffix: 'x',
+                      colors: colors,
+                      onChanged: (val) => store.update(pulseBeamLength: val),
+                    ),
+                    _buildSliderRow(
+                      title: 'Beam Stroke Width',
+                      value: store.pulseWidth,
+                      min: 1.0,
+                      max: 6.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) => store.update(pulseWidth: val),
+                    ),
+                    _buildSliderRow(
+                      title: 'Outer Shadow Length (% Perimeter)',
+                      value: store.pulseShadowLength,
+                      min: 0.05,
+                      max: 0.80,
+                      suffix: 'x',
+                      colors: colors,
+                      onChanged: (val) => store.update(pulseShadowLength: val),
+                    ),
+                    _buildSliderRow(
+                      title: 'Outer Shadow Thickness',
+                      value: store.pulseShadowWidth,
+                      min: 0.5,
+                      max: 8.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) => store.update(pulseShadowWidth: val),
+                    ),
+                    _buildSliderRow(
+                      title: 'Outer Shadow Blur Radius',
+                      value: store.pulseShadowBlur,
+                      min: 0.0,
+                      max: 16.0,
+                      suffix: 'px',
+                      colors: colors,
+                      onChanged: (val) => store.update(pulseShadowBlur: val),
+                    ),
+                    _buildSliderRow(
+                      title: 'Sensor Resume Delay (Rest Buffer)',
+                      value: store.sensorResumeDelayMs.toDouble(),
+                      min: 0.0,
+                      max: 1000.0,
+                      suffix: 'ms',
+                      colors: colors,
+                      onChanged: (val) =>
+                          store.update(sensorResumeDelayMs: val.toInt()),
+                    ),
+                    _buildSliderRow(
+                      title: 'Sensor Border Entrance Duration',
+                      value: store.sensorEntranceDurationMs.toDouble(),
+                      min: 100.0,
+                      max: 1000.0,
+                      suffix: 'ms',
+                      colors: colors,
+                      onChanged: (val) =>
+                          store.update(sensorEntranceDurationMs: val.toInt()),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Beam Color — Start Tone (A):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: store.selectedPulseColorAIndex,
+                      onSelected: (index) =>
+                          store.update(selectedPulseColorAIndex: index),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Beam Color — End Tone (B):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: store.selectedPulseColorBIndex,
+                      onSelected: (index) =>
+                          store.update(selectedPulseColorBIndex: index),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Outer Shadow Color (Decoupled):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ByColorPalette.fromOptions(
+                      options: AppColors.gradientColorOptions,
+                      selectedIndex: store.selectedPulseShadowColorIndex,
+                      onSelected: (index) =>
+                          store.update(selectedPulseShadowColorIndex: index),
+                    ),
+                    const SizedBox(height: 14),
+                    ByButton(
+                      width: double.infinity,
+                      variant: ByButtonVariant.filled,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      borderWidth: 0.0,
+                      prefix: const Icon(Icons.bolt_rounded, size: 20),
+                      onPressed: store.enablePulseBorder
+                          ? () => _pulseController.pulse()
+                          : null,
+                      child: const Text(
+                        'Trigger Pulse Now (Point A → Point A)',
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -760,6 +992,8 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
   void _showByAppBarParams(BuildContext context) {
     showWidgetParametersDialog(
       context,
+      howToTry:
+          '💡 How to try: Scroll the body to inspect surface blur and floating elevation, or toggle pulse border in Section 6!',
       parameters: const [
         WidgetParamInfo(
           name: 'child',
@@ -898,6 +1132,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               'Drop shadow elevation depths for static and floating states.',
           defaultValue: '0.0 / 4.0',
         ),
+        WidgetParamInfo(
+          name: 'dynamicBorder',
+          type: 'ByDynamicBorder?',
+          description:
+              'High-visibility traveling laser neon beam circuit traveling from Point A back to Point A.',
+          defaultValue: 'null',
+        ),
       ],
     );
   }
@@ -964,6 +1205,26 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
             borderRadius: 24.0,
             floatingOpacity: 0.92,
           );
+        },
+      ),
+      (
+        name: 'Laser Pulse',
+        color: AppColors.cyanAccent,
+        icon: Icons.electric_bolt_rounded,
+        onTap: () {
+          store.update(
+            isFloatingEnabled: true,
+            enablePulseBorder: true,
+            pulseAutoStart: true,
+            pulseOriginIndex: 0,
+            pulseDurationMs: 1200,
+            pulseBeamLength: 0.30,
+            pulseWidth: 2.5,
+            pulseGlowBlur: 8.0,
+            selectedPulseColorAIndex: 0,
+            selectedPulseColorBIndex: 2,
+          );
+          _pulseController.pulse();
         },
       ),
     ];
@@ -1038,6 +1299,42 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                   ),
                 );
               }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIntegrationCard(AppColorPalette colors) {
+    return Container(
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: colors.bannerBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.bannerBorder),
+      ),
+      child: Row(
+        children: [
+          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Integrated with ByDynamicBorder',
+                  style: AppTextStyle.bodyMedium.copyWith(
+                    color: colors.bannerText,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'ByAppBar integrates ByDynamicBorder to project glowing laser perimeter sweeps across its floating glassmorphic container.',
+                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                ),
+              ],
             ),
           ),
         ],
@@ -1162,6 +1459,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               _buildMetricBadge(
                 label: 'Preset',
                 value: store.activeComponentPreset.name,
+                colors: colors,
+              ),
+              _buildMetricBadge(
+                label: 'Pulse Border',
+                value: store.enablePulseBorder
+                    ? '${(store.pulseDurationMs / 1000).toStringAsFixed(1)}s'
+                    : 'Off',
                 colors: colors,
               ),
               if (store.enableDynamicBorder)
@@ -1306,6 +1610,39 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
             onChanged: onChanged,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPulseOriginSelector(AppBarConfigStore store) {
+    final origins = [
+      (origin: ByBorderOrigin.topCenter, label: 'Top Center'),
+      (origin: ByBorderOrigin.topLeft, label: 'Top Left'),
+      (origin: ByBorderOrigin.topRight, label: 'Top Right'),
+      (origin: ByBorderOrigin.bottomCenter, label: 'Bottom Center'),
+      (origin: ByBorderOrigin.bottomLeft, label: 'Bottom Left'),
+      (origin: ByBorderOrigin.bottomRight, label: 'Bottom Right'),
+      (origin: ByBorderOrigin.centerLeft, label: 'Center Left'),
+      (origin: ByBorderOrigin.centerRight, label: 'Center Right'),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: origins.map((item) {
+          final isSelected = store.pulseOrigin == item.origin;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ByShowcaseChoiceChip(
+              label: item.label,
+              isSelected: isSelected,
+              onTap: () {
+                final idx = ByBorderOrigin.values.indexOf(item.origin);
+                store.update(pulseOriginIndex: idx);
+              },
+            ),
+          );
+        }).toList(),
       ),
     );
   }

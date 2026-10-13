@@ -44,7 +44,7 @@ class ByDrawer extends StatelessWidget {
                       ),
                       children: [
                         // Active Components Section
-                        _buildSectionHeader('AVAILABLE COMPONENTS (5)', colors),
+                        _buildSectionHeader('AVAILABLE COMPONENTS (6)', colors),
                         const SizedBox(height: 8),
 
                         _buildDrawerItem(
@@ -118,6 +118,21 @@ class ByDrawer extends StatelessWidget {
                           onTap: () {
                             Navigator.of(context).pop();
                             onSelectComponent?.call('BySequence');
+                          },
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByButton',
+                          subtitle: 'Interactive morphing button & pulse',
+                          icon: Icons.smart_button_rounded,
+                          isActive: activeComponent == 'ByButton',
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
+                          colors: colors,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onSelectComponent?.call('ByButton');
                           },
                         ),
 
