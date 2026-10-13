@@ -7,6 +7,7 @@
 A modern, highly customizable Flutter UI component library featuring dynamic border buttons, sequential scroll-driven animations, dynamic motion cards, fluid spatial animations, interactive toasts with desktop/web multi-corner anchors, gesture-driven morphing dialogs, and standalone modal systems.
 
 [![pub package](https://img.shields.io/pub/v/by_ui.svg)](https://pub.dev/packages/by_ui)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://by-ui-showcase.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/arybayunurwicaksono/By_UI/pulls)
 
@@ -208,7 +209,11 @@ ByToast.show(
 
 ## 🎮 Running the Showcase Playground
 
-To experience all features, spatial physics, and customize configurations live:
+### 🌐 Live Web Demo
+Experience all components, dynamic physics, and interactive customization controls live directly in your browser:  
+👉 **[by-ui-showcase.vercel.app](https://by-ui-showcase.vercel.app/)**
+
+### 💻 Running Locally
 
 ```bash
 # 1. Clone the repository

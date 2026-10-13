@@ -7,11 +7,15 @@
 A modern, highly customizable Flutter UI component library featuring dynamic border buttons, sequential scroll-driven animations, dynamic motion cards, fluid spatial animations, interactive toasts, multi-anchor corner positioning, and shrink-wrap dialogs.
 
 [![pub package](https://img.shields.io/pub/v/by_ui.svg)](https://pub.dev/packages/by_ui)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://by-ui-showcase.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
 ## Preview
+
+> [!TIP]
+> **Try the Interactive Web Showcase**: Experience all animations, components, and customizations live in your browser at [by-ui-showcase.vercel.app](https://by-ui-showcase.vercel.app/).
 
 ### Dynamic Border Beam & State Transitions (`ByButton`)
 <p align="center">
