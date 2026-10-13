@@ -1,0 +1,11 @@
+{
+  "buildCommand": "bash vercel_build.sh",
+  "outputDirectory": "apps/sample/build/web",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
