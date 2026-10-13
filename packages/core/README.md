@@ -103,7 +103,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.6
+  by_ui: ^0.1.7
 ```
 
 Or run:

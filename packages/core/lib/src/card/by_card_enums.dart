@@ -1,5 +1,5 @@
 /// Defines variants and modes for the [ByCard] component.
-library by_card_enums;
+library;
 
 /// Specifies visual behavior and sensor interaction modes of [ByCard].
 enum ByCardVariant {

@@ -204,12 +204,12 @@ void main() {
         MaterialApp(
           home: Scaffold(
             appBar: ByAppBar(
-              child: const Center(child: Text('App Bar Pulse')),
               dynamicBorder: ByDynamicBorder(
                 controller: controller,
                 autoStart: false,
                 duration: const Duration(milliseconds: 500),
               ),
+              child: const Center(child: Text('App Bar Pulse')),
             ),
             body: const Center(child: Text('Content')),
           ),

@@ -452,16 +452,28 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
   bool get _effectiveEnabled => widget.isEnabled ?? (widget.onPressed != null);
 
   bool get _isMorphedOrLoading {
-    if (widget.isLoading == true) return true;
-    if (_internalLoading) return true;
-    if (widget.state != ByButtonState.idle) return true;
-    if (_activeState != ByButtonState.idle) return true;
+    if (widget.isLoading == true) {
+      return true;
+    }
+    if (_internalLoading) {
+      return true;
+    }
+    if (widget.state != ByButtonState.idle) {
+      return true;
+    }
+    if (_activeState != ByButtonState.idle) {
+      return true;
+    }
     return false;
   }
 
   ByButtonState get _effectiveState {
-    if (widget.state != ByButtonState.idle) return widget.state;
-    if (widget.isLoading == true) return ByButtonState.loading;
+    if (widget.state != ByButtonState.idle) {
+      return widget.state;
+    }
+    if (widget.isLoading == true) {
+      return ByButtonState.loading;
+    }
     return _activeState;
   }
 
@@ -554,7 +566,9 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
       }
     }
     _staticBorderResumeTimer?.cancel();
-    if (_isMorphedOrLoading) return;
+    if (_isMorphedOrLoading) {
+      return;
+    }
 
     final Duration delay = widget.dynamicBorder?.sensorResumeDelay ??
         const Duration(milliseconds: 200);
@@ -568,7 +582,9 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
   }
 
   void _captureNaturalWidth() {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     final renderBox =
         _measureKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null && renderBox.hasSize && renderBox.size.width > 0) {
@@ -696,8 +712,12 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
   }
 
   Future<void> _handleTap() async {
-    if (!_effectiveEnabled || _isMorphedOrLoading) return;
-    if (widget.onPressed == null) return;
+    if (!_effectiveEnabled || _isMorphedOrLoading) {
+      return;
+    }
+    if (widget.onPressed == null) {
+      return;
+    }
 
     final result = widget.onPressed!();
     if (result is Future) {
@@ -711,7 +731,9 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
 
       try {
         await result;
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         _effectivePulseController.stop();
         setState(() {
           _internalLoading = false;
@@ -720,7 +742,9 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
         _resultScaleController.forward(from: 0.0);
         _scheduleResultRestore();
       } catch (_) {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         _effectivePulseController.stop();
         setState(() {
           _internalLoading = false;
@@ -733,18 +757,23 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
   }
 
   void _handleTapDown(TapDownDetails _) {
-    if (!_effectiveEnabled || _isMorphedOrLoading || !widget.enablePressScale)
+    if (!_effectiveEnabled || _isMorphedOrLoading || !widget.enablePressScale) {
       return;
+    }
     _pressController.forward();
   }
 
   void _handleTapUp(TapUpDetails _) {
-    if (!widget.enablePressScale) return;
+    if (!widget.enablePressScale) {
+      return;
+    }
     _pressController.reverse();
   }
 
   void _handleTapCancel() {
-    if (!widget.enablePressScale) return;
+    if (!widget.enablePressScale) {
+      return;
+    }
     _pressController.reverse();
   }
 

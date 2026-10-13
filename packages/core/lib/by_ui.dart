@@ -1,4 +1,4 @@
-library by_ui;
+library;
 
 // Toast Component
 export 'src/toast/by_toast.dart';

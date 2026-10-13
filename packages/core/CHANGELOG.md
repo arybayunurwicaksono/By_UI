@@ -5,6 +5,14 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.7
+
+### Fixed
+* Enforced `curly_braces_in_flow_control_structures` linter rule across all core library components for 100% Pana static analysis score.
+* Optimized `BySequence` preview GIF file size for fast loading on pub.dev.
+* Added `analysis_options.yaml` to core package root with official `flutter_lints`.
+* Removed unnecessary library directives to satisfy `unnecessary_library_name` lint.
+
 ## 0.1.6
 
 ### Added
