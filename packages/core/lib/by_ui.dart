@@ -42,3 +42,10 @@ export 'src/button/by_button.dart';
 export 'src/button/by_button_defaults.dart';
 export 'src/button/by_button_enums.dart';
 export 'src/button/by_button_style.dart';
+
+/// Package metadata and library version constants.
+abstract final class ByUI {
+  /// Current semantic version of the ByUI component library.
+  static const String version = '0.1.7';
+}
+

@@ -7,12 +7,13 @@ import '../widgets/by_drawer.dart';
 import '../widgets/by_showcase_header.dart';
 import '../widgets/by_color_palette.dart';
 import '../widgets/by_showcase_choice_chip.dart';
+import '../widgets/by_showcase_control_card.dart';
+import '../widgets/by_showcase_slider_tile.dart';
+import '../widgets/by_showcase_preview_card.dart';
+import '../widgets/by_showcase_preset_card.dart';
+import '../widgets/by_showcase_integration_banner.dart';
+import '../widgets/by_dynamic_border_controls.dart';
 import '../widgets/widget_params_dialog.dart';
-import 'button_showcase_screen.dart';
-import 'card_showcase_screen.dart';
-import 'dialog_showcase_screen.dart';
-import 'sequence_showcase_screen.dart';
-import 'toast_showcase_screen.dart';
 
 /// Interactive showcase screen for the [ByAppBar] dynamic floating component.
 class AppBarShowcaseScreen extends StatefulWidget {
@@ -55,26 +56,6 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
         final isDark = AppThemeStore.instance.isDarkMode(context);
         final store = AppBarConfigStore.instance;
 
-        final pulseColorA =
-            AppColors.gradientColorOptions[store.selectedPulseColorAIndex.clamp(
-                  0,
-                  AppColors.gradientColorOptions.length - 1,
-                )]['color']
-                as Color;
-        final pulseColorB =
-            AppColors.gradientColorOptions[store.selectedPulseColorBIndex.clamp(
-                  0,
-                  AppColors.gradientColorOptions.length - 1,
-                )]['color']
-                as Color;
-        final pulseShadowColor =
-            AppColors.gradientColorOptions[store.selectedPulseShadowColorIndex
-                    .clamp(
-                      0,
-                      AppColors.gradientColorOptions.length - 1,
-                    )]['color']
-                as Color;
-
         return ByScrollScope(
           child: Scaffold(
             backgroundColor: colors.scaffoldBg,
@@ -97,7 +78,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                   (isDark ? AppColors.darkCard : Colors.white),
               floatingBackgroundColor: store.customFloatingColor?.withValues(
                 alpha: store.floatingOpacity,
-              ), // If null, ByAppBar automatically inherits backgroundColor with floatingOpacity
+              ),
               elevation: 0.0,
               floatingElevation: store.floatingElevation,
               border: store.enableBorder && !store.enableDynamicBorder
@@ -125,27 +106,16 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               enableHoverTilt: store.enableHoverTilt,
               enableInnerShadow: store.enableInnerShadow,
               innerShadowOpacity: store.innerShadowOpacity,
-              dynamicBorder: store.enablePulseBorder
-                  ? ByDynamicBorder(
-                      controller: _pulseController,
-                      autoStart: store.pulseAutoStart,
-                      origin: store.pulseOrigin,
-                      duration: Duration(milliseconds: store.pulseDurationMs),
-                      beamLength: store.pulseBeamLength,
-                      width: store.pulseWidth,
-                      shadowColor: pulseShadowColor,
-                      shadowBlur: store.pulseShadowBlur,
-                      shadowWidth: store.pulseShadowWidth,
-                      shadowLength: store.pulseShadowLength,
-                      colors: [pulseColorA, pulseColorB],
-                      sensorResumeDelay: Duration(
-                        milliseconds: store.sensorResumeDelayMs,
-                      ),
-                      sensorEntranceDuration: Duration(
-                        milliseconds: store.sensorEntranceDurationMs,
-                      ),
-                    )
-                  : null,
+              dynamicBorder: store.pulseConfig.buildDynamicBorder(
+                controller: _pulseController,
+                autoStart: store.pulseAutoStart,
+                sensorResumeDelay: Duration(
+                  milliseconds: store.sensorResumeDelayMs,
+                ),
+                sensorEntranceDuration: Duration(
+                  milliseconds: store.sensorEntranceDurationMs,
+                ),
+              ),
               manualTilt: (store.enableDynamicBorder && store.enableSensor)
                   ? null
                   : Offset(_tiltX, _tiltY),
@@ -177,47 +147,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               ),
             ),
             // 2. Uniform Drawer Navigation
-            drawer: ByDrawer(
-              activeComponent: 'ByAppBar',
-              onSelectComponent: (comp) {
-                if (comp == 'ByToast') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ToastShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByDialog') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const DialogShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByCard') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CardShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'BySequence') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const SequenceShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByButton') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ButtonShowcaseScreen(),
-                    ),
-                  );
-                }
-              },
-            ),
+            drawer: const ByDrawer(activeComponent: 'ByAppBar'),
             // 3. Main ListView
             body: ListView(
               padding: EdgeInsets.fromLTRB(
@@ -228,20 +158,161 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
               ),
               children: [
                 // 1. Active Configuration Preview Card
-                _buildHeroPreviewCard(colors, isDark, store),
+                ByShowcasePreviewCard(
+                  icon: Icons.web_asset_rounded,
+                  subtitle: 'Scroll down to watch this bar transition live',
+                  description:
+                      'The top navigation bar above will automatically float, detach from screen edges, and activate frosted glass blur when you scroll down this showcase.',
+                  metrics: [
+                    ByMetricBadge(
+                      label: 'Mode',
+                      value: store.isFloatingEnabled ? 'Floating' : 'Static',
+                    ),
+                    ByMetricBadge(
+                      label: 'Top Color',
+                      value:
+                          _colorThemes[store.selectedColorIndex]['name']
+                              as String,
+                    ),
+                    ByMetricBadge(
+                      label: 'Float Color',
+                      value: store.customFloatingColor == null
+                          ? 'Auto (Inherited)'
+                          : _floatingColorThemes[store
+                                    .selectedFloatingColorIndex]['name']
+                                as String,
+                    ),
+                    ByMetricBadge(
+                      label: 'Radius',
+                      value: '${store.borderRadius.toInt()}px',
+                    ),
+                    ByMetricBadge(
+                      label: 'Blur',
+                      value: '${store.blurSigma.toInt()}px',
+                    ),
+                    ByMetricBadge(
+                      label: 'Opacity',
+                      value: '${(store.floatingOpacity * 100).toInt()}%',
+                    ),
+                    ByMetricBadge(
+                      label: 'Dynamic Border',
+                      value: store.enableDynamicBorder ? 'Active' : 'Off',
+                    ),
+                    ByMetricBadge(
+                      label: 'Border',
+                      value: store.enableBorder
+                          ? '${store.borderWidth.toStringAsFixed(1)}px'
+                          : 'Off',
+                    ),
+                    ByMetricBadge(
+                      label: 'Preset',
+                      value: store.activeComponentPreset.name,
+                    ),
+                    ByMetricBadge(
+                      label: 'Pulse Border',
+                      value: store.enablePulseBorder
+                          ? '${(store.pulseDurationMs / 1000).toStringAsFixed(1)}s'
+                          : 'Off',
+                    ),
+                    if (store.enableDynamicBorder)
+                      ByMetricBadge(
+                        label: 'Tilt Vector',
+                        value:
+                            'X: ${_tiltX.toStringAsFixed(2)}, Y: ${_tiltY.toStringAsFixed(2)}',
+                      ),
+                  ],
+                ),
                 const SizedBox(height: 14),
 
                 // 2. Preset Example Card
-                _buildPresetCard(colors, isDark, store),
+                ByShowcasePresetCard(
+                  presets: [
+                    ByShowcasePresetItem(
+                      label: 'Frosted Glass',
+                      themeColor: AppColors.primary,
+                      onTap: () {
+                        store.update(
+                          isFloatingEnabled: true,
+                          blurSigma: 16.0,
+                          borderRadius: 16.0,
+                          floatingOpacity: 0.84,
+                          enableDynamicBorder: false,
+                          enableBorder: true,
+                          borderWidth: 1.0,
+                        );
+                      },
+                    ),
+                    ByShowcasePresetItem(
+                      label: 'Dynamic Aurora',
+                      themeColor: AppColors.cyanAccent,
+                      onTap: () {
+                        store.update(
+                          isFloatingEnabled: true,
+                          enableDynamicBorder: true,
+                          enableSensor: true,
+                          enableHoverTilt: true,
+                          selectedSensorGradientIndex: 0,
+                          borderWidth: 1.5,
+                        );
+                      },
+                    ),
+                    ByShowcasePresetItem(
+                      label: 'Minimal Static',
+                      themeColor: const Color(0xFF64748B),
+                      onTap: () {
+                        store.update(
+                          isFloatingEnabled: false,
+                          enableBorder: false,
+                          enableDynamicBorder: false,
+                        );
+                      },
+                    ),
+                    ByShowcasePresetItem(
+                      label: 'Accent Neon',
+                      themeColor: AppColors.primaryAccent,
+                      onTap: () {
+                        store.update(
+                          isFloatingEnabled: true,
+                          enableDynamicBorder: true,
+                          selectedSensorGradientIndex: 1,
+                          borderRadius: 24.0,
+                          floatingOpacity: 0.92,
+                        );
+                      },
+                    ),
+                    ByShowcasePresetItem(
+                      label: 'Laser Pulse',
+                      themeColor: AppColors.cyanAccent,
+                      onTap: () {
+                        store.update(
+                          isFloatingEnabled: true,
+                          enablePulseBorder: true,
+                          pulseAutoStart: true,
+                          pulseOriginIndex: 0,
+                          pulseDurationMs: 1200,
+                          pulseBeamLength: 0.30,
+                          pulseWidth: 2.5,
+                          pulseGlowBlur: 8.0,
+                          selectedPulseColorAIndex: 0,
+                          selectedPulseColorBIndex: 2,
+                        );
+                        _pulseController.pulse();
+                      },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 14),
 
                 // 3. Integrated Feature Hint (Integrated with ByDynamicBorder)
-                _buildIntegrationCard(colors),
+                const ByShowcaseIntegrationBanner(
+                  componentName: 'ByDynamicBorder',
+                  description:
+                      'ByAppBar integrates ByDynamicBorder to project glowing laser perimeter sweeps across its floating glassmorphic container.',
+                ),
                 const SizedBox(height: 14),
 
                 // Section 1: Floating Dynamics & Scroll Behavior
-                _buildControlCard(
-                  colors: colors,
+                ByShowcaseControlCard(
                   title: '1. FLOATING DYNAMICS & SCROLL BEHAVIOR',
                   icon: Icons.animation_rounded,
                   children: [
@@ -354,8 +425,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                 const SizedBox(height: 14),
 
                 // Section 2: Color Theme & Glassmorphic Opacity (Rule 5.6)
-                _buildControlCard(
-                  colors: colors,
+                ByShowcaseControlCard(
                   title: '2. COLOR THEME & GLASSMORPHIC OPACITY',
                   icon: Icons.palette_rounded,
                   children: [
@@ -477,8 +547,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                 const SizedBox(height: 14),
 
                 // Section 3: AppBar Layout & Alignment
-                _buildControlCard(
-                  colors: colors,
+                ByShowcaseControlCard(
                   title: '3. APPBAR LAYOUT & ALIGNMENT',
                   icon: Icons.layers_rounded,
                   children: [
@@ -567,56 +636,52 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                 const SizedBox(height: 14),
 
                 // Section 4: Dynamic Cursor Lighting & Border (Rule 5.6 compliant)
-                _buildControlCard(
-                  colors: colors,
+                ByShowcaseControlCard(
                   title: '4. DYNAMIC CURSOR LIGHTING & BORDER',
                   icon: Icons.mouse_rounded,
                   children: [
-                    _buildSwitchTile(
+                    ByShowcaseSwitchTile(
                       title: 'Dynamic Gradient Border',
                       subtitle:
                           'Activates interactive gradient border reacting to sensor/cursor direction',
                       value: store.enableDynamicBorder,
-                      colors: colors,
                       onChanged: (val) =>
                           store.update(enableDynamicBorder: val),
                     ),
                     const SizedBox(height: 8),
-                    _buildSwitchTile(
+                    ByShowcaseSwitchTile(
                       title: 'Physical Gyroscope & Accelerometer',
                       subtitle:
                           'Streams live hardware gravity vector on mobile',
                       value: store.enableSensor,
-                      colors: colors,
                       onChanged: (val) => store.update(enableSensor: val),
                     ),
                     const SizedBox(height: 8),
-                    _buildSwitchTile(
+                    ByShowcaseSwitchTile(
                       title: 'Desktop/Web Mouse Hover Parallax',
                       subtitle:
                           'Tilts and rotates border lighting based on mouse cursor position',
                       value: store.enableHoverTilt,
-                      colors: colors,
                       onChanged: (val) => store.update(enableHoverTilt: val),
                     ),
                     const SizedBox(height: 8),
-                    _buildSwitchTile(
+                    ByShowcaseSwitchTile(
                       title: 'Directional Inner Shadow (Glow)',
                       subtitle:
                           'Enables smooth directional ambient glow inside the floating app bar',
                       value: store.enableInnerShadow,
-                      colors: colors,
                       onChanged: (val) => store.update(enableInnerShadow: val),
                     ),
                     if (store.enableInnerShadow) ...[
                       const SizedBox(height: 8),
-                      _buildSliderRow(
-                        title: 'Inner Shadow Opacity',
+                      ByShowcaseSliderTile(
+                        label: 'Inner Shadow Opacity:',
+                        valueText:
+                            '${store.innerShadowOpacity.toStringAsFixed(1)}x',
                         value: store.innerShadowOpacity,
                         min: 0.1,
                         max: 1.0,
-                        suffix: 'x',
-                        colors: colors,
+                        divisions: 9,
                         onChanged: (val) =>
                             store.update(innerShadowOpacity: val),
                       ),
@@ -630,35 +695,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Horizontal Tilt (Roll X)',
-                              style: AppTextStyle.fieldLabel.copyWith(
-                                color: colors.textSecondary,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 48,
-                            child: Text(
-                              _tiltX.toStringAsFixed(2),
-                              style: AppTextStyle.badge.copyWith(
-                                color: colors.textPrimary,
-                              ),
-                              textAlign: TextAlign.right,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Slider(
+                      ByShowcaseSliderTile(
+                        label: 'Horizontal Tilt (Roll X):',
+                        valueText: _tiltX.toStringAsFixed(2),
                         value: _tiltX.clamp(-1.0, 1.0),
                         min: -1.0,
                         max: 1.0,
-                        activeColor: AppColors.primary,
-                        inactiveColor: colors.borderSubtle,
+                        divisions: 40,
                         onChanged: (val) {
                           store.update(enableSensor: false);
                           setState(() {
@@ -666,36 +709,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                           });
                         },
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Vertical Tilt (Pitch Y)',
-                              style: AppTextStyle.fieldLabel.copyWith(
-                                color: colors.textSecondary,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 48,
-                            child: Text(
-                              _tiltY.toStringAsFixed(2),
-                              style: AppTextStyle.badge.copyWith(
-                                color: colors.textPrimary,
-                              ),
-                              textAlign: TextAlign.right,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Slider(
+                      ByShowcaseSliderTile(
+                        label: 'Vertical Tilt (Pitch Y):',
+                        valueText: _tiltY.toStringAsFixed(2),
                         value: _tiltY.clamp(-1.0, 1.0),
                         min: -1.0,
                         max: 1.0,
-                        activeColor: AppColors.primary,
-                        inactiveColor: colors.borderSubtle,
+                        divisions: 40,
                         onChanged: (val) {
                           store.update(enableSensor: false);
                           setState(() {
@@ -712,7 +732,6 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Standard Rule 5.6: 36x36 Circular Swatches for Gradients
                     ByColorPalette(
                       items: store.sensorGradientPresets
                           .map(
@@ -727,12 +746,11 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                           store.update(selectedSensorGradientIndex: index),
                     ),
                     const SizedBox(height: 14),
-                    _buildSwitchTile(
+                    ByShowcaseSwitchTile(
                       title: 'Outer Outline Border Stroke',
                       subtitle:
                           'Applies outline border geometry to the app bar',
                       value: store.enableBorder,
-                      colors: colors,
                       onChanged: (val) => store.update(enableBorder: val),
                     ),
                     if (store.enableBorder) ...[
@@ -766,8 +784,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                 const SizedBox(height: 14),
 
                 // Section 5: Toolbar Component Color Presets (Rule 5.6 compliant)
-                _buildControlCard(
-                  colors: colors,
+                ByShowcaseControlCard(
                   title: '5. TOOLBAR COMPONENT COLOR PRESETS (EXTERNAL)',
                   icon: Icons.auto_awesome_rounded,
                   children: [
@@ -804,172 +821,56 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                 const SizedBox(height: 14),
 
                 // Section 6: Pulse Dynamic Border (Traveling neon laser beam Point A -> Point A)
-                _buildControlCard(
-                  colors: colors,
+                ByDynamicBorderControls(
                   title: '6. PULSE DYNAMIC BORDER (ONE-SHOT TRAVELING BEAM)',
-                  icon: Icons.bolt_rounded,
-                  children: [
-                    _buildSwitchTile(
-                      title: 'Enable Pulse Dynamic Border',
-                      subtitle:
-                          'Traces a neon laser circuit from Point A back to Point A',
-                      value: store.enablePulseBorder,
-                      colors: colors,
-                      onChanged: (val) => store.update(enablePulseBorder: val),
-                    ),
+                  config: store.pulseConfig,
+                  onChanged: () => store.update(),
+                  extraControls: [
                     const SizedBox(height: 8),
-                    _buildSwitchTile(
+                    ByShowcaseSwitchTile(
                       title: 'Auto-Start on Entrance',
                       subtitle:
                           'Executes traveling beam automatically when loaded',
                       value: store.pulseAutoStart,
-                      colors: colors,
                       onChanged: (val) => store.update(pulseAutoStart: val),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Pulse Origin (Point A):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
                     const SizedBox(height: 8),
-                    _buildPulseOriginSelector(store),
-                    const SizedBox(height: 12),
-                    _buildSliderRow(
-                      title: 'Circuit Duration',
-                      value: store.pulseDurationMs.toDouble(),
-                      min: 400.0,
-                      max: 3000.0,
-                      suffix: 'ms',
-                      colors: colors,
-                      onChanged: (val) =>
-                          store.update(pulseDurationMs: val.toInt()),
-                    ),
-                    _buildSliderRow(
-                      title: 'Beam Length (% Perimeter)',
-                      value: store.pulseBeamLength,
-                      min: 0.10,
-                      max: 0.50,
-                      suffix: 'x',
-                      colors: colors,
-                      onChanged: (val) => store.update(pulseBeamLength: val),
-                    ),
-                    _buildSliderRow(
-                      title: 'Beam Stroke Width',
-                      value: store.pulseWidth,
-                      min: 1.0,
-                      max: 6.0,
-                      suffix: 'px',
-                      colors: colors,
-                      onChanged: (val) => store.update(pulseWidth: val),
-                    ),
-                    _buildSliderRow(
-                      title: 'Outer Shadow Length (% Perimeter)',
-                      value: store.pulseShadowLength,
-                      min: 0.05,
-                      max: 0.80,
-                      suffix: 'x',
-                      colors: colors,
-                      onChanged: (val) => store.update(pulseShadowLength: val),
-                    ),
-                    _buildSliderRow(
-                      title: 'Outer Shadow Thickness',
-                      value: store.pulseShadowWidth,
-                      min: 0.5,
-                      max: 8.0,
-                      suffix: 'px',
-                      colors: colors,
-                      onChanged: (val) => store.update(pulseShadowWidth: val),
-                    ),
-                    _buildSliderRow(
-                      title: 'Outer Shadow Blur Radius',
-                      value: store.pulseShadowBlur,
-                      min: 0.0,
-                      max: 16.0,
-                      suffix: 'px',
-                      colors: colors,
-                      onChanged: (val) => store.update(pulseShadowBlur: val),
-                    ),
-                    _buildSliderRow(
-                      title: 'Sensor Resume Delay (Rest Buffer)',
+                    ByShowcaseSliderTile(
+                      label: 'Sensor Resume Delay (Rest Buffer):',
+                      valueText: '${store.sensorResumeDelayMs}ms',
                       value: store.sensorResumeDelayMs.toDouble(),
                       min: 0.0,
                       max: 1000.0,
-                      suffix: 'ms',
-                      colors: colors,
+                      divisions: 20,
                       onChanged: (val) =>
                           store.update(sensorResumeDelayMs: val.toInt()),
                     ),
-                    _buildSliderRow(
-                      title: 'Sensor Border Entrance Duration',
+                    ByShowcaseSliderTile(
+                      label: 'Sensor Border Entrance Duration:',
+                      valueText: '${store.sensorEntranceDurationMs}ms',
                       value: store.sensorEntranceDurationMs.toDouble(),
                       min: 100.0,
                       max: 1000.0,
-                      suffix: 'ms',
-                      colors: colors,
+                      divisions: 18,
                       onChanged: (val) =>
                           store.update(sensorEntranceDurationMs: val.toInt()),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Beam Color — Start Tone (A):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: AppColors.gradientColorOptions,
-                      selectedIndex: store.selectedPulseColorAIndex,
-                      onSelected: (index) =>
-                          store.update(selectedPulseColorAIndex: index),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Beam Color — End Tone (B):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: AppColors.gradientColorOptions,
-                      selectedIndex: store.selectedPulseColorBIndex,
-                      onSelected: (index) =>
-                          store.update(selectedPulseColorBIndex: index),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Outer Shadow Color (Decoupled):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: AppColors.gradientColorOptions,
-                      selectedIndex: store.selectedPulseShadowColorIndex,
-                      onSelected: (index) =>
-                          store.update(selectedPulseShadowColorIndex: index),
-                    ),
-                    const SizedBox(height: 14),
-                    ByButton(
-                      width: double.infinity,
-                      variant: ByButtonVariant.filled,
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      borderWidth: 0.0,
-                      prefix: const Icon(Icons.bolt_rounded, size: 20),
-                      onPressed: store.enablePulseBorder
-                          ? () => _pulseController.pulse()
-                          : null,
-                      child: const Text(
-                        'Trigger Pulse Now (Point A → Point A)',
-                      ),
-                    ),
                   ],
+                  actionButton: ByButton(
+                    width: double.infinity,
+                    variant: ByButtonVariant.filled,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    borderWidth: 0.0,
+                    prefix: const Icon(Icons.bolt_rounded, size: 20),
+                    onPressed: store.enablePulseBorder
+                        ? () => _pulseController.pulse()
+                        : null,
+                    child: const Text(
+                      'Trigger Pulse Now (Point A → Point A)',
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -1140,510 +1041,6 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
           defaultValue: 'null',
         ),
       ],
-    );
-  }
-
-  // Preset Example Card
-  Widget _buildPresetCard(
-    AppColorPalette colors,
-    bool isDark,
-    AppBarConfigStore store,
-  ) {
-    final presets = [
-      (
-        name: 'Frosted Glass',
-        color: AppColors.primary,
-        icon: Icons.blur_on_rounded,
-        onTap: () {
-          store.update(
-            isFloatingEnabled: true,
-            blurSigma: 16.0,
-            borderRadius: 16.0,
-            floatingOpacity: 0.84,
-            enableDynamicBorder: false,
-            enableBorder: true,
-            borderWidth: 1.0,
-          );
-        },
-      ),
-      (
-        name: 'Dynamic Aurora',
-        color: AppColors.cyanAccent,
-        icon: Icons.auto_awesome_rounded,
-        onTap: () {
-          store.update(
-            isFloatingEnabled: true,
-            enableDynamicBorder: true,
-            enableSensor: true,
-            enableHoverTilt: true,
-            selectedSensorGradientIndex: 0,
-            borderWidth: 1.5,
-          );
-        },
-      ),
-      (
-        name: 'Minimal Static',
-        color: const Color(0xFF64748B),
-        icon: Icons.crop_square_rounded,
-        onTap: () {
-          store.update(
-            isFloatingEnabled: false,
-            enableBorder: false,
-            enableDynamicBorder: false,
-          );
-        },
-      ),
-      (
-        name: 'Accent Neon',
-        color: AppColors.primaryAccent,
-        icon: Icons.bolt_rounded,
-        onTap: () {
-          store.update(
-            isFloatingEnabled: true,
-            enableDynamicBorder: true,
-            selectedSensorGradientIndex: 1,
-            borderRadius: 24.0,
-            floatingOpacity: 0.92,
-          );
-        },
-      ),
-      (
-        name: 'Laser Pulse',
-        color: AppColors.cyanAccent,
-        icon: Icons.electric_bolt_rounded,
-        onTap: () {
-          store.update(
-            isFloatingEnabled: true,
-            enablePulseBorder: true,
-            pulseAutoStart: true,
-            pulseOriginIndex: 0,
-            pulseDurationMs: 1200,
-            pulseBeamLength: 0.30,
-            pulseWidth: 2.5,
-            pulseGlowBlur: 8.0,
-            selectedPulseColorAIndex: 0,
-            selectedPulseColorBIndex: 2,
-          );
-          _pulseController.pulse();
-        },
-      ),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.border),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Preset Example',
-            style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
-          ),
-          const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: List.generate(presets.length, (index) {
-                final preset = presets[index];
-                final color = preset.color;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: preset.onTap,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: color.withValues(alpha: 0.35),
-                            width: 1.0,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(preset.icon, size: 14, color: color),
-                            const SizedBox(width: 6),
-                            Text(
-                              preset.name,
-                              style: AppTextStyle.pillButton.copyWith(
-                                color: color,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIntegrationCard(AppColorPalette colors) {
-    return Container(
-      padding: const EdgeInsets.all(11),
-      decoration: BoxDecoration(
-        color: colors.bannerBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.bannerBorder),
-      ),
-      child: Row(
-        children: [
-          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Integrated with ByDynamicBorder',
-                  style: AppTextStyle.bodyMedium.copyWith(
-                    color: colors.bannerText,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'ByAppBar integrates ByDynamicBorder to project glowing laser perimeter sweeps across its floating glassmorphic container.',
-                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Hero Preview Card (Rule 6.5)
-  Widget _buildHeroPreviewCard(
-    AppColorPalette colors,
-    bool isDark,
-    AppBarConfigStore store,
-  ) {
-    return ByCard(
-      variant: ByCardVariant.normal,
-      backgroundColor: colors.cardBg,
-      borderColor: colors.border,
-      borderRadius: BorderRadius.circular(16),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryAccent],
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.web_asset_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Active Configuration Preview',
-                      style: AppTextStyle.screenSubtitle.copyWith(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Scroll down to watch this bar transition live',
-                      style: AppTextStyle.caption.copyWith(
-                        color: colors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'The top navigation bar above will automatically float, detach from screen edges, and activate frosted glass blur when you scroll down this showcase.',
-            style: AppTextStyle.body.copyWith(
-              color: colors.textSecondary,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              _buildMetricBadge(
-                label: 'Mode',
-                value: store.isFloatingEnabled ? 'Floating' : 'Static',
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Top Color',
-                value: _colorThemes[store.selectedColorIndex]['name'] as String,
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Float Color',
-                value: store.customFloatingColor == null
-                    ? 'Auto (Inherited)'
-                    : _floatingColorThemes[store
-                              .selectedFloatingColorIndex]['name']
-                          as String,
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Radius',
-                value: '${store.borderRadius.toInt()}px',
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Blur',
-                value: '${store.blurSigma.toInt()}px',
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Opacity',
-                value: '${(store.floatingOpacity * 100).toInt()}%',
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Dynamic Border',
-                value: store.enableDynamicBorder ? 'Active' : 'Off',
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Border',
-                value: store.enableBorder
-                    ? '${store.borderWidth.toStringAsFixed(1)}px'
-                    : 'Off',
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Preset',
-                value: store.activeComponentPreset.name,
-                colors: colors,
-              ),
-              _buildMetricBadge(
-                label: 'Pulse Border',
-                value: store.enablePulseBorder
-                    ? '${(store.pulseDurationMs / 1000).toStringAsFixed(1)}s'
-                    : 'Off',
-                colors: colors,
-              ),
-              if (store.enableDynamicBorder)
-                _buildMetricBadge(
-                  label: 'Tilt Vector',
-                  value:
-                      'X: ${_tiltX.toStringAsFixed(2)}, Y: ${_tiltY.toStringAsFixed(2)}',
-                  colors: colors,
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMetricBadge({
-    required String label,
-    required String value,
-    required AppColorPalette colors,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.surfaceVariant,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colors.borderSubtle),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$label: ',
-            style: AppTextStyle.caption.copyWith(
-              color: colors.textMuted,
-              fontSize: 11,
-            ),
-          ),
-          Text(
-            value,
-            style: AppTextStyle.captionBold.copyWith(
-              color: AppColors.cyanAccent,
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Section Control Card (Dogfooding ByCard, Rule 6.5)
-  Widget _buildControlCard({
-    required AppColorPalette colors,
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ByCard(
-      variant: ByCardVariant.normal,
-      backgroundColor: colors.cardBg,
-      borderColor: colors.border,
-      borderWidth: 1.0,
-      borderRadius: BorderRadius.circular(14),
-      padding: const EdgeInsets.all(11),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 16, color: AppColors.primary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTextStyle.sectionHeader.copyWith(
-                    color: colors.textPrimary,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required AppColorPalette colors,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return ByShowcaseSwitchTile(
-      title: title,
-      subtitle: subtitle,
-      value: value,
-      onChanged: onChanged,
-    );
-  }
-
-  Widget _buildSliderRow({
-    required String title,
-    required double value,
-    required double min,
-    required double max,
-    required String suffix,
-    required AppColorPalette colors,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTextStyle.fieldLabel.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ),
-              Text(
-                '${value.toStringAsFixed(1)} $suffix',
-                style: AppTextStyle.badge.copyWith(color: colors.textPrimary),
-              ),
-            ],
-          ),
-          Slider(
-            value: value,
-            min: min,
-            max: max,
-            activeColor: AppColors.primary,
-            inactiveColor: colors.borderSubtle,
-            onChanged: onChanged,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPulseOriginSelector(AppBarConfigStore store) {
-    final origins = [
-      (origin: ByBorderOrigin.topCenter, label: 'Top Center'),
-      (origin: ByBorderOrigin.topLeft, label: 'Top Left'),
-      (origin: ByBorderOrigin.topRight, label: 'Top Right'),
-      (origin: ByBorderOrigin.bottomCenter, label: 'Bottom Center'),
-      (origin: ByBorderOrigin.bottomLeft, label: 'Bottom Left'),
-      (origin: ByBorderOrigin.bottomRight, label: 'Bottom Right'),
-      (origin: ByBorderOrigin.centerLeft, label: 'Center Left'),
-      (origin: ByBorderOrigin.centerRight, label: 'Center Right'),
-    ];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: origins.map((item) {
-          final isSelected = store.pulseOrigin == item.origin;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ByShowcaseChoiceChip(
-              label: item.label,
-              isSelected: isSelected,
-              onTap: () {
-                final idx = ByBorderOrigin.values.indexOf(item.origin);
-                store.update(pulseOriginIndex: idx);
-              },
-            ),
-          );
-        }).toList(),
-      ),
     );
   }
 }

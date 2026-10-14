@@ -10,11 +10,10 @@ import '../widgets/by_drawer.dart';
 import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/by_showcase_header.dart';
 import '../widgets/widget_params_dialog.dart';
-import 'app_bar_showcase_screen.dart';
-import 'card_showcase_screen.dart';
-import 'dialog_showcase_screen.dart';
-import 'sequence_showcase_screen.dart';
-import 'toast_showcase_screen.dart';
+import '../widgets/by_showcase_preset_card.dart';
+import '../widgets/by_showcase_preview_card.dart';
+import '../widgets/by_showcase_integration_banner.dart';
+import '../widgets/by_dynamic_border_controls.dart';
 
 /// Interactive showcase screen for the [ByButton] flagship button component.
 class ButtonShowcaseScreen extends StatefulWidget {
@@ -62,16 +61,13 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
 
   // 5. Pulse Dynamic Border (Periodic & Customization)
   late ByDynamicBorderController _dynamicBorderController;
-  bool _enableDynamicBorder = true;
+  final ByPulseBorderConfig _pulseBorderConfig = ByPulseBorderConfig(
+    enabled: true,
+    origin: ByBorderOrigin.topLeft,
+    shadowBlur: 10.0,
+    shadowWidth: 3.0,
+  );
   double _periodicIntervalSeconds = 4.0;
-  int _pulseDurationMs = 1400;
-  double _pulseBeamLength = 0.28;
-  double _pulseShadowBlur = 10.0;
-  double _pulseShadowWidth = 3.0;
-  ByBorderOrigin _pulseOrigin = ByBorderOrigin.topLeft;
-  int _selectedPulseColorPaletteIndex = 0;
-  bool _enablePulseGradient = false;
-  int _selectedPulseGradientStyleIndex = 0;
 
   // 6. Micro-Interactions & Ambient Feedback
   bool _enablePressScale = true;
@@ -185,223 +181,22 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
           {'name': 'Silver Slate', 'color': const Color(0xFF94A3B8)},
         ];
 
-        final pulsePaletteOptions = <Map<String, dynamic>>[
-          {
-            'name': 'Theme onSurface (${isDark ? "White" : "Black"}) (Default)',
-            'color': isDark ? Colors.white : Colors.black,
-            'colors': isDark
-                ? const [Colors.white, Color(0xFFE2E8F0)]
-                : const [Colors.black, Color(0xFF334155)],
-            'gradient': isDark
-                ? const LinearGradient(
-                    colors: [Colors.white, Color(0xFF94A3B8)],
-                  )
-                : const LinearGradient(
-                    colors: [Colors.black, Color(0xFF475569)],
-                  ),
-          },
-          {
-            'name': 'Cyan-Indigo-Purple Gradient',
-            'color': AppColors.cyanAccent,
-            'colors': const [
-              Color(0xFF38BDF8),
-              Color(0xFF6366F1),
-              Color(0xFFA855F7),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFF38BDF8), Color(0xFF6366F1), Color(0xFFA855F7)],
-            ),
-          },
-          {
-            'name': 'Neon Sky Cyan',
-            'color': const Color(0xFF38BDF8),
-            'colors': const [Color(0xFF38BDF8)],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFF38BDF8), Color(0xFF0284C7)],
-            ),
-          },
-          {
-            'name': 'Electric Violet & Magenta',
-            'color': AppColors.primaryAccent,
-            'colors': const [
-              Color(0xFF8B5CF6),
-              Color(0xFFA855F7),
-              Color(0xFFD946EF),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFF8B5CF6), Color(0xFFA855F7), Color(0xFFD946EF)],
-            ),
-          },
-          {
-            'name': 'Emerald & Mint Cyber',
-            'color': AppColors.success,
-            'colors': const [
-              Color(0xFF10B981),
-              Color(0xFF34D399),
-              Color(0xFF059669),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFF10B981), Color(0xFF34D399), Color(0xFF059669)],
-            ),
-          },
-          {
-            'name': 'Solar Sunset Amber',
-            'color': AppColors.warning,
-            'colors': const [
-              Color(0xFFF59E0B),
-              Color(0xFFFBBF24),
-              Color(0xFFD97706),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFFF59E0B), Color(0xFFFBBF24), Color(0xFFD97706)],
-            ),
-          },
-          {
-            'name': 'Crimson Flare & Ruby',
-            'color': AppColors.error,
-            'colors': const [
-              Color(0xFFEF4444),
-              Color(0xFFF87171),
-              Color(0xFFDC2626),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFFEF4444), Color(0xFFF87171), Color(0xFFDC2626)],
-            ),
-          },
-          {
-            'name': 'Cyberpunk Neon (Yellow-Pink-Cyan)',
-            'color': const Color(0xFFFF007F),
-            'colors': const [
-              Color(0xFFFF007F),
-              Color(0xFFFEE440),
-              Color(0xFF00F0FF),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFFFF007F), Color(0xFFFEE440), Color(0xFF00F0FF)],
-            ),
-          },
-          {
-            'name': 'Aurora Borealis (Teal & Violet)',
-            'color': const Color(0xFF00F5D4),
-            'colors': const [
-              Color(0xFF00F5D4),
-              Color(0xFF7B2CBF),
-              Color(0xFF00BBF9),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFF00F5D4), Color(0xFF7B2CBF), Color(0xFF00BBF9)],
-            ),
-          },
-          {
-            'name': 'Sunset Blaze (Coral & Orange)',
-            'color': const Color(0xFFFF6B6B),
-            'colors': const [
-              Color(0xFFFF6B6B),
-              Color(0xFFFFA07A),
-              Color(0xFFFF4500),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFFFF6B6B), Color(0xFFFFA07A), Color(0xFFFF4500)],
-            ),
-          },
-          {
-            'name': 'Deep Ocean & Sapphire',
-            'color': const Color(0xFF2563EB),
-            'colors': const [
-              Color(0xFF1D4ED8),
-              Color(0xFF3B82F6),
-              Color(0xFF60A5FA),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFF1D4ED8), Color(0xFF3B82F6), Color(0xFF60A5FA)],
-            ),
-          },
-          {
-            'name': 'Golden Luxury & Champagne',
-            'color': const Color(0xFFD97706),
-            'colors': const [
-              Color(0xFFB45309),
-              Color(0xFFF59E0B),
-              Color(0xFFFDE68A),
-            ],
-            'gradient': const LinearGradient(
-              colors: [Color(0xFFB45309), Color(0xFFF59E0B), Color(0xFFFDE68A)],
-            ),
-          },
-          {
-            'name': 'Pure White Neon',
-            'color': Colors.white,
-            'colors': const [Colors.white],
-            'gradient': const LinearGradient(
-              colors: [Colors.white, Color(0xFFCBD5E1)],
-            ),
-          },
-          {
-            'name': 'Pure Black Laser',
-            'color': Colors.black,
-            'colors': const [Colors.black],
-            'gradient': const LinearGradient(
-              colors: [Colors.black, Color(0xFF475569)],
-            ),
-          },
-        ];
+        final selectedBeamColors = [_pulseBorderConfig.colorA, _pulseBorderConfig.colorB];
 
-        final selectedBeamColors =
-            (pulsePaletteOptions[_selectedPulseColorPaletteIndex.clamp(
-                      0,
-                      pulsePaletteOptions.length - 1,
-                    )]['colors']
-                    as List)
-                .cast<Color>();
-
-        Gradient? pulseGradient;
-        if (_enablePulseGradient) {
-          final currentPalette =
-              pulsePaletteOptions[_selectedPulseColorPaletteIndex.clamp(
-                0,
-                pulsePaletteOptions.length - 1,
-              )];
-          final baseGradient = currentPalette['gradient'] as Gradient?;
-          final gradientColors = selectedBeamColors.length > 1
-              ? selectedBeamColors
-              : (baseGradient?.colors ??
-                    [
-                      selectedBeamColors.first,
-                      selectedBeamColors.first.withValues(alpha: 0.25),
-                    ]);
-
-          pulseGradient = switch (_selectedPulseGradientStyleIndex) {
-            1 => LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: gradientColors,
-            ),
-            2 => SweepGradient(
-              colors: [...gradientColors, gradientColors.first],
-            ),
-            3 => RadialGradient(colors: gradientColors),
-            _ => LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: gradientColors,
-            ),
-          };
-        }
-
-        final dynamicBorderConfig = _enableDynamicBorder
+        final dynamicBorderConfig = _pulseBorderConfig.enabled
             ? ByDynamicBorder(
                 controller: _dynamicBorderController,
                 periodicInterval: Duration(
                   milliseconds: (_periodicIntervalSeconds * 1000).toInt(),
                 ),
-                duration: Duration(milliseconds: _pulseDurationMs),
-                beamLength: _pulseBeamLength,
+                duration: Duration(milliseconds: _pulseBorderConfig.durationMs),
+                beamLength: _pulseBorderConfig.beamLength,
                 width: _customBorderWidth > 0 ? _customBorderWidth : 2.5,
-                shadowBlur: _pulseShadowBlur,
-                shadowWidth: _pulseShadowWidth,
-                origin: _pulseOrigin,
+                shadowBlur: _pulseBorderConfig.shadowBlur,
+                shadowWidth: _pulseBorderConfig.shadowWidth,
+                origin: _pulseBorderConfig.origin,
                 colors: selectedBeamColors,
-                gradient: pulseGradient,
+                shadowColor: _pulseBorderConfig.shadowColor,
                 repeatCount: null,
                 autoStart: true,
               )
@@ -458,47 +253,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
             ),
 
             // 2. UNIFORM DRAWER NAVIGATION
-            drawer: ByDrawer(
-              activeComponent: 'ByButton',
-              onSelectComponent: (comp) {
-                if (comp == 'ByToast') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ToastShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByDialog') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const DialogShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByCard') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CardShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByAppBar') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AppBarShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'BySequence') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const SequenceShowcaseScreen(),
-                    ),
-                  );
-                }
-              },
-            ),
+            drawer: const ByDrawer(activeComponent: 'ByButton'),
 
             // 3. COMPACT 5-LAYER LISTVIEW HIERARCHY
             body: ListView(
@@ -518,7 +273,11 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
                 const SizedBox(height: 12),
 
                 // ── LAYER 3: Integrated with ByDynamicBorder ────────────────
-                _buildDynamicBorderIntegrationCard(colors),
+                const ByShowcaseIntegrationBanner(
+                  componentName: 'ByDynamicBorder',
+                  description:
+                      'ByButton seamlessly integrates ByDynamicBorder for periodic standby sweeps and continuous circular loading pulses.',
+                ),
                 const SizedBox(height: 14),
 
                 // ── LAYER 4: Standalone Widget Display: Hero Live Button ───
@@ -1253,254 +1012,26 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
                 const SizedBox(height: 12),
 
                 // Section 5: Pulse Dynamic Border (Periodic & Customization)
-                _buildControlCard(
-                  colors: colors,
+                ByDynamicBorderControls(
                   title: '5. PULSE DYNAMIC BORDER (PERIODIC & CUSTOMIZATION)',
-                  icon: Icons.blur_circular_rounded,
-                  children: [
-                    ByShowcaseSwitchTile(
-                      title: 'Enable Periodic Pulse Dynamic Border',
-                      subtitle:
-                          'Sweeps luminous laser beam around perimeter periodically and during loading',
-                      value: _enableDynamicBorder,
-                      onChanged: (val) {
-                        setState(() {
-                          _enableDynamicBorder = val;
-                          _activePresetIndex = -1;
-                        });
-                      },
-                    ),
-                    if (_enableDynamicBorder) ...[
-                      const SizedBox(height: 12),
-                      _buildSliderRow(
-                        title: 'Periodic Rest Interval',
-                        value: _periodicIntervalSeconds,
-                        min: 1.0,
-                        max: 10.0,
-                        suffix: 's',
-                        colors: colors,
-                        onChanged: (val) {
-                          setState(() {
-                            _periodicIntervalSeconds = val;
-                            _activePresetIndex = -1;
-                          });
-                        },
-                      ),
-                      _buildSliderRow(
-                        title: 'Circuit Duration',
-                        value: _pulseDurationMs.toDouble(),
-                        min: 800.0,
-                        max: 3000.0,
-                        suffix: 'ms',
-                        colors: colors,
-                        onChanged: (val) {
-                          setState(() {
-                            _pulseDurationMs = val.toInt();
-                            _activePresetIndex = -1;
-                          });
-                        },
-                      ),
-                      _buildSliderRow(
-                        title: 'Beam Length (% Perimeter)',
-                        value: _pulseBeamLength,
-                        min: 0.15,
-                        max: 0.50,
-                        suffix: 'x',
-                        colors: colors,
-                        onChanged: (val) {
-                          setState(() {
-                            _pulseBeamLength = val;
-                            _activePresetIndex = -1;
-                          });
-                        },
-                      ),
-                      _buildSliderRow(
-                        title: 'Outer Shadow Blur Radius',
-                        value: _pulseShadowBlur,
-                        min: 0.0,
-                        max: 16.0,
-                        suffix: 'px',
-                        colors: colors,
-                        onChanged: (val) {
-                          setState(() {
-                            _pulseShadowBlur = val;
-                            _activePresetIndex = -1;
-                          });
-                        },
-                      ),
-                      _buildSliderRow(
-                        title: 'Outer Shadow Thickness',
-                        value: _pulseShadowWidth,
-                        min: 1.0,
-                        max: 8.0,
-                        suffix: 'px',
-                        colors: colors,
-                        onChanged: (val) {
-                          setState(() {
-                            _pulseShadowWidth = val;
-                            _activePresetIndex = -1;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Pulse Origin Point (Point A):',
-                        style: AppTextStyle.fieldLabel.copyWith(
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children:
-                              [
-                                ByBorderOrigin.topLeft,
-                                ByBorderOrigin.topCenter,
-                                ByBorderOrigin.topRight,
-                                ByBorderOrigin.bottomCenter,
-                              ].map((origin) {
-                                final isSelected = _pulseOrigin == origin;
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: BySelectOption(
-                                    label: Text(origin.name),
-                                    isSelected: isSelected,
-                                    selectedBorderColor: AppColors.primary,
-                                    unselectedBorderColor: colors.borderSubtle,
-                                    selectedBackgroundColor:
-                                        colors.chipSelectedBg,
-                                    unselectedBackgroundColor: colors.chipBg,
-                                    selectedTextColor: isDark
-                                        ? Colors.white
-                                        : Colors.black,
-                                    unselectedTextColor: colors.textMuted,
-                                    onTap: () {
-                                      setState(() {
-                                        _pulseOrigin = origin;
-                                        _activePresetIndex = -1;
-                                      });
-                                    },
-                                  ),
-                                );
-                              }).toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Traveling Beam Color Palette:',
-                        style: AppTextStyle.fieldLabel.copyWith(
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ByColorPalette(
-                        items: pulsePaletteOptions
-                            .map(
-                              (opt) => ByColorPaletteItem.fromColor(
-                                opt['color'] as Color,
-                                opt['name'] as String,
-                              ),
-                            )
-                            .toList(),
-                        selectedIndex: _selectedPulseColorPaletteIndex,
-                        onSelected: (index) {
-                          setState(() {
-                            _selectedPulseColorPaletteIndex = index;
-                            _activePresetIndex = -1;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      ByShowcaseSwitchTile(
-                        title: 'Enable Pulse Beam Gradient',
-                        subtitle:
-                            'Applies dynamic multi-color shader gradient across the traveling pulse beam',
-                        value: _enablePulseGradient,
-                        onChanged: (val) {
-                          setState(() {
-                            _enablePulseGradient = val;
-                            _activePresetIndex = -1;
-                          });
-                        },
-                      ),
-                      if (_enablePulseGradient) ...[
-                        const SizedBox(height: 10),
-                        Text(
-                          'Pulse Gradient Shader Style:',
-                          style: AppTextStyle.fieldLabel.copyWith(
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children:
-                                [
-                                  'Linear (Diagonal)',
-                                  'Linear (Horizontal)',
-                                  'Sweep (360°)',
-                                  'Radial Bloom',
-                                ].asMap().entries.map((entry) {
-                                  final idx = entry.key;
-                                  final label = entry.value;
-                                  final isSelected =
-                                      _selectedPulseGradientStyleIndex == idx;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: BySelectOption(
-                                      label: Text(label),
-                                      isSelected: isSelected,
-                                      selectedBorderColor: AppColors.primary,
-                                      unselectedBorderColor:
-                                          colors.borderSubtle,
-                                      selectedBackgroundColor:
-                                          colors.chipSelectedBg,
-                                      unselectedBackgroundColor: colors.chipBg,
-                                      selectedTextColor: isDark
-                                          ? Colors.white
-                                          : Colors.black,
-                                      unselectedTextColor: colors.textMuted,
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedPulseGradientStyleIndex =
-                                              idx;
-                                          _activePresetIndex = -1;
-                                        });
-                                      },
-                                    ),
-                                  );
-                                }).toList(),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 14),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _enableDynamicBorder
-                              ? () => _dynamicBorderController.pulse()
-                              : null,
-                          icon: const Icon(Icons.bolt_rounded, size: 20),
-                          label: const Text('Trigger Instant Pulse Now'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: colors.borderSubtle,
-                            disabledForegroundColor: colors.textMuted,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+                  config: _pulseBorderConfig,
+                  onChanged: () => setState(() => _activePresetIndex = -1),
+                  actionButton: ByButton(
+                    width: double.infinity,
+                    variant: ByButtonVariant.filled,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    borderWidth: 0.0,
+                    prefix: const Icon(Icons.bolt_rounded, size: 20),
+                    onPressed: () {
+                      setState(() {
+                        _pulseBorderConfig.enabled = true;
+                      });
+                      _dynamicBorderController.pulse();
+                    },
+                    child: const Text('Trigger Instant Pulse Now'),
+                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -1571,367 +1102,214 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
     );
   }
 
-  // ── LAYER 1: Active Configuration Preview ──────────────────────────────
+  // ── LAYER 1: Active Configuration Preview ─────────────────────────
   Widget _buildConfigurationPreview(AppColorPalette colors) {
-    return ByCard(
-      variant: ByCardVariant.normal,
-      backgroundColor: colors.cardBg,
-      borderColor: colors.border,
-      borderWidth: 1.0,
-      borderRadius: BorderRadius.circular(14),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryAccent],
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.tune_rounded,
-                  size: 14,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Active Configuration Preview',
-                      style: AppTextStyle.sectionHeader.copyWith(
-                        color: colors.textPrimary,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    Text(
-                      'Live metrics for ByButton morphing & interaction state',
-                      style: AppTextStyle.caption.copyWith(
-                        color: colors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              ByMetricBadge(
-                label: 'Status',
-                value: _isEnabled ? 'Enabled' : 'Disabled',
-              ),
-              ByMetricBadge(
-                label: 'State',
-                value: _manualState != ByButtonState.idle
-                    ? _manualState.name.toUpperCase()
-                    : (_isLoading ? 'LOADING' : 'IDLE'),
-              ),
-              ByMetricBadge(
-                label: 'Variant',
-                value: _variant.name.toUpperCase(),
-              ),
-              ByMetricBadge(
-                label: 'Radius',
-                value: _customRadius >= 24.0
-                    ? 'Full Pill (${_customRadius.toInt()}px)'
-                    : '${_customRadius.toInt()}px',
-              ),
-              ByMetricBadge(
-                label: 'Size',
-                value: switch (_size) {
-                  ByButtonSize.small => 'Small (36px)',
-                  ByButtonSize.medium => 'Medium (48px)',
-                  ByButtonSize.large => 'Large (56px)',
-                },
-              ),
-              ByMetricBadge(
-                label: 'Async',
-                value: _useAutoAsync ? 'Active' : 'Sync',
-              ),
-              ByMetricBadge(
-                label: 'Idle Border',
-                value: '${_customBorderWidth.toStringAsFixed(1)}px',
-              ),
-              ByMetricBadge(
-                label: 'Loading Border',
-                value: _customLoadingBorderWidth != null
-                    ? '${_customLoadingBorderWidth!.toStringAsFixed(1)}px'
-                    : 'Auto (${_effectiveLoadingBorderWidth.toStringAsFixed(1)}px)',
-              ),
-              ByMetricBadge(
-                label: 'Pulse Beam',
-                value: _enableDynamicBorder
-                    ? (_enablePulseGradient ? 'Gradient' : 'Active')
-                    : 'Off',
-              ),
-            ],
-          ),
-        ],
-      ),
+    return ByShowcasePreviewCard(
+      icon: Icons.tune_rounded,
+      subtitle: 'Live metrics for ByButton morphing & interaction state',
+      metrics: [
+        ByMetricBadge(
+          label: 'Status',
+          value: _isEnabled ? 'Enabled' : 'Disabled',
+        ),
+        ByMetricBadge(
+          label: 'State',
+          value: _manualState != ByButtonState.idle
+              ? _manualState.name.toUpperCase()
+              : (_isLoading ? 'LOADING' : 'IDLE'),
+        ),
+        ByMetricBadge(
+          label: 'Variant',
+          value: _variant.name.toUpperCase(),
+        ),
+        ByMetricBadge(
+          label: 'Radius',
+          value: _customRadius >= 24.0
+              ? 'Full Pill (${_customRadius.toInt()}px)'
+              : '${_customRadius.toInt()}px',
+        ),
+        ByMetricBadge(
+          label: 'Size',
+          value: switch (_size) {
+            ByButtonSize.small => 'Small (36px)',
+            ByButtonSize.medium => 'Medium (48px)',
+            ByButtonSize.large => 'Large (56px)',
+          },
+        ),
+        ByMetricBadge(
+          label: 'Async',
+          value: _useAutoAsync ? 'Active' : 'Sync',
+        ),
+        ByMetricBadge(
+          label: 'Idle Border',
+          value: '${_customBorderWidth.toStringAsFixed(1)}px',
+        ),
+        ByMetricBadge(
+          label: 'Loading Border',
+          value: _customLoadingBorderWidth != null
+              ? '${_customLoadingBorderWidth!.toStringAsFixed(1)}px'
+              : 'Auto (${_effectiveLoadingBorderWidth.toStringAsFixed(1)}px)',
+        ),
+        ByMetricBadge(
+          label: 'Pulse Beam',
+          value: _pulseBorderConfig.enabled ? 'Active' : 'Off',
+        ),
+      ],
     );
   }
 
   // ── LAYER 2: Preset Example Card ───────────────────────────────────────
   Widget _buildPresetCard(AppColorPalette colors) {
-    final presets = [
-      {
-        'title': 'Primary Filled',
-        'color': AppColors.primary,
-        'action': () {
-          setState(() {
-            _activePresetIndex = 0;
-            _variant = ByButtonVariant.filled;
-            _isEnabled = true;
-            _isLoading = false;
-            _useAutoAsync = true;
-            _buttonLabel = 'Primary Action';
-            _selectedBgColorIndex = 0;
-            _selectedFgColorIndex = 0;
-            _selectedBorderColorIndex = 0;
-            _customBorderWidth = 0.0;
-            _selectedSuccessIconColorIndex = 0;
-            _selectedErrorIconColorIndex = 0;
-            _customRadius = 28.0;
-            _selectedPulseColorPaletteIndex = 0;
-            _enablePulseGradient = false;
-            _enableResultIconGradient = false;
-            _showPrefix = true;
-            _showSuffix = true;
-            _showBadge = false;
-          });
-        },
-      },
-      {
-        'title': 'Futuristic Gradient',
-        'color': AppColors.primaryAccent,
-        'action': () {
-          setState(() {
-            _activePresetIndex = 1;
-            _variant = ByButtonVariant.gradient;
-            _isEnabled = true;
-            _isLoading = false;
-            _useAutoAsync = true;
-            _buttonLabel = 'Launch Rocket';
-            _customBorderWidth = 0.0;
-            _customRadius = 14.0;
-            _enableShimmer = true;
-            _showPrefix = true;
-            _showSuffix = true;
-            _showBadge = false;
-          });
-        },
-      },
-      {
-        'title': 'Auto-Async Flow',
-        'color': AppColors.cyanAccent,
-        'action': () {
-          setState(() {
-            _activePresetIndex = 2;
-            _variant = ByButtonVariant.filled;
-            _isEnabled = true;
-            _isLoading = false;
-            _useAutoAsync = true;
-            _buttonLabel = 'Click to Load';
-            _selectedBgColorIndex = 2;
-            _selectedFgColorIndex = 1;
-            _customBorderWidth = 0.0;
-            _showPrefix = true;
-            _showSuffix = false;
-          });
-        },
-      },
-      {
-        'title': 'Success Morph',
-        'color': AppColors.success,
-        'action': () {
-          setState(() {
-            _activePresetIndex = 3;
-            _variant = ByButtonVariant.filled;
-            _isEnabled = true;
-            _manualState = ByButtonState.success;
-            _buttonLabel = 'Completed';
-            _selectedBgColorIndex = 3;
-            _selectedFgColorIndex = 0;
-            _customBorderWidth = 0.0;
-          });
-        },
-      },
-      {
-        'title': 'Error Morph',
-        'color': AppColors.error,
-        'action': () {
-          setState(() {
-            _activePresetIndex = 4;
-            _variant = ByButtonVariant.filled;
-            _isEnabled = true;
-            _manualState = ByButtonState.error;
-            _buttonLabel = 'Failed';
-            _selectedBgColorIndex = 5;
-            _selectedFgColorIndex = 0;
-            _customBorderWidth = 0.0;
-          });
-        },
-      },
-      {
-        'title': 'Sleek Outline',
-        'color': const Color(0xFF38BDF8),
-        'action': () {
-          setState(() {
-            _activePresetIndex = 5;
-            _variant = ByButtonVariant.outline;
-            _isEnabled = true;
-            _isLoading = false;
-            _customBorderWidth = 1.5;
-            _buttonLabel = 'Secondary Action';
-            _showPrefix = false;
-            _showSuffix = true;
-          });
-        },
-      },
-      {
-        'title': 'Ghost Minimal',
-        'color': const Color(0xFF8B5CF6),
-        'action': () {
-          setState(() {
-            _activePresetIndex = 6;
-            _variant = ByButtonVariant.ghost;
-            _isEnabled = true;
-            _isLoading = false;
-            _customBorderWidth = 0.0;
-            _buttonLabel = 'Cancel / Skip';
-            _showPrefix = false;
-            _showSuffix = false;
-          });
-        },
-      },
-      {
-        'title': 'Disabled State',
-        'color': AppColors.warning,
-        'action': () {
-          setState(() {
-            _activePresetIndex = 7;
-            _isEnabled = false;
-            _customBorderWidth = 0.0;
-            _buttonLabel = 'Action Disabled';
-          });
-        },
-      },
-    ];
-
-    return ByCard(
-      variant: ByCardVariant.normal,
-      backgroundColor: colors.cardBg,
-      borderColor: colors.border,
-      borderWidth: 1.0,
-      borderRadius: BorderRadius.circular(14),
-      padding: const EdgeInsets.all(11),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Preset Example',
-            style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
-          ),
-          const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: List.generate(presets.length, (index) {
-                final preset = presets[index];
-                final isSelected = _activePresetIndex == index;
-                final Color themeColor = preset['color'] as Color;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: preset['action'] as VoidCallback,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? themeColor.withValues(alpha: 0.25)
-                              : themeColor.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected
-                                ? themeColor
-                                : themeColor.withValues(alpha: 0.35),
-                            width: isSelected ? 1.4 : 1.0,
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          preset['title'] as String,
-                          style: AppTextStyle.pillButton.copyWith(
-                            color: themeColor,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── LAYER 3: Integrated with ByDynamicBorder ────────────────────────────
-  Widget _buildDynamicBorderIntegrationCard(AppColorPalette colors) {
-    return Container(
-      padding: const EdgeInsets.all(11),
-      decoration: BoxDecoration(
-        color: colors.bannerBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.bannerBorder),
-      ),
-      child: Row(
-        children: [
-          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Integrated with ByDynamicBorder',
-                  style: AppTextStyle.bodyMedium.copyWith(
-                    color: colors.bannerText,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'ByButton seamlessly integrates ByDynamicBorder for periodic standby sweeps and continuous circular loading pulses.',
-                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ByShowcasePresetCard(
+      presets: [
+        ByShowcasePresetItem(
+          label: 'Primary Filled',
+          themeColor: AppColors.primary,
+          isSelected: _activePresetIndex == 0,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 0;
+              _variant = ByButtonVariant.filled;
+              _isEnabled = true;
+              _isLoading = false;
+              _useAutoAsync = true;
+              _buttonLabel = 'Primary Action';
+              _selectedBgColorIndex = 0;
+              _selectedFgColorIndex = 0;
+              _selectedBorderColorIndex = 0;
+              _customBorderWidth = 0.0;
+              _selectedSuccessIconColorIndex = 0;
+              _selectedErrorIconColorIndex = 0;
+              _customRadius = 28.0;
+              _showPrefix = true;
+              _showSuffix = true;
+              _showBadge = false;
+            });
+          },
+        ),
+        ByShowcasePresetItem(
+          label: 'Futuristic Gradient',
+          themeColor: AppColors.primaryAccent,
+          isSelected: _activePresetIndex == 1,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 1;
+              _variant = ByButtonVariant.gradient;
+              _isEnabled = true;
+              _isLoading = false;
+              _useAutoAsync = true;
+              _buttonLabel = 'Launch Rocket';
+              _customBorderWidth = 0.0;
+              _customRadius = 14.0;
+              _enableShimmer = true;
+              _showPrefix = true;
+              _showSuffix = true;
+              _showBadge = false;
+            });
+          },
+        ),
+        ByShowcasePresetItem(
+          label: 'Auto-Async Flow',
+          themeColor: AppColors.cyanAccent,
+          isSelected: _activePresetIndex == 2,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 2;
+              _variant = ByButtonVariant.filled;
+              _isEnabled = true;
+              _isLoading = false;
+              _useAutoAsync = true;
+              _buttonLabel = 'Click to Load';
+              _selectedBgColorIndex = 2;
+              _selectedFgColorIndex = 1;
+              _customBorderWidth = 0.0;
+              _showPrefix = true;
+              _showSuffix = false;
+            });
+          },
+        ),
+        ByShowcasePresetItem(
+          label: 'Success Morph',
+          themeColor: AppColors.success,
+          isSelected: _activePresetIndex == 3,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 3;
+              _variant = ByButtonVariant.filled;
+              _isEnabled = true;
+              _manualState = ByButtonState.success;
+              _buttonLabel = 'Completed';
+              _selectedBgColorIndex = 3;
+              _selectedFgColorIndex = 0;
+              _customBorderWidth = 0.0;
+            });
+          },
+        ),
+        ByShowcasePresetItem(
+          label: 'Error Morph',
+          themeColor: AppColors.error,
+          isSelected: _activePresetIndex == 4,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 4;
+              _variant = ByButtonVariant.filled;
+              _isEnabled = true;
+              _manualState = ByButtonState.error;
+              _buttonLabel = 'Failed';
+              _selectedBgColorIndex = 5;
+              _selectedFgColorIndex = 0;
+              _customBorderWidth = 0.0;
+            });
+          },
+        ),
+        ByShowcasePresetItem(
+          label: 'Sleek Outline',
+          themeColor: const Color(0xFF38BDF8),
+          isSelected: _activePresetIndex == 5,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 5;
+              _variant = ByButtonVariant.outline;
+              _isEnabled = true;
+              _isLoading = false;
+              _customBorderWidth = 1.5;
+              _buttonLabel = 'Secondary Action';
+              _showPrefix = false;
+              _showSuffix = true;
+            });
+          },
+        ),
+        ByShowcasePresetItem(
+          label: 'Ghost Minimal',
+          themeColor: const Color(0xFF8B5CF6),
+          isSelected: _activePresetIndex == 6,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 6;
+              _variant = ByButtonVariant.ghost;
+              _isEnabled = true;
+              _isLoading = false;
+              _customBorderWidth = 0.0;
+              _buttonLabel = 'Cancel / Skip';
+              _showPrefix = false;
+              _showSuffix = false;
+            });
+          },
+        ),
+        ByShowcasePresetItem(
+          label: 'Disabled State',
+          themeColor: AppColors.warning,
+          isSelected: _activePresetIndex == 7,
+          onTap: () {
+            setState(() {
+              _activePresetIndex = 7;
+              _isEnabled = false;
+              _customBorderWidth = 0.0;
+              _buttonLabel = 'Action Disabled';
+            });
+          },
+        ),
+      ],
     );
   }
 
@@ -1985,7 +1363,9 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
           state: _manualState,
           enablePressScale: _enablePressScale,
           enableStateTransitionPulse: _enableStateTransitionPulse,
-          enableTransitionPulseColors: selectedBeamColors,
+          enableTransitionPulseColors: isDark
+              ? const [Colors.white, Color(0xFFE2E8F0)]
+              : const [Colors.black, Color(0xFF334155)],
           disableTransitionPulseColors:
               ByButtonDefaults.disableTransitionPulseColors,
           enableShimmer: _enableShimmer,
@@ -2067,55 +1447,6 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
     );
   }
 
-  Widget _buildSliderRow({
-    required String title,
-    required double value,
-    required double min,
-    required double max,
-    required String suffix,
-    required AppColorPalette colors,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTextStyle.fieldLabel.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ),
-              Text(
-                '${value.toStringAsFixed(suffix == 'ms' || suffix == 'px' ? 0 : 1)} $suffix',
-                style: AppTextStyle.badge.copyWith(color: colors.textPrimary),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: AppColors.primary,
-              thumbColor: Colors.white,
-              inactiveTrackColor: colors.borderSubtle,
-              trackHeight: 3.0,
-            ),
-            child: Slider(
-              value: value.clamp(min, max),
-              min: min,
-              max: max,
-              onChanged: onChanged,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ── RESET CONFIGURATION TO DEFAULTS ─────────────────────────────────────
   void _resetToDefaults() {
@@ -2140,16 +1471,12 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
       _selectedSuccessIconColorIndex = 0;
       _selectedErrorIconColorIndex = 0;
       _enableResultIconGradient = false;
-      _enableDynamicBorder = true;
+      _pulseBorderConfig.reset();
+      _pulseBorderConfig.enabled = true;
+      _pulseBorderConfig.origin = ByBorderOrigin.topLeft;
+      _pulseBorderConfig.shadowBlur = 10.0;
+      _pulseBorderConfig.shadowWidth = 3.0;
       _periodicIntervalSeconds = 4.0;
-      _pulseDurationMs = 1400;
-      _pulseBeamLength = 0.28;
-      _pulseShadowBlur = 10.0;
-      _pulseShadowWidth = 3.0;
-      _pulseOrigin = ByBorderOrigin.topLeft;
-      _selectedPulseColorPaletteIndex = 0;
-      _enablePulseGradient = false;
-      _selectedPulseGradientStyleIndex = 0;
       _enablePressScale = true;
       _enableStateTransitionPulse = true;
       _enableShimmer = false;

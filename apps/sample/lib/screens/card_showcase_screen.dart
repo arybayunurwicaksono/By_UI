@@ -7,11 +7,10 @@ import '../widgets/by_showcase_header.dart';
 import '../widgets/by_color_palette.dart';
 import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/widget_params_dialog.dart';
-import 'app_bar_showcase_screen.dart';
-import 'button_showcase_screen.dart';
-import 'dialog_showcase_screen.dart';
-import 'sequence_showcase_screen.dart';
-import 'toast_showcase_screen.dart';
+import '../widgets/by_showcase_preset_card.dart';
+import '../widgets/by_showcase_preview_card.dart';
+import '../widgets/by_showcase_integration_banner.dart';
+import '../widgets/by_dynamic_border_controls.dart';
 
 /// Interactive showcase screen for the [ByCard] spatial and normal component.
 class CardShowcaseScreen extends StatefulWidget {
@@ -48,20 +47,12 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
   int _activePresetIndex = 0;
 
   // Pulse Dynamic Border configuration
-  bool _enablePulseBorder = true;
+  final ByPulseBorderConfig _pulseBorderConfig = ByPulseBorderConfig(
+    enabled: true,
+  );
   bool _pulseAutoStart = true;
-  ByBorderOrigin _pulseOrigin = ByBorderOrigin.topCenter;
-  int _pulseDurationMs = 1400;
-  double _pulseBeamLength = 0.28;
-  double _pulseWidth = 2.0;
-  double _pulseShadowBlur = 3.0;
-  double _pulseShadowWidth = 2.0;
-  double _pulseShadowLength = 0.28;
-  int _selectedPulseShadowColorIndex = 0;
   int _sensorResumeDelayMs = 300;
   int _sensorEntranceDurationMs = 400;
-  int _selectedPulseColorAIndex = 0;
-  int _selectedPulseColorBIndex = 2;
   final ByDynamicBorderController _pulseController =
       ByDynamicBorderController();
 
@@ -91,20 +82,11 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
       _selectedGradientColorAIndex = 0;
       _selectedGradientColorBIndex = 2;
       _activePresetIndex = 0;
-      _enablePulseBorder = true;
+      _pulseBorderConfig.reset();
+      _pulseBorderConfig.enabled = true;
       _pulseAutoStart = true;
-      _pulseOrigin = ByBorderOrigin.topCenter;
-      _pulseDurationMs = 1400;
-      _pulseBeamLength = 0.28;
-      _pulseWidth = 2.0;
-      _pulseShadowBlur = 3.0;
-      _pulseShadowWidth = 2.0;
-      _pulseShadowLength = 0.28;
-      _selectedPulseShadowColorIndex = 0;
       _sensorResumeDelayMs = 300;
       _sensorEntranceDurationMs = 400;
-      _selectedPulseColorAIndex = 0;
-      _selectedPulseColorBIndex = 2;
     });
   }
 
@@ -303,24 +285,7 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 )]['color']
                 as Color;
 
-        final pulseColorA =
-            gradientColorOptions[_selectedPulseColorAIndex.clamp(
-                  0,
-                  gradientColorOptions.length - 1,
-                )]['color']
-                as Color;
-        final pulseColorB =
-            gradientColorOptions[_selectedPulseColorBIndex.clamp(
-                  0,
-                  gradientColorOptions.length - 1,
-                )]['color']
-                as Color;
-        final pulseShadowColor =
-            gradientColorOptions[_selectedPulseShadowColorIndex.clamp(
-                  0,
-                  gradientColorOptions.length - 1,
-                )]['color']
-                as Color;
+
 
         // Dynamic dual-tone gradient based on custom selected Color A & Color B
         final borderGradient = LinearGradient(
@@ -351,47 +316,7 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 onOpenParams: () => _showByCardParams(context),
               ),
             ),
-            drawer: ByDrawer(
-              activeComponent: 'ByCard',
-              onSelectComponent: (comp) {
-                if (comp == 'ByToast') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ToastShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByDialog') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const DialogShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByAppBar') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AppBarShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'BySequence') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const SequenceShowcaseScreen(),
-                    ),
-                  );
-                } else if (comp == 'ByButton') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ButtonShowcaseScreen(),
-                    ),
-                  );
-                }
-              },
-            ),
+            drawer: const ByDrawer(activeComponent: 'ByCard'),
             body: ListView(
               padding: EdgeInsets.fromLTRB(
                 12,
@@ -417,7 +342,11 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 const SizedBox(height: 12),
 
                 // 3. Integrated Feature Hint (Integrated with ByDynamicBorder)
-                _buildIntegrationCard(colors),
+                const ByShowcaseIntegrationBanner(
+                  componentName: 'ByDynamicBorder',
+                  description:
+                      'ByCard integrates ByDynamicBorder to sweep interactive highlight beams along its perimeter upon physical sensor tilt or hover.',
+                ),
                 const SizedBox(height: 12),
 
                 // 4. Standalone Widget Display (ByCard)
@@ -427,9 +356,6 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                   currentBg: currentBg,
                   colorA: colorA,
                   colorB: colorB,
-                  pulseColorA: pulseColorA,
-                  pulseColorB: pulseColorB,
-                  pulseShadowColor: pulseShadowColor,
                   borderGradient: borderGradient,
                   shadowGradient: shadowGradient,
                 ),
@@ -745,218 +671,26 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 const SizedBox(height: 14),
 
                 // Control Card 5: Pulse Dynamic Border
-                _buildControlCard(
-                  colors: colors,
+                ByDynamicBorderControls(
                   title: '5. PULSE DYNAMIC BORDER (ONE-SHOT TRAVELING BEAM)',
-                  icon: AppIcons.tune,
-                  children: [
-                    _buildSwitchTile(
-                      title: 'Enable Pulse Dynamic Border',
-                      subtitle:
-                          'Traces a neon laser circuit from Point A back to Point A',
-                      value: _enablePulseBorder,
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _enablePulseBorder = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    _buildSwitchTile(
-                      title: 'Auto-Start on Entrance',
-                      subtitle:
-                          'Executes traveling beam automatically when loaded',
-                      value: _pulseAutoStart,
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _pulseAutoStart = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Pulse Origin (Point A):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildOriginSelector(colors, isDark),
-                    const SizedBox(height: 12),
-                    _buildSliderRow(
-                      title: 'Circuit Duration',
-                      value: _pulseDurationMs.toDouble(),
-                      min: 400.0,
-                      max: 3000.0,
-                      suffix: 'ms',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _pulseDurationMs = val.toInt();
-                        });
-                      },
-                    ),
-                    _buildSliderRow(
-                      title: 'Beam Length (% Perimeter)',
-                      value: _pulseBeamLength,
-                      min: 0.10,
-                      max: 0.50,
-                      suffix: 'x',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _pulseBeamLength = val;
-                        });
-                      },
-                    ),
-                    _buildSliderRow(
-                      title: 'Beam Stroke Width',
-                      value: _pulseWidth,
-                      min: 1.0,
-                      max: 6.0,
-                      suffix: 'px',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _pulseWidth = val;
-                        });
-                      },
-                    ),
-                    _buildSliderRow(
-                      title: 'Outer Shadow Length (% Perimeter)',
-                      value: _pulseShadowLength,
-                      min: 0.05,
-                      max: 0.80,
-                      suffix: 'x',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _pulseShadowLength = val;
-                        });
-                      },
-                    ),
-                    _buildSliderRow(
-                      title: 'Outer Shadow Thickness',
-                      value: _pulseShadowWidth,
-                      min: 0.5,
-                      max: 8.0,
-                      suffix: 'px',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _pulseShadowWidth = val;
-                        });
-                      },
-                    ),
-                    _buildSliderRow(
-                      title: 'Outer Shadow Blur Radius',
-                      value: _pulseShadowBlur,
-                      min: 0.0,
-                      max: 16.0,
-                      suffix: 'px',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _pulseShadowBlur = val;
-                        });
-                      },
-                    ),
-                    _buildSliderRow(
-                      title: 'Sensor Resume Delay (Rest Buffer)',
-                      value: _sensorResumeDelayMs.toDouble(),
-                      min: 0.0,
-                      max: 1000.0,
-                      suffix: 'ms',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _sensorResumeDelayMs = val.toInt();
-                        });
-                      },
-                    ),
-                    _buildSliderRow(
-                      title: 'Sensor Border Entrance Duration',
-                      value: _sensorEntranceDurationMs.toDouble(),
-                      min: 100.0,
-                      max: 1000.0,
-                      suffix: 'ms',
-                      colors: colors,
-                      onChanged: (val) {
-                        setState(() {
-                          _sensorEntranceDurationMs = val.toInt();
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Beam Color — Start Tone (A):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: gradientColorOptions,
-                      selectedIndex: _selectedPulseColorAIndex,
-                      onSelected: (index) {
-                        setState(() {
-                          _selectedPulseColorAIndex = index;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Beam Color — End Tone (B):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: gradientColorOptions,
-                      selectedIndex: _selectedPulseColorBIndex,
-                      onSelected: (index) {
-                        setState(() {
-                          _selectedPulseColorBIndex = index;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Outer Shadow Color (Decoupled):',
-                      style: AppTextStyle.fieldLabel.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: gradientColorOptions,
-                      selectedIndex: _selectedPulseShadowColorIndex,
-                      onSelected: (index) {
-                        setState(() {
-                          _selectedPulseShadowColorIndex = index;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 14),
-                    ByButton(
-                      width: double.infinity,
-                      variant: ByButtonVariant.filled,
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      borderWidth: 0.0,
-                      prefix: const Icon(Icons.bolt_rounded, size: 20),
-                      onPressed: _enablePulseBorder
-                          ? () => _pulseController.pulse()
-                          : null,
-                      child: const Text(
-                        'Trigger Pulse Now (Point A → Point A)',
-                      ),
-                    ),
-                  ],
+                  config: _pulseBorderConfig,
+                  onChanged: () => setState(() {}),
+                  actionButton: ByButton(
+                    width: double.infinity,
+                    variant: ByButtonVariant.filled,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    borderWidth: 0.0,
+                    prefix: const Icon(Icons.bolt_rounded, size: 20),
+                    onPressed: () {
+                      setState(() {
+                        _pulseBorderConfig.enabled = true;
+                      });
+                      _pulseController.pulse();
+                    },
+                    child: const Text('Fire Laser Pulse Dynamic Border'),
+                  ),
                 ),
               ],
             ),
@@ -966,49 +700,12 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
     );
   }
 
-  Widget _buildOriginSelector(AppColorPalette colors, bool isDark) {
-    final origins = [
-      (origin: ByBorderOrigin.topCenter, label: 'Top Center'),
-      (origin: ByBorderOrigin.topLeft, label: 'Top Left'),
-      (origin: ByBorderOrigin.topRight, label: 'Top Right'),
-      (origin: ByBorderOrigin.bottomCenter, label: 'Bottom Center'),
-      (origin: ByBorderOrigin.bottomLeft, label: 'Bottom Left'),
-      (origin: ByBorderOrigin.bottomRight, label: 'Bottom Right'),
-      (origin: ByBorderOrigin.centerLeft, label: 'Center Left'),
-      (origin: ByBorderOrigin.centerRight, label: 'Center Right'),
-    ];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: origins.map((item) {
-          final isSelected = _pulseOrigin == item.origin;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ByShowcaseChoiceChip(
-              label: item.label,
-              isSelected: isSelected,
-              onTap: () {
-                setState(() {
-                  _pulseOrigin = item.origin;
-                });
-              },
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   Widget _buildHeroPreviewCard({
     required AppColorPalette colors,
     required bool isDark,
     required Color currentBg,
     required Color colorA,
     required Color colorB,
-    required Color pulseColorA,
-    required Color pulseColorB,
-    required Color pulseShadowColor,
     required Gradient borderGradient,
     required Gradient shadowGradient,
   }) {
@@ -1019,25 +716,14 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
         enableHoverTilt: _enableHoverTilt,
         enableInnerGlow: _enableInnerGlow,
         innerGlowOpacity: _innerGlowOpacity,
-        dynamicBorder: _enablePulseBorder
-            ? ByDynamicBorder(
-                controller: _pulseController,
-                autoStart: _pulseAutoStart,
-                origin: _pulseOrigin,
-                duration: Duration(milliseconds: _pulseDurationMs),
-                beamLength: _pulseBeamLength,
-                width: _pulseWidth,
-                shadowColor: pulseShadowColor,
-                shadowBlur: _pulseShadowBlur,
-                shadowWidth: _pulseShadowWidth,
-                shadowLength: _pulseShadowLength,
-                colors: [pulseColorA, pulseColorB],
-                sensorResumeDelay: Duration(milliseconds: _sensorResumeDelayMs),
-                sensorEntranceDuration: Duration(
-                  milliseconds: _sensorEntranceDurationMs,
-                ),
-              )
-            : null,
+        dynamicBorder: _pulseBorderConfig.buildDynamicBorder(
+          autoStart: _pulseAutoStart,
+          controller: _pulseController,
+          sensorResumeDelay: Duration(milliseconds: _sensorResumeDelayMs),
+          sensorEntranceDuration: Duration(
+            milliseconds: _sensorEntranceDurationMs,
+          ),
+        ),
         manualTilt: _enableSensor ? null : Offset(_tiltX, _tiltY),
         onTiltChanged: (tilt) {
           if (_enableSensor && mounted) {
@@ -1076,7 +762,7 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 ),
               ],
         onTap: () {
-          if (_enablePulseBorder) {
+          if (_pulseBorderConfig.enabled) {
             _pulseController.pulse();
           }
           // Tap feedback: smoothly cycle background color
@@ -1169,142 +855,33 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
   }
 
   Widget _buildPresetCard(AppColorPalette colors, bool isDark) {
-    final presets = [
-      (
-        name: 'Spatial Aurora',
-        color: AppColors.cyanAccent,
-        icon: AppIcons.sparkle,
-      ),
-      (
-        name: 'Neon Cyberpunk',
-        color: AppColors.primaryAccent,
-        icon: AppIcons.bolt,
-      ),
-      (
-        name: 'Minimal Slate',
-        color: const Color(0xFF64748B),
-        icon: AppIcons.cardNormal,
-      ),
-      (name: 'Elevated Clean', color: AppColors.primary, icon: AppIcons.star),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.border),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Preset Example',
-            style: AppTextStyle.sectionHeader.copyWith(color: colors.textMuted),
-          ),
-          const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: List.generate(presets.length, (index) {
-                final preset = presets[index];
-                final isSelected = _activePresetIndex == index;
-                final color = preset.color;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () => _applyPreset(index),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? color.withValues(alpha: 0.25)
-                              : color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected
-                                ? color
-                                : color.withValues(alpha: 0.35),
-                            width: isSelected ? 1.4 : 1.0,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(preset.icon, size: 14, color: color),
-                            const SizedBox(width: 6),
-                            Text(
-                              preset.name,
-                              style: AppTextStyle.pillButton.copyWith(
-                                color: color,
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIntegrationCard(AppColorPalette colors) {
-    return Container(
-      padding: const EdgeInsets.all(11),
-      decoration: BoxDecoration(
-        color: colors.bannerBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.bannerBorder),
-      ),
-      child: Row(
-        children: [
-          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Integrated with ByDynamicBorder',
-                  style: AppTextStyle.bodyMedium.copyWith(
-                    color: colors.bannerText,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'ByCard integrates ByDynamicBorder to sweep interactive highlight beams along its perimeter upon physical sensor tilt or hover.',
-                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ByShowcasePresetCard(
+      presets: [
+        ByShowcasePresetItem(
+          label: 'Spatial Aurora',
+          themeColor: AppColors.cyanAccent,
+          isSelected: _activePresetIndex == 0,
+          onTap: () => _applyPreset(0),
+        ),
+        ByShowcasePresetItem(
+          label: 'Neon Cyberpunk',
+          themeColor: AppColors.primaryAccent,
+          isSelected: _activePresetIndex == 1,
+          onTap: () => _applyPreset(1),
+        ),
+        ByShowcasePresetItem(
+          label: 'Minimal Slate',
+          themeColor: const Color(0xFF64748B),
+          isSelected: _activePresetIndex == 2,
+          onTap: () => _applyPreset(2),
+        ),
+        ByShowcasePresetItem(
+          label: 'Elevated Clean',
+          themeColor: AppColors.primary,
+          isSelected: _activePresetIndex == 3,
+          onTap: () => _applyPreset(3),
+        ),
+      ],
     );
   }
 
@@ -1313,108 +890,49 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
     bool isDark,
     String currentBgName,
   ) {
-    return ByCard(
-      variant: ByCardVariant.normal,
-      backgroundColor: colors.cardBg,
-      borderColor: colors.border,
-      borderRadius: BorderRadius.circular(16),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryAccent],
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  AppIcons.palette,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Active Configuration Preview',
-                      style: AppTextStyle.screenSubtitle.copyWith(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Live hardware sensor and geometry metrics',
-                      style: AppTextStyle.caption.copyWith(
-                        color: colors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'The interactive ByCard above smoothly re-renders with hardware sensor parallax, dynamic lighting, and customized borders.',
-            style: AppTextStyle.body.copyWith(
-              color: colors.textSecondary,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              ByMetricBadge(label: 'Variant', value: _variant.name),
-              ByMetricBadge(label: 'Background', value: currentBgName),
-              ByMetricBadge(
-                label: 'Sensor',
-                value: _enableSensor ? 'Active' : 'Off',
-              ),
-              ByMetricBadge(
-                label: 'Hover Tilt',
-                value: _enableHoverTilt ? 'Active' : 'Off',
-              ),
-              ByMetricBadge(
-                label: 'Inner Sheen',
-                value: _enableInnerGlow
-                    ? '${(_innerGlowOpacity * 100).toInt()}%'
-                    : 'Off',
-              ),
-              ByMetricBadge(
-                label: 'Border',
-                value: '${_borderWidth.toStringAsFixed(1)}px',
-              ),
-              ByMetricBadge(
-                label: 'Radius',
-                value: '${_borderRadius.toInt()}px',
-              ),
-              ByMetricBadge(label: 'Blur', value: '${_shadowBlur.toInt()}px'),
-              ByMetricBadge(
-                label: 'Vector',
-                value:
-                    '(${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
-              ),
-              ByMetricBadge(
-                label: 'Pulse Border',
-                value: _enablePulseBorder
-                    ? '${(_pulseDurationMs / 1000).toStringAsFixed(1)}s'
-                    : 'Off',
-              ),
-            ],
-          ),
-        ],
-      ),
+    return ByShowcasePreviewCard(
+      icon: AppIcons.palette,
+      subtitle: 'Live hardware sensor and geometry metrics',
+      description:
+          'The interactive ByCard above smoothly re-renders with hardware sensor parallax, dynamic lighting, and customized borders.',
+      metrics: [
+        ByMetricBadge(label: 'Variant', value: _variant.name),
+        ByMetricBadge(label: 'Background', value: currentBgName),
+        ByMetricBadge(
+          label: 'Sensor',
+          value: _enableSensor ? 'Active' : 'Off',
+        ),
+        ByMetricBadge(
+          label: 'Hover Tilt',
+          value: _enableHoverTilt ? 'Active' : 'Off',
+        ),
+        ByMetricBadge(
+          label: 'Inner Sheen',
+          value: _enableInnerGlow
+              ? '${(_innerGlowOpacity * 100).toInt()}%'
+              : 'Off',
+        ),
+        ByMetricBadge(
+          label: 'Border',
+          value: '${_borderWidth.toStringAsFixed(1)}px',
+        ),
+        ByMetricBadge(
+          label: 'Radius',
+          value: '${_borderRadius.toInt()}px',
+        ),
+        ByMetricBadge(label: 'Blur', value: '${_shadowBlur.toInt()}px'),
+        ByMetricBadge(
+          label: 'Vector',
+          value:
+              '(${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
+        ),
+        ByMetricBadge(
+          label: 'Pulse Border',
+          value: _pulseBorderConfig.enabled
+              ? '${(_pulseBorderConfig.durationMs / 1000).toStringAsFixed(1)}s'
+              : 'Off',
+        ),
+      ],
     );
   }
 

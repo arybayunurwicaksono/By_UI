@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:by_ui/by_ui.dart';
 import '../theme/app_theme.dart';
+import '../widgets/by_dynamic_border_controls.dart';
 
 /// Specification for styling inner components inside ByAppBar (brand pill, accents, action buttons).
 class ByComponentPreset {
@@ -79,22 +80,67 @@ class AppBarConfigStore extends ChangeNotifier {
   int selectedComponentPresetIndex = 0;
 
   // 6. Pulse Dynamic Border (Traveling neon laser beam Point A -> Point A)
-  bool enablePulseBorder = false;
+  final ByPulseBorderConfig pulseConfig = ByPulseBorderConfig(
+    enabled: false,
+    durationMs: 1400,
+    beamLength: 0.28,
+    width: 2.0,
+    shadowBlur: 3.0,
+    shadowWidth: 2.0,
+    shadowLength: 0.28,
+    colorAIndex: 0,
+    colorBIndex: 2,
+    shadowColorIndex: 0,
+  );
+
+  bool get enablePulseBorder => pulseConfig.enabled;
+  set enablePulseBorder(bool val) => pulseConfig.enabled = val;
+
   bool pulseAutoStart = false;
-  int pulseOriginIndex = 0;
-  int pulseDurationMs = 1400;
-  double pulseBeamLength = 0.28;
-  double pulseWidth = 2.0;
-  double pulseShadowBlur = 3.0;
-  double pulseShadowWidth = 2.0;
-  double pulseShadowLength = 0.28;
-  int selectedPulseShadowColorIndex = 0;
+
+  int get pulseOriginIndex => pulseConfig.origin.index;
+  set pulseOriginIndex(int val) {
+    if (val >= 0 && val < ByBorderOrigin.values.length) {
+      pulseConfig.origin = ByBorderOrigin.values[val];
+    }
+  }
+
+  ByBorderOrigin get pulseOrigin => pulseConfig.origin;
+  set pulseOrigin(ByBorderOrigin val) => pulseConfig.origin = val;
+
+  int get pulseDurationMs => pulseConfig.durationMs;
+  set pulseDurationMs(int val) => pulseConfig.durationMs = val;
+
+  double get pulseBeamLength => pulseConfig.beamLength;
+  set pulseBeamLength(double val) => pulseConfig.beamLength = val;
+
+  double get pulseWidth => pulseConfig.width;
+  set pulseWidth(double val) => pulseConfig.width = val;
+
+  double get pulseShadowBlur => pulseConfig.shadowBlur;
+  set pulseShadowBlur(double val) => pulseConfig.shadowBlur = val;
+
+  double get pulseShadowWidth => pulseConfig.shadowWidth;
+  set pulseShadowWidth(double val) => pulseConfig.shadowWidth = val;
+
+  double get pulseShadowLength => pulseConfig.shadowLength;
+  set pulseShadowLength(double val) => pulseConfig.shadowLength = val;
+
+  int get selectedPulseShadowColorIndex => pulseConfig.shadowColorIndex;
+  set selectedPulseShadowColorIndex(int val) =>
+      pulseConfig.shadowColorIndex = val;
+
   double get pulseGlowBlur => pulseShadowBlur;
   set pulseGlowBlur(double val) => pulseShadowBlur = val;
+
   int sensorResumeDelayMs = 300;
   int sensorEntranceDurationMs = 400;
-  int selectedPulseColorAIndex = 0;
-  int selectedPulseColorBIndex = 2;
+
+  int get selectedPulseColorAIndex => pulseConfig.colorAIndex;
+  set selectedPulseColorAIndex(int val) => pulseConfig.colorAIndex = val;
+
+  int get selectedPulseColorBIndex => pulseConfig.colorBIndex;
+  set selectedPulseColorBIndex(int val) => pulseConfig.colorBIndex = val;
 
   static const List<ByComponentPreset> componentPresetDefinitions = [
     ByComponentPreset(
@@ -133,14 +179,6 @@ class AppBarConfigStore extends ChangeNotifier {
 
   ByComponentPreset get activeComponentPreset =>
       componentPresetDefinitions[selectedComponentPresetIndex];
-
-  ByBorderOrigin get pulseOrigin {
-    if (pulseOriginIndex >= 0 &&
-        pulseOriginIndex < ByBorderOrigin.values.length) {
-      return ByBorderOrigin.values[pulseOriginIndex];
-    }
-    return ByBorderOrigin.topCenter;
-  }
 
   void update({
     bool? isFloatingEnabled,
@@ -297,20 +335,10 @@ class AppBarConfigStore extends ChangeNotifier {
     selectedSensorGradientIndex = 0;
     selectedComponentPresetIndex = 0;
 
-    enablePulseBorder = false;
+    pulseConfig.reset();
     pulseAutoStart = false;
-    pulseOriginIndex = 0;
-    pulseDurationMs = 1400;
-    pulseBeamLength = 0.28;
-    pulseWidth = 2.0;
-    pulseShadowBlur = 3.0;
-    pulseShadowWidth = 2.0;
-    pulseShadowLength = 0.28;
-    selectedPulseShadowColorIndex = 0;
     sensorResumeDelayMs = 300;
     sensorEntranceDurationMs = 400;
-    selectedPulseColorAIndex = 0;
-    selectedPulseColorBIndex = 2;
 
     notifyListeners();
   }

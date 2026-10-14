@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:by_ui/by_ui.dart';
 import '../models/app_theme_store.dart';
+import '../navigation/showcase_navigator.dart';
 import '../theme/app_theme.dart';
 
 /// Modern and aesthetic navigation drawer showcasing ByUI components.
@@ -13,6 +15,15 @@ class ByDrawer extends StatelessWidget {
     this.activeComponent = 'ByToast',
     this.onSelectComponent,
   });
+
+  void _handleSelect(BuildContext context, String target) {
+    Navigator.of(context).pop();
+    if (onSelectComponent != null) {
+      onSelectComponent!(target);
+    } else {
+      ShowcaseNavigator.pushReplacement(context, target);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +66,7 @@ class ByDrawer extends StatelessWidget {
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
                           colors: colors,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            onSelectComponent?.call('ByToast');
-                          },
+                          onTap: () => _handleSelect(context, 'ByToast'),
                         ),
                         const SizedBox(height: 6),
 
@@ -70,10 +78,7 @@ class ByDrawer extends StatelessWidget {
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
                           colors: colors,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            onSelectComponent?.call('ByDialog');
-                          },
+                          onTap: () => _handleSelect(context, 'ByDialog'),
                         ),
                         const SizedBox(height: 6),
 
@@ -85,10 +90,7 @@ class ByDrawer extends StatelessWidget {
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
                           colors: colors,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            onSelectComponent?.call('ByCard');
-                          },
+                          onTap: () => _handleSelect(context, 'ByCard'),
                         ),
                         const SizedBox(height: 6),
 
@@ -100,10 +102,7 @@ class ByDrawer extends StatelessWidget {
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
                           colors: colors,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            onSelectComponent?.call('ByAppBar');
-                          },
+                          onTap: () => _handleSelect(context, 'ByAppBar'),
                         ),
                         const SizedBox(height: 6),
 
@@ -115,10 +114,7 @@ class ByDrawer extends StatelessWidget {
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
                           colors: colors,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            onSelectComponent?.call('BySequence');
-                          },
+                          onTap: () => _handleSelect(context, 'BySequence'),
                         ),
                         const SizedBox(height: 6),
 
@@ -130,10 +126,7 @@ class ByDrawer extends StatelessWidget {
                           badgeText: 'Ready',
                           badgeColor: AppColors.success,
                           colors: colors,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            onSelectComponent?.call('ByButton');
-                          },
+                          onTap: () => _handleSelect(context, 'ByButton'),
                         ),
 
                         const SizedBox(height: 18),
@@ -215,9 +208,6 @@ class ByDrawer extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryAccent],
-                  ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -227,14 +217,13 @@ class ByDrawer extends StatelessWidget {
                     ),
                   ],
                 ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'BY',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
-                    letterSpacing: 1.2,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    'assets/images/logo_by_ui_showcase.jpg',
+                    width: 44,
+                    height: 44,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -267,7 +256,7 @@ class ByDrawer extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'v0.1.4',
+                            'v${ByUI.version}',
                             style: AppTextStyle.badgeSmall.copyWith(
                               color: colors.badgeText,
                             ),
