@@ -61,6 +61,27 @@ class ByAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// Controls whether the dynamic floating transition is enabled upon scrolling.
   final bool isFloatingEnabled;
 
+  /// Controls whether the app bar automatically slides up to hide when scrolling down,
+  /// and slides down smoothly from the top when scrolling up.
+  ///
+  /// Defaults to `false`.
+  final bool autoHideOnScroll;
+
+  /// Synonym for [autoHideOnScroll] providing developer convenience.
+  bool get hideOnScroll => autoHideOnScroll;
+
+  /// Duration of the slide transition animation when auto-hiding or revealing.
+  /// Defaults to `Duration(milliseconds: 250)`.
+  final Duration autoHideDuration;
+
+  /// Curve of the slide transition animation when auto-hiding or revealing.
+  /// Defaults to [Curves.easeInOutCubic].
+  final Curve autoHideCurve;
+
+  /// Scroll delta distance (in px) required to trigger auto-hiding or revealing.
+  /// Defaults to `10.0`.
+  final double autoHideScrollDelta;
+
   /// Scroll distance (in px) required to trigger the floating transition.
   final double scrollThreshold;
 
@@ -187,6 +208,10 @@ class ByAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.bottom,
     this.toolbarHeight = kToolbarHeight,
     this.isFloatingEnabled = true,
+    this.autoHideOnScroll = false,
+    this.autoHideDuration = const Duration(milliseconds: 250),
+    this.autoHideCurve = Curves.easeInOutCubic,
+    this.autoHideScrollDelta = 10.0,
     this.scrollThreshold = 12.0,
     this.scrollController,
     this.animationDuration = const Duration(milliseconds: 250),
@@ -248,6 +273,12 @@ class ByAppBar extends StatefulWidget implements PreferredSizeWidget {
 class _ByAppBarState extends State<ByAppBar> with TickerProviderStateMixin {
   bool _isScrolledLocal = false;
   ValueNotifier<bool>? _scopeNotifier;
+  ValueNotifier<bool>? _scopeVisibilityNotifier;
+  late AnimationController _visibilityController;
+  late Animation<Offset> _slideAnimation;
+  bool _isBarVisible = true;
+  double _lastControllerOffset = 0.0;
+  double _controllerAccumulatedDelta = 0.0;
   late ByTiltController _tiltController;
   late AnimationController _sensorBorderController;
   Timer? _sensorResumeTimer;
@@ -265,6 +296,40 @@ class _ByAppBarState extends State<ByAppBar> with TickerProviderStateMixin {
     widget.scrollController?.addListener(_onControllerScroll);
     _initTiltController();
     _initSensorBorderController();
+    _initVisibilityController();
+  }
+
+  void _initVisibilityController() {
+    _visibilityController = AnimationController(
+      vsync: this,
+      duration: widget.autoHideDuration,
+      value: 1.0,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, -1.2),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _visibilityController,
+        curve: widget.autoHideCurve,
+      ),
+    );
+  }
+
+  void _updateBarVisibility(bool visible) {
+    if (_isBarVisible == visible) return;
+    _isBarVisible = visible;
+    if (!widget.autoHideOnScroll) {
+      if (_visibilityController.value != 1.0) {
+        _visibilityController.value = 1.0;
+      }
+      return;
+    }
+    if (visible) {
+      _visibilityController.forward();
+    } else {
+      _visibilityController.reverse();
+    }
   }
 
   void _initSensorBorderController() {
@@ -325,6 +390,22 @@ class _ByAppBarState extends State<ByAppBar> with TickerProviderStateMixin {
         _isScrolledLocal = _scopeNotifier!.value;
       }
     }
+
+    final newScopeVisibility = ByScrollScope.maybeVisibilityOf(context);
+    if (_scopeVisibilityNotifier != newScopeVisibility) {
+      _scopeVisibilityNotifier?.removeListener(_onScopeVisibilityChanged);
+      _scopeVisibilityNotifier = newScopeVisibility;
+      _scopeVisibilityNotifier?.addListener(_onScopeVisibilityChanged);
+      if (_scopeVisibilityNotifier != null) {
+        _updateBarVisibility(_scopeVisibilityNotifier!.value);
+      }
+    }
+  }
+
+  void _onScopeVisibilityChanged() {
+    if (_scopeVisibilityNotifier != null) {
+      _updateBarVisibility(_scopeVisibilityNotifier!.value);
+    }
   }
 
   @override
@@ -359,6 +440,31 @@ class _ByAppBarState extends State<ByAppBar> with TickerProviderStateMixin {
           widget.dynamicBorder?.sensorEntranceDuration ??
               const Duration(milliseconds: 400);
     }
+
+    if (oldWidget.autoHideOnScroll != widget.autoHideOnScroll) {
+      if (!widget.autoHideOnScroll) {
+        _isBarVisible = true;
+        _visibilityController.value = 1.0;
+      } else if (_scopeVisibilityNotifier != null) {
+        _updateBarVisibility(_scopeVisibilityNotifier!.value);
+      }
+    }
+
+    if (oldWidget.autoHideDuration != widget.autoHideDuration) {
+      _visibilityController.duration = widget.autoHideDuration;
+    }
+
+    if (oldWidget.autoHideCurve != widget.autoHideCurve) {
+      _slideAnimation = Tween<Offset>(
+        begin: const Offset(0.0, -1.2),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(
+          parent: _visibilityController,
+          curve: widget.autoHideCurve,
+        ),
+      );
+    }
   }
 
   @override
@@ -367,18 +473,41 @@ class _ByAppBarState extends State<ByAppBar> with TickerProviderStateMixin {
     _sensorBorderController.dispose();
     widget.scrollController?.removeListener(_onControllerScroll);
     _scopeNotifier?.removeListener(_onScopeScroll);
+    _scopeVisibilityNotifier?.removeListener(_onScopeVisibilityChanged);
+    _visibilityController.dispose();
     _tiltController.dispose();
     super.dispose();
   }
 
   void _onControllerScroll() {
-    final isScrolled =
-        (widget.scrollController?.offset ?? 0.0) > widget.scrollThreshold;
+    final currentOffset = widget.scrollController?.offset ?? 0.0;
+    final isScrolled = currentOffset > widget.scrollThreshold;
     if (_isScrolledLocal != isScrolled) {
       setState(() {
         _isScrolledLocal = isScrolled;
       });
     }
+
+    if (widget.autoHideOnScroll) {
+      final delta = currentOffset - _lastControllerOffset;
+      if (currentOffset <= widget.scrollThreshold) {
+        _controllerAccumulatedDelta = 0.0;
+        _updateBarVisibility(true);
+      } else if (delta > 0) {
+        if (_controllerAccumulatedDelta < 0) _controllerAccumulatedDelta = 0;
+        _controllerAccumulatedDelta += delta;
+        if (_controllerAccumulatedDelta >= widget.autoHideScrollDelta) {
+          _updateBarVisibility(false);
+        }
+      } else if (delta < 0) {
+        if (_controllerAccumulatedDelta > 0) _controllerAccumulatedDelta = 0;
+        _controllerAccumulatedDelta += delta;
+        if (_controllerAccumulatedDelta <= -widget.autoHideScrollDelta) {
+          _updateBarVisibility(true);
+        }
+      }
+    }
+    _lastControllerOffset = currentOffset;
   }
 
   void _onScopeScroll() {
@@ -636,30 +765,46 @@ class _ByAppBarState extends State<ByAppBar> with TickerProviderStateMixin {
       child: barContent,
     );
 
-    if (topSafeArea <= 0) {
-      return safeAreaContent;
+    final Widget result = topSafeArea <= 0
+        ? safeAreaContent
+        : Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: topSafeArea,
+                child: AnimatedOpacity(
+                  duration: widget.animationDuration,
+                  curve: widget.animationCurve,
+                  opacity: isFloating ? 0.0 : 1.0,
+                  child: DecoratedBox(
+                    decoration: effectiveGradient != null
+                        ? BoxDecoration(gradient: effectiveGradient)
+                        : BoxDecoration(color: topBgColor),
+                  ),
+                ),
+              ),
+              safeAreaContent,
+            ],
+          );
+
+    if (!widget.autoHideOnScroll && _visibilityController.value == 1.0) {
+      return result;
     }
 
-    return Stack(
-      children: [
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: topSafeArea,
-          child: AnimatedOpacity(
-            duration: widget.animationDuration,
-            curve: widget.animationCurve,
-            opacity: isFloating ? 0.0 : 1.0,
-            child: DecoratedBox(
-              decoration: effectiveGradient != null
-                  ? BoxDecoration(gradient: effectiveGradient)
-                  : BoxDecoration(color: topBgColor),
-            ),
-          ),
-        ),
-        safeAreaContent,
-      ],
+    return SlideTransition(
+      position: _slideAnimation,
+      child: AnimatedBuilder(
+        animation: _visibilityController,
+        builder: (context, child) {
+          return IgnorePointer(
+            ignoring: _visibilityController.value == 0.0,
+            child: child,
+          );
+        },
+        child: result,
+      ),
     );
   }
 }

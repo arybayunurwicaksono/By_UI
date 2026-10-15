@@ -272,4 +272,179 @@ void main() {
       expect(find.text('Enabled Shadow Test'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'ByAppBar defaults autoHideOnScroll to false and supports enabling it',
+    (WidgetTester tester) async {
+      const defaultBar = ByAppBar(
+        child: Text('Default Bar'),
+      );
+      expect(defaultBar.autoHideOnScroll, isFalse);
+      expect(defaultBar.hideOnScroll, isFalse);
+      expect(defaultBar.autoHideDuration, equals(const Duration(milliseconds: 250)));
+      expect(defaultBar.autoHideCurve, equals(Curves.easeInOutCubic));
+      expect(defaultBar.autoHideScrollDelta, equals(10.0));
+
+      const autoHideBar = ByAppBar(
+        autoHideOnScroll: true,
+        autoHideDuration: Duration(milliseconds: 300),
+        autoHideScrollDelta: 15.0,
+        child: Text('Auto Hide Bar'),
+      );
+      expect(autoHideBar.autoHideOnScroll, isTrue);
+      expect(autoHideBar.hideOnScroll, isTrue);
+      expect(autoHideBar.autoHideDuration, equals(const Duration(milliseconds: 300)));
+      expect(autoHideBar.autoHideScrollDelta, equals(15.0));
+    },
+  );
+
+  testWidgets(
+    'ByAppBar with autoHideOnScroll: true slides up off-screen on scroll down and reveals on scroll up',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ByScrollScope(
+            scrollThreshold: 10.0,
+            autoHideThreshold: 10.0,
+            child: Scaffold(
+              extendBodyBehindAppBar: true,
+              appBar: const ByAppBar(
+                autoHideOnScroll: true,
+                scrollThreshold: 10.0,
+                child: Text('Hide Test Bar'),
+              ),
+              body: ListView(
+                children: List.generate(
+                  50,
+                  (i) => SizedBox(
+                    height: 60,
+                    child: Text('List Item $i'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Hide Test Bar'), findsOneWidget);
+
+      // Initially visible with offset (0, 0)
+      final initialSlide = tester.widget<SlideTransition>(
+        find.descendant(
+          of: find.byType(ByAppBar),
+          matching: find.byType(SlideTransition),
+        ),
+      );
+      expect(initialSlide.position.value, equals(Offset.zero));
+
+      // Scroll down by 80px past threshold
+      await tester.drag(find.byType(ListView), const Offset(0, -80));
+      await tester.pumpAndSettle();
+
+      // Should now be translated offscreen above the top (Offset(0, -1.2))
+      final hiddenSlide = tester.widget<SlideTransition>(
+        find.descendant(
+          of: find.byType(ByAppBar),
+          matching: find.byType(SlideTransition),
+        ),
+      );
+      expect(hiddenSlide.position.value, equals(const Offset(0.0, -1.2)));
+
+      // Scroll up by 40px
+      await tester.drag(find.byType(ListView), const Offset(0, 40));
+      await tester.pumpAndSettle();
+
+      // Should now be back in view (Offset(0, 0))
+      final revealedSlide = tester.widget<SlideTransition>(
+        find.descendant(
+          of: find.byType(ByAppBar),
+          matching: find.byType(SlideTransition),
+        ),
+      );
+      expect(revealedSlide.position.value, equals(Offset.zero));
+
+      // Scroll all the way back to top
+      await tester.drag(find.byType(ListView), const Offset(0, 300));
+      await tester.pumpAndSettle();
+
+      final topSlide = tester.widget<SlideTransition>(
+        find.descendant(
+          of: find.byType(ByAppBar),
+          matching: find.byType(SlideTransition),
+        ),
+      );
+      expect(topSlide.position.value, equals(Offset.zero));
+    },
+  );
+
+  testWidgets(
+    'ByAppBar with explicit scrollController auto-hides on scroll down and reveals on scroll up',
+    (WidgetTester tester) async {
+      final controller = ScrollController();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            extendBodyBehindAppBar: true,
+            appBar: ByAppBar(
+              scrollController: controller,
+              autoHideOnScroll: true,
+              scrollThreshold: 10.0,
+              autoHideScrollDelta: 10.0,
+              child: const Text('Controller Hide Bar'),
+            ),
+            body: ListView(
+              controller: controller,
+              children: List.generate(
+                50,
+                (i) => SizedBox(
+                  height: 60,
+                  child: Text('Controller Item $i'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Controller Item 0'), findsOneWidget);
+
+      // Initially visible
+      final initialSlide = tester.widget<SlideTransition>(
+        find.descendant(
+          of: find.byType(ByAppBar),
+          matching: find.byType(SlideTransition),
+        ),
+      );
+      expect(initialSlide.position.value, equals(Offset.zero));
+
+      // Scroll down
+      await tester.drag(find.byType(ListView), const Offset(0, -100));
+      await tester.pumpAndSettle();
+
+      final hiddenSlide = tester.widget<SlideTransition>(
+        find.descendant(
+          of: find.byType(ByAppBar),
+          matching: find.byType(SlideTransition),
+        ),
+      );
+      expect(hiddenSlide.position.value, equals(const Offset(0.0, -1.2)));
+
+      // Scroll up
+      await tester.drag(find.byType(ListView), const Offset(0, 50));
+      await tester.pumpAndSettle();
+
+      final revealedSlide = tester.widget<SlideTransition>(
+        find.descendant(
+          of: find.byType(ByAppBar),
+          matching: find.byType(SlideTransition),
+        ),
+      );
+      expect(revealedSlide.position.value, equals(Offset.zero));
+
+      controller.dispose();
+    },
+  );
 }
+

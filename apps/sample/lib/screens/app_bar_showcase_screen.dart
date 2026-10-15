@@ -63,6 +63,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
             // 1. Uniform AppBar configured dynamically from store
             appBar: ByAppBar(
               isFloatingEnabled: store.isFloatingEnabled,
+              autoHideOnScroll: store.autoHideOnScroll,
               scrollThreshold: store.scrollThreshold,
               floatingMargin: EdgeInsets.fromLTRB(
                 store.horizontalMargin,
@@ -169,6 +170,10 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                       value: store.isFloatingEnabled ? 'Floating' : 'Static',
                     ),
                     ByMetricBadge(
+                      label: 'Auto-Hide',
+                      value: store.autoHideOnScroll ? 'ON' : 'OFF',
+                    ),
+                    ByMetricBadge(
                       label: 'Top Color',
                       value:
                           _colorThemes[store.selectedColorIndex]['name']
@@ -233,10 +238,26 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                       onTap: () {
                         store.update(
                           isFloatingEnabled: true,
+                          autoHideOnScroll: false,
                           blurSigma: 16.0,
                           borderRadius: 16.0,
                           floatingOpacity: 0.84,
                           enableDynamicBorder: false,
+                          enableBorder: true,
+                          borderWidth: 1.0,
+                        );
+                      },
+                    ),
+                    ByShowcasePresetItem(
+                      label: 'Auto-Hide Flow',
+                      themeColor: AppColors.cyanAccent,
+                      onTap: () {
+                        store.update(
+                          isFloatingEnabled: true,
+                          autoHideOnScroll: true,
+                          blurSigma: 16.0,
+                          borderRadius: 16.0,
+                          floatingOpacity: 0.88,
                           enableBorder: true,
                           borderWidth: 1.0,
                         );
@@ -337,6 +358,33 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                             label: 'Disabled (Static Bar)',
                             isSelected: !store.isFloatingEnabled,
                             onTap: () => store.update(isFloatingEnabled: false),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    Text(
+                      'Auto-Hide on Scroll (Slide From Top):',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ByShowcaseChoiceChip(
+                            label: 'Disabled (Always Visible)',
+                            isSelected: !store.autoHideOnScroll,
+                            onTap: () => store.update(autoHideOnScroll: false),
+                          ),
+                          const SizedBox(width: 8),
+                          ByShowcaseChoiceChip(
+                            label: 'Enabled (Hide on Scroll Down, Show on Scroll Up)',
+                            isSelected: store.autoHideOnScroll,
+                            onTap: () => store.update(autoHideOnScroll: true),
                           ),
                         ],
                       ),
@@ -916,6 +964,13 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
           description:
               'Enables or disables the animated floating transition when scrolling.',
           defaultValue: 'true',
+        ),
+        WidgetParamInfo(
+          name: 'autoHideOnScroll',
+          type: 'bool',
+          description:
+              'Automatically slides the app bar up to hide when scrolling down, and slides it down smoothly from the top when scrolling up.',
+          defaultValue: 'false',
         ),
         WidgetParamInfo(
           name: 'scrollThreshold',

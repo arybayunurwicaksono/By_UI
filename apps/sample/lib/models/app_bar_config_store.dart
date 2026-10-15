@@ -30,6 +30,7 @@ class AppBarConfigStore extends ChangeNotifier {
 
   // 1. Floating Dynamics
   bool isFloatingEnabled = true;
+  bool autoHideOnScroll = false;
   double scrollThreshold = 12.0;
   double horizontalMargin = 14.0;
   double topMargin = 8.0;
@@ -182,6 +183,7 @@ class AppBarConfigStore extends ChangeNotifier {
 
   void update({
     bool? isFloatingEnabled,
+    bool? autoHideOnScroll,
     double? scrollThreshold,
     double? horizontalMargin,
     double? topMargin,
@@ -225,6 +227,7 @@ class AppBarConfigStore extends ChangeNotifier {
     int? selectedPulseColorBIndex,
   }) {
     if (isFloatingEnabled != null) this.isFloatingEnabled = isFloatingEnabled;
+    if (autoHideOnScroll != null) this.autoHideOnScroll = autoHideOnScroll;
     if (scrollThreshold != null) this.scrollThreshold = scrollThreshold;
     if (horizontalMargin != null) this.horizontalMargin = horizontalMargin;
     if (topMargin != null) this.topMargin = topMargin;
@@ -308,6 +311,7 @@ class AppBarConfigStore extends ChangeNotifier {
 
   void resetToDefaults() {
     isFloatingEnabled = true;
+    autoHideOnScroll = false;
     scrollThreshold = 12.0;
     horizontalMargin = 14.0;
     topMargin = 8.0;
