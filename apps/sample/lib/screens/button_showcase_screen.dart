@@ -66,6 +66,9 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
     origin: ByBorderOrigin.topLeft,
     shadowBlur: 10.0,
     shadowWidth: 3.0,
+    colorAIndex: 7, // Pure White
+    colorBIndex: 7, // Pure White
+    shadowColorIndex: 7, // Pure White
   );
   double _periodicIntervalSeconds = 4.0;
 
@@ -112,11 +115,19 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
           {'name': 'Pure Black', 'color': Colors.black},
         ];
 
+        final currentBgColor =
+            bgColorOptions[_selectedBgColorIndex.clamp(
+                  0,
+                  bgColorOptions.length - 1,
+                )]['color']
+                as Color;
+        final isCurrentBgLight = currentBgColor.computeLuminance() > 0.55;
+
         // Foreground color options - Contrast dynamic is first & default
         final fgColorOptions = <Map<String, dynamic>>[
           {
-            'name': 'Theme Contrast (${isDark ? "White" : "Black"})',
-            'color': isDark ? Colors.white : Colors.black,
+            'name': 'Auto Contrast (${isCurrentBgLight ? "Black" : "White"})',
+            'color': isCurrentBgLight ? Colors.black : Colors.white,
           },
           {'name': 'Pure White', 'color': Colors.white},
           {'name': 'Pure Black', 'color': Colors.black},
@@ -201,13 +212,6 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
                 autoStart: true,
               )
             : null;
-
-        final currentBgColor =
-            bgColorOptions[_selectedBgColorIndex.clamp(
-                  0,
-                  bgColorOptions.length - 1,
-                )]['color']
-                as Color;
 
         final currentFgColor =
             fgColorOptions[_selectedFgColorIndex.clamp(
@@ -1221,7 +1225,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
               _useAutoAsync = true;
               _buttonLabel = 'Click to Load';
               _selectedBgColorIndex = 2;
-              _selectedFgColorIndex = 1;
+              _selectedFgColorIndex = 0;
               _customBorderWidth = 0.0;
               _showPrefix = true;
               _showSuffix = false;
@@ -1363,9 +1367,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
           state: _manualState,
           enablePressScale: _enablePressScale,
           enableStateTransitionPulse: _enableStateTransitionPulse,
-          enableTransitionPulseColors: isDark
-              ? const [Colors.white, Color(0xFFE2E8F0)]
-              : const [Colors.black, Color(0xFF334155)],
+          enableTransitionPulseColors: const [Colors.white, Color(0xFFE2E8F0)],
           disableTransitionPulseColors:
               ByButtonDefaults.disableTransitionPulseColors,
           enableShimmer: _enableShimmer,
@@ -1476,6 +1478,9 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
       _pulseBorderConfig.origin = ByBorderOrigin.topLeft;
       _pulseBorderConfig.shadowBlur = 10.0;
       _pulseBorderConfig.shadowWidth = 3.0;
+      _pulseBorderConfig.colorAIndex = 7;
+      _pulseBorderConfig.colorBIndex = 7;
+      _pulseBorderConfig.shadowColorIndex = 7;
       _periodicIntervalSeconds = 4.0;
       _enablePressScale = true;
       _enableStateTransitionPulse = true;

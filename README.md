@@ -35,6 +35,26 @@ A modern, highly customizable Flutter UI component library featuring dynamic bor
 | :---: | :---: | :---: | :---: |
 | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_card.gif" width="210" alt="ByCard Dynamic Motion" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_stacked.gif" width="210" alt="ByToast Stacked Cards" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_toast_drag.gif" width="210" alt="ByToast Drag to Expand into Dialog" /> | <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_dialog.gif" width="210" alt="ByDialog Standalone Alert and Confirm" /> |
 
+### Segmented Tab Bar with Liquid Morphing & Dynamic Border (`ByTabBar`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_tab_bar.gif" width="700" alt="ByTabBar Fluid Sliding and Liquid Morphing" />
+</p>
+
+### Floating Frosted Dock with Selection Pulse (`ByBottomNav`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_bottom_nav.gif" width="700" alt="ByBottomNav Floating Dock and Dynamic Border Pulse" />
+</p>
+
+### Responsive Vertical Sidebar & Overlay Drawer (`BySidebar`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_sidebar.gif" width="700" alt="BySidebar Responsive Vertical Sidebar" />
+</p>
+
+### Automated Skeleton Generator & Gradient Shimmer (`ByAutoShimmer`)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/arybayunurwicaksono/By_UI/main/doc/preview/by_auto_shimmer.gif" width="700" alt="ByAutoShimmer Automated Skeleton Layout" />
+</p>
+
 ---
 
 ## ✨ Highlights
@@ -59,6 +79,30 @@ A modern, highly customizable Flutter UI component library featuring dynamic bor
   * **Directional Inner Shadow & Glow**: Optional directional inner ambient sheen (`enableInnerShadow`, `innerShadowOpacity`) with balanced edge-to-edge coverage in resting pose.
   * **Status Bar & Notch Coverage**: Automatically covers top safe area when static, and smoothly fades to transparent when floating so background content scrolls underneath.
   * **Zero-Border Default & Complete Customization**: Fully configurable borders, margins, blur sigma (`floatingBlurSigma`), surface opacity, and custom bottom widgets.
+
+* 📑 **ByTabBar (Fluid Segmented Tab Bar & Scrollable Tabs Rail)**:
+  * **Liquid Elastic Morphing**: Stretches the sliding indicator pill dynamically between distant tabs (`enableLiquidMorphing`, `liquidStretchFactor`).
+  * **Dual Indicator Styles**: Sliding pill capsule (`ByTabIndicatorStyle.pill`) and docked bottom underline bar (`ByTabIndicatorStyle.underline`).
+  * **Dynamic Perimeter Laser Pulses**: Running 3-phase laser beam on the active indicator (`enableDynamicBorder`, `enableSelectionPulse`) and outer container.
+  * **Scrollable Tabs Rail**: Horizontal scrolling (`isScrollable: true`) with concentric `innerClipRadius` anti-aliased viewport clipping and isolated scroll notifications.
+
+* ⚓ **ByBottomNav (Glassmorphic Floating Dock)**:
+  * **Spring-Physics Interaction**: Smooth spring item expansion and active indicator pill gliding.
+  * **Selection Border Pulse**: 3-phase dynamic perimeter border beam pulse on item tap (`enableSelectionPulse`, `selectionPulseColors`).
+  * **Frosted Glassmorphism**: Translucent background surface with customizable blur (`blurSigma`) and opacity (`surfaceOpacity`).
+  * **Adaptive Layout**: Fluid label/icon layout transitions with mobile-first badge counters (`badge`, `badgeColor`).
+
+* 📂 **BySidebar (Responsive Vertical Navigation Sidebar)**:
+  * **Dual Presentation Modes**: Wide-screen docked sidebar ($\ge 700\text{px}$) and small-screen floating overlay drawer ($< 700\text{px}$) with dismissible scrim backdrop.
+  * **Tactile Toggle Placement**: Header toggle button (`togglePlacement: BySidebarTogglePlacement.header`) or tactile bottom action tile (`bottomAction`).
+  * **Hover Auto-Expand Preview**: Interactive hover-expand preview (`enableHoverExpand`) on desktop and web.
+  * **Rich Item Decorators**: Section headers (`BySidebarItem.section`), trailing status widgets (`trailing`), collapsed tooltips, and badges.
+
+* 💀 **ByAutoShimmer (Automated Skeleton Layout Generator)**:
+  * **Recursive Tree Inspection**: Automatically produces high-fidelity bone placeholders (`ByBone`) matching exact card, text, avatar, and button dimensions.
+  * **Directional Wave Sweeps**: Multi-tone gradient sweeps (`direction: ByShimmerDirection.ltr`, `rtl`, `ttb`, `btt`, `diagonal`).
+  * **Gradient Wave Customization**: Rich gradient sweeps with `shimmerGradient` and customizable wave width (`shimmerWaveWidth`).
+  * **Seamless State Transitions**: Zero-overflow cross-fade morphing between skeleton and loaded content (`ClipRect` + `OverflowBox`).
 
 * 🎴 **ByCard (Dynamic Motion & Gradient Surfaces)**:
   * **Zero-Boilerplate Sensor Motion (`ByCard.dynamicSensor`)**: Responsive border gradient shifts with device gyroscope/accelerometer motion on mobile, and seamlessly switches to mouse cursor hover parallax on desktop & web with smooth spring return to neutral.
@@ -121,7 +165,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.7
+  by_ui: ^0.1.8
 ```
 
 Or run:

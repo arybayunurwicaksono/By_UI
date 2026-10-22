@@ -4,7 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sample/main.dart';
 import 'package:sample/models/app_theme_store.dart';
 import 'package:sample/models/toast_config_store.dart';
+import 'package:sample/navigation/showcase_navigator.dart';
 import 'package:sample/screens/button_showcase_screen.dart';
+import 'package:sample/screens/auto_shimmer_showcase_screen.dart';
+import 'package:sample/screens/bottom_nav_showcase_screen.dart';
+import 'package:sample/screens/sidebar_showcase_screen.dart';
+import 'package:sample/screens/tab_bar_showcase_screen.dart';
 
 void main() {
   setUp(() {
@@ -608,6 +613,106 @@ void main() {
         layer2.config.colors.first.toARGB32(),
         isIn([Colors.white.toARGB32(), Colors.black.toARGB32()]),
       );
+    },
+  );
+
+  testWidgets(
+    'New showcase screens render and function properly',
+    (WidgetTester tester) async {
+      // 1. ByAutoShimmer
+      await tester.pumpWidget(const MaterialApp(home: AutoShimmerShowcaseScreen()));
+      await tester.pump();
+      expect(find.text('ByAutoShimmer'), findsWidgets);
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
+
+      // 2. ByTabBar
+      await tester.pumpWidget(const MaterialApp(home: TabBarShowcaseScreen()));
+      await tester.pump();
+      expect(find.text('ByTabBar'), findsWidgets);
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
+
+      // 3. ByBottomNav
+      await tester.pumpWidget(const MaterialApp(home: BottomNavShowcaseScreen()));
+      await tester.pump();
+      expect(find.text('ByBottomNav'), findsWidgets);
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
+
+      // 4. BySidebar
+      await tester.pumpWidget(const MaterialApp(home: SidebarShowcaseScreen()));
+      await tester.pump();
+      expect(find.text('BySidebar'), findsWidgets);
+      expect(find.text('Active Configuration Preview'), findsOneWidget);
+    },
+  );
+
+  testWidgets('ShowcaseNavigator routes to all new screens', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return ElevatedButton(
+              onPressed: () =>
+                  ShowcaseNavigator.pushReplacement(context, 'ByAutoShimmer'),
+              child: const Text('GO_SHIMMER'),
+            );
+          },
+        ),
+      ),
+    );
+
+    // Test routing to ByAutoShimmer
+    await tester.tap(find.text('GO_SHIMMER'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.byType(AutoShimmerShowcaseScreen), findsOneWidget);
+  });
+
+  testWidgets(
+    'Settings tab in TabBar and Sidebar renders without ListTile assertions',
+    (WidgetTester tester) async {
+      // 1. BySidebar live preview with settings route (index 5)
+      await tester.pumpWidget(
+        const MaterialApp(home: SidebarShowcaseScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      // Click maximize button
+      final maximizeFinder = find.byTooltip('Maximize Live Preview');
+      expect(maximizeFinder, findsOneWidget);
+      await tester.tap(maximizeFinder);
+      await tester.pumpAndSettle();
+
+      // Tap settings item in sidebar (Route Index 5: Settings)
+      final settingsIconFinder = find.byIcon(Icons.settings_rounded);
+      expect(settingsIconFinder, findsOneWidget);
+      await tester.tap(settingsIconFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Environment Policies'), findsOneWidget);
+      expect(
+        find.text('Automated Zero-Downtime Rolling Update'),
+        findsOneWidget,
+      );
+      expect(find.text('Strict Mutual TLS (mTLS) Encryption'), findsOneWidget);
+
+      // 2. ByTabBar live preview with Settings tab
+      await tester.pumpWidget(
+        const MaterialApp(home: TabBarShowcaseScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      final maxTabFinder = find.byTooltip('Maximize Preview');
+      expect(maxTabFinder, findsOneWidget);
+      await tester.tap(maxTabFinder);
+      await tester.pumpAndSettle();
+
+      final settingsTabFinder = find.text('Settings');
+      expect(settingsTabFinder, findsOneWidget);
+      await tester.tap(settingsTabFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cluster Node Preferences'), findsOneWidget);
+      expect(find.text('Continuous Sensor Polling'), findsOneWidget);
     },
   );
 }

@@ -18,8 +18,17 @@ class ByUIExampleApp extends StatelessWidget {
   }
 }
 
-class ExampleHomePage extends StatelessWidget {
+class ExampleHomePage extends StatefulWidget {
   const ExampleHomePage({super.key});
+
+  @override
+  State<ExampleHomePage> createState() => _ExampleHomePageState();
+}
+
+class _ExampleHomePageState extends State<ExampleHomePage> {
+  int _tabIndex = 0;
+  int _navIndex = 0;
+  bool _isLoadingShimmer = true;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +39,106 @@ class ExampleHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ── Segmented Tab Bar ───────────────────────────────────────────
+            const Text(
+              'ByTabBar (Liquid Morphing & Dynamic Border):',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            ByTabBar(
+              tabs: const [
+                ByTabItem(label: 'Overview', icon: Icons.dashboard_rounded),
+                ByTabItem(
+                    label: 'Analytics',
+                    icon: Icons.analytics_rounded,
+                    badge: 'HOT'),
+                ByTabItem(label: 'Settings', icon: Icons.settings_rounded),
+              ],
+              selectedIndex: _tabIndex,
+              onTabChanged: (i) => setState(() => _tabIndex = i),
+              indicatorColor: const Color(0xFF00F5FF),
+              enableLiquidMorphing: true,
+              enableSelectionPulse: true,
+              dynamicBorderColors: const [Colors.white, Color(0xFF00F5FF)],
+            ),
+            const SizedBox(height: 24),
+
+            // ── Automated Shimmer Skeleton ──────────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'ByAutoShimmer (MVP Skeleton Generator):',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                TextButton.icon(
+                  icon: Icon(_isLoadingShimmer
+                      ? Icons.play_arrow_rounded
+                      : Icons.refresh_rounded),
+                  label: Text(_isLoadingShimmer ? 'Show Content' : 'Reload'),
+                  onPressed: () =>
+                      setState(() => _isLoadingShimmer = !_isLoadingShimmer),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ByAutoShimmer(
+              isLoading: _isLoadingShimmer,
+              style: const BySkeletonStyle(
+                shimmerGradient: LinearGradient(
+                  colors: [
+                    Color(0xFF1E293B),
+                    Color(0xFF38BDF8),
+                    Color(0xFF1E293B),
+                  ],
+                ),
+              ),
+              child: Card(
+                color: const Color(0xFF1E293B),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFF334155)),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Color(0xFF38BDF8),
+                        child: Icon(Icons.auto_awesome, color: Colors.white),
+                      ),
+                      SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Automated Skeleton Layout',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Recursively analyzes widget tree to produce exact bone placeholders.',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // ── Toast & Dialog Buttons ──────────────────────────────────────
+            const Text(
+              'ByToast & ByDialog Notifications:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
             ElevatedButton.icon(
               icon: const Icon(Icons.notifications_active_rounded),
               label: const Text('Show Success Toast'),
@@ -40,7 +149,7 @@ class ExampleHomePage extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ElevatedButton.icon(
               icon: const Icon(Icons.open_in_new_rounded),
               label: const Text('Show Expandable Toast (Tap/Drag to Dialog)'),
@@ -60,7 +169,7 @@ class ExampleHomePage extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ElevatedButton.icon(
               icon: const Icon(Icons.help_outline_rounded),
               label: const Text('Show Confirm Dialog'),
@@ -83,6 +192,13 @@ class ExampleHomePage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 24),
+
+            // ── ByCard Dynamic Motion Sensor ────────────────────────────────
+            const Text(
+              'ByCard.dynamicSensor (Motion Tilt & Parallax):',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
             ByCard.dynamicSensor(
               colors: const [
                 Color(0xFF38BDF8),
@@ -111,6 +227,8 @@ class ExampleHomePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+
+            // ── ByButton ───────────────────────────────────────────────────
             const Text(
               'ByButton (Dynamic Border & Auto-Async Loading):',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -144,13 +262,15 @@ class ExampleHomePage extends StatelessWidget {
               child: const Text('Outline Button (Tap for Async Loading)'),
             ),
             const SizedBox(height: 24),
+
+            // ── BySequence ─────────────────────────────────────────────────
             const Text(
               'BySequence (Sequential Scroll Reveal):',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 220,
+              height: 200,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: BySequence(
@@ -188,8 +308,21 @@ class ExampleHomePage extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 40),
           ],
         ),
+      ),
+      bottomNavigationBar: ByBottomNav(
+        items: const [
+          ByBottomNavItem(label: 'Feed', icon: Icons.feed_rounded),
+          ByBottomNavItem(
+              label: 'Explore', icon: Icons.explore_rounded, badgeText: '3'),
+          ByBottomNavItem(label: 'Account', icon: Icons.person_rounded),
+        ],
+        selectedIndex: _navIndex,
+        onItemSelected: (i) => setState(() => _navIndex = i),
+        activeColor: const Color(0xFF00F5FF),
+        enableSelectionPulse: true,
       ),
     );
   }

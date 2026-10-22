@@ -72,6 +72,56 @@ void main() {
     },
   );
 
+  testWidgets(
+    'ByScrollScope and ByAppBar ignore horizontal scroll notifications and remain static',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ByScrollScope(
+            scrollThreshold: 10.0,
+            child: Scaffold(
+              extendBodyBehindAppBar: true,
+              appBar: const ByAppBar(
+                scrollThreshold: 10.0,
+                child: Text('Sticky Bar Test'),
+              ),
+              body: Column(
+                children: [
+                  const SizedBox(height: 100),
+                  SizedBox(
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: List.generate(
+                        20,
+                        (i) => SizedBox(width: 80, child: Text('H-Item $i')),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Sticky Bar Test'), findsOneWidget);
+
+      final BuildContext contextBefore =
+          tester.element(find.text('Sticky Bar Test'));
+      expect(ByScrollScope.maybeOf(contextBefore)?.value, isFalse);
+
+      // Scroll horizontal list by 100px
+      await tester.drag(find.text('H-Item 0'), const Offset(-100, 0));
+      await tester.pumpAndSettle();
+
+      // Verify scroll scope isScrolled remains false
+      final BuildContext contextAfter =
+          tester.element(find.text('Sticky Bar Test'));
+      expect(ByScrollScope.maybeOf(contextAfter)?.value, isFalse);
+    },
+  );
+
   testWidgets('ByAppBar supports dynamic motion tilt parameters', (
     WidgetTester tester,
   ) async {
@@ -281,7 +331,8 @@ void main() {
       );
       expect(defaultBar.autoHideOnScroll, isFalse);
       expect(defaultBar.hideOnScroll, isFalse);
-      expect(defaultBar.autoHideDuration, equals(const Duration(milliseconds: 250)));
+      expect(defaultBar.autoHideDuration,
+          equals(const Duration(milliseconds: 250)));
       expect(defaultBar.autoHideCurve, equals(Curves.easeInOutCubic));
       expect(defaultBar.autoHideScrollDelta, equals(10.0));
 
@@ -293,7 +344,8 @@ void main() {
       );
       expect(autoHideBar.autoHideOnScroll, isTrue);
       expect(autoHideBar.hideOnScroll, isTrue);
-      expect(autoHideBar.autoHideDuration, equals(const Duration(milliseconds: 300)));
+      expect(autoHideBar.autoHideDuration,
+          equals(const Duration(milliseconds: 300)));
       expect(autoHideBar.autoHideScrollDelta, equals(15.0));
     },
   );
@@ -447,4 +499,3 @@ void main() {
     },
   );
 }
-

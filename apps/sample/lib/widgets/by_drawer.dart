@@ -55,7 +55,7 @@ class ByDrawer extends StatelessWidget {
                       ),
                       children: [
                         // Active Components Section
-                        _buildSectionHeader('AVAILABLE COMPONENTS (6)', colors),
+                        _buildSectionHeader('AVAILABLE COMPONENTS (10)', colors),
                         const SizedBox(height: 8),
 
                         _buildDrawerItem(
@@ -127,6 +127,54 @@ class ByDrawer extends StatelessWidget {
                           badgeColor: AppColors.success,
                           colors: colors,
                           onTap: () => _handleSelect(context, 'ByButton'),
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByAutoShimmer',
+                          subtitle: 'Dynamic border shimmer loader',
+                          icon: Icons.auto_awesome_rounded,
+                          isActive: activeComponent == 'ByAutoShimmer',
+                          badgeText: 'New',
+                          badgeColor: AppColors.cyanAccent,
+                          colors: colors,
+                          onTap: () => _handleSelect(context, 'ByAutoShimmer'),
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByTabBar',
+                          subtitle: 'Liquid morphing tab selector',
+                          icon: Icons.tab_rounded,
+                          isActive: activeComponent == 'ByTabBar',
+                          badgeText: 'New',
+                          badgeColor: AppColors.cyanAccent,
+                          colors: colors,
+                          onTap: () => _handleSelect(context, 'ByTabBar'),
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByBottomNav',
+                          subtitle: 'Frosted magnetic glass bottom navigation',
+                          icon: Icons.dock_rounded,
+                          isActive: activeComponent == 'ByBottomNav',
+                          badgeText: 'New',
+                          badgeColor: AppColors.cyanAccent,
+                          colors: colors,
+                          onTap: () => _handleSelect(context, 'ByBottomNav'),
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'BySidebar',
+                          subtitle: 'Spatial desktop sidebar navigation',
+                          icon: Icons.view_sidebar_rounded,
+                          isActive: activeComponent == 'BySidebar',
+                          badgeText: 'New',
+                          badgeColor: AppColors.cyanAccent,
+                          colors: colors,
+                          onTap: () => _handleSelect(context, 'BySidebar'),
                         ),
 
                         const SizedBox(height: 18),

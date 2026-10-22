@@ -64,11 +64,10 @@ abstract final class ByButtonDefaults {
   /// Default button surface color (Vibrant Cyan Accent).
   static const Color defaultButtonColor = Color(0xFF06B6D4);
 
-  /// Pulse colors when transitioning to enabled (vibrant primary gradient).
+  /// Pulse colors when transitioning to enabled (crisp white light beam).
   static const List<Color> enableTransitionPulseColors = [
-    Color(0xFF38BDF8), // Sky Cyan
-    Color(0xFF6366F1), // Indigo
-    Color(0xFFA855F7), // Neon Purple
+    Colors.white,
+    Color(0xFFE2E8F0),
   ];
 
   /// Pulse colors when transitioning to disabled (muted slate gray).
@@ -107,9 +106,16 @@ abstract final class ByButtonDefaults {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // High-contrast defaults: White for dark mode, Black for light mode
-    final contrastBorder = isDark ? Colors.white : Colors.black;
-    final contrastFg = isDark ? Colors.white : Colors.black;
+    // High-contrast defaults: evaluate custom background luminance when provided,
+    // otherwise fallback to ambient theme brightness.
+    final effectiveBg = customStyle?.backgroundColor ?? defaultButtonColor;
+    final isEffectiveBgLight = effectiveBg.computeLuminance() > 0.55;
+    final contrastBorder = customStyle?.backgroundColor != null
+        ? (isEffectiveBgLight ? Colors.black : Colors.white)
+        : (isDark ? Colors.white : Colors.black);
+    final contrastFg = customStyle?.backgroundColor != null
+        ? (isEffectiveBgLight ? Colors.black : Colors.white)
+        : (isDark ? Colors.white : Colors.black);
 
     // Disabled colors
     final disabledBg = isDark

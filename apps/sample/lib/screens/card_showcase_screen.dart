@@ -807,45 +807,59 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 ],
               ),
               const SizedBox(height: 18),
-              Text(
-                'ByCard Interactive Pass',
-                style: AppTextStyle.sectionHeader.copyWith(
-                  color: _selectedBgIndex == 0
-                      ? colors.textPrimary
-                      : Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Hold phone upright or drag tilt sliders to observe the bottom & side directional gradient border and ambient shadow.',
-                style: AppTextStyle.body.copyWith(
-                  color: _selectedBgIndex == 0
+              Builder(
+                builder: (context) {
+                  final isCurrentBgLight = currentBg.computeLuminance() > 0.55;
+                  final effectiveTitleColor =
+                      isCurrentBgLight ? colors.textPrimary : Colors.white;
+                  final effectiveBodyColor = isCurrentBgLight
                       ? colors.textSecondary
-                      : Colors.white.withValues(alpha: 0.85),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Tilt Vector: (${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
-                      style: AppTextStyle.caption.copyWith(
-                        color: _selectedBgIndex == 0
-                            ? colors.textMuted
-                            : Colors.white.withValues(alpha: 0.7),
+                      : Colors.white.withValues(alpha: 0.85);
+                  final effectiveCaptionColor = isCurrentBgLight
+                      ? colors.textMuted
+                      : Colors.white.withValues(alpha: 0.7);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'ByCard Interactive Pass',
+                        style: AppTextStyle.sectionHeader.copyWith(
+                          color: effectiveTitleColor,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Tap to switch color',
-                    style: AppTextStyle.captionBold.copyWith(color: colorA),
-                  ),
-                ],
+                      const SizedBox(height: 6),
+                      Text(
+                        'Hold phone upright or drag tilt sliders to observe the bottom & side directional gradient border and ambient shadow.',
+                        style: AppTextStyle.body.copyWith(
+                          color: effectiveBodyColor,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Tilt Vector: (${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
+                              style: AppTextStyle.caption.copyWith(
+                                color: effectiveCaptionColor,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Tap to switch color',
+                            style: AppTextStyle.captionBold
+                                .copyWith(color: colorA),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),

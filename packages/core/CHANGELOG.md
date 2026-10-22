@@ -5,6 +5,47 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.8
+
+### Added
+* **ByTabBar**:
+  * Fluid segmented tab bar and scrollable tabs rail component family.
+  * **Liquid Elastic Morphing**: Stretches the sliding indicator pill dynamically between distant tabs (`enableLiquidMorphing`, `liquidStretchFactor`).
+  * **Dual Indicator Styles**: Sliding pill capsule (`ByTabIndicatorStyle.pill`) and docked bottom underline bar (`ByTabIndicatorStyle.underline`).
+  * **Dynamic Perimeter Border Pulses**: Running 3-phase laser beam on the active indicator (`enableDynamicBorder`, `enableSelectionPulse`, `dynamicBorderColors`) and outer container (`enableOuterDynamicBorder`, `outerDynamicBorder`).
+  * **Scrollable Tabs Rail**: Horizontal scrolling (`isScrollable: true`) with concentric `innerClipRadius` anti-aliased viewport clipping and scroll notification isolation.
+  * **Rich Customization**: Gradients (`indicatorGradient`), border width, container radius, indicator radius, text & icon color transitions, and badges (`badge`, `badgeColor`, `badgeTextColor`).
+* **ByBottomNav**:
+  * Dynamic glassmorphic floating navigation dock system.
+  * **Spring-Physics Interaction**: Smooth spring item expansion and active indicator pill gliding.
+  * **Selection Border Pulse**: 3-phase dynamic perimeter border beam pulse on item tap (`enableSelectionPulse`, `selectionPulseColors`).
+  * **Frosted Glassmorphism**: Translucent background surface (`enableFrostedGlass`, `blurSigma`, `surfaceOpacity`).
+  * **Adaptive Layout**: Fluid label/icon layout transitions with mobile-first badge counters (`badge`, `badgeColor`).
+* **BySidebar**:
+  * Responsive vertical navigation sidebar component family.
+  * **Dual Presentation Modes**: Wide-screen docked sidebar ($\ge 700\text{px}$) and small-screen floating overlay drawer ($< 700\text{px}$) with dismissible scrim backdrop.
+  * **Tactile Toggle Placement**: Header toggle button (`togglePlacement: BySidebarTogglePlacement.header`) or tactile bottom action tile (`bottomAction`).
+  * **Hover Auto-Expand Preview**: Interactive hover-expand preview (`enableHoverExpand`) on desktop and web.
+  * **Rich Item Decorators**: Section headers (`BySidebarItem.section`), trailing status widgets (`trailing`), collapsed tooltips, and badges.
+* **ByAutoShimmer**:
+  * Automated MVP-compliant skeleton layout generator.
+  * **Recursive Widget Inspection**: Automatically produces high-fidelity bone placeholders (`ByBone`) matching exact card, text, avatar, and button dimensions.
+  * **Directional Wave Sweeps**: Multi-tone gradient sweeps (`direction: ByShimmerDirection.ltr`, `rtl`, `ttb`, `btt`, `diagonal`).
+  * **Gradient Wave Customization**: Rich gradient sweeps with `shimmerGradient` and customizable wave width (`shimmerWaveWidth`).
+  * **Seamless State Transitions**: Zero-overflow cross-fade morphing between skeleton and loaded content (`ClipRect` + `OverflowBox`).
+  * **Standalone Bone Primitives**: `ByBone.square`, `ByBone.rounded`, `ByBone.circle`, and `ByBone.text`.
+
+### Changed
+* **ByButton**:
+  * Standardized default dynamic beam colors (`beamColorA`, `beamColorB`) to pure white (`Colors.white`) across both light mode and dark mode for consistent high-contrast vibrancy.
+
+### Fixed
+* **ByAppBar & ByScrollScope**:
+  * Isolated `ByScrollScope` to ignore non-vertical scroll notifications (`metrics.axis != Axis.vertical`), preventing horizontal tab bar drags from triggering floating app bar states.
+* **ByTabBar**:
+  * Fixed rightmost tab clipping by factoring outer border stroke width into available inner width calculation.
+  * Wrapped scrollable tabs rail in concentric `innerClipRadius` with anti-aliasing to eliminate straight vertical hard-edge indicator cutoff.
+
 ## 0.1.7
 
 ### Fixed

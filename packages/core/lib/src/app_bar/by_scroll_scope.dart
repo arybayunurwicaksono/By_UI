@@ -58,6 +58,12 @@ class _ByScrollScopeState extends State<ByScrollScope> {
   }
 
   void _handleNotification(ScrollNotification notification) {
+    // Only vertical page scrolling coordinates ByAppBar floating transitions.
+    // Horizontal scrolling (e.g. from segmented tab bars or carousel rails) must be ignored.
+    if (notification.metrics.axis != Axis.vertical) {
+      return;
+    }
+
     if (notification.depth == 0) {
       final pixels = notification.metrics.pixels;
       final isScrolledNow = pixels > widget.scrollThreshold;

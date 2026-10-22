@@ -829,8 +829,12 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
     final effectiveGradient = isEnabled
         ? resolvedStyle.backgroundGradient
         : resolvedStyle.disabledBackgroundGradient;
+    final isThemeDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveFg = isEnabled
-        ? (resolvedStyle.foregroundColor ?? Colors.white)
+        ? (resolvedStyle.foregroundColor ??
+            (effectiveBg != null && effectiveBg.computeLuminance() > 0.55
+                ? const Color(0xFF0F172A)
+                : (isThemeDark ? Colors.white : Colors.black)))
         : (resolvedStyle.disabledForegroundColor ?? Colors.grey);
     final effectiveBorderColor = widget.borderColor ??
         (isEnabled
@@ -1115,7 +1119,7 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
                 !_isMorphedOrLoading) {
               effectiveDynamicBorder = ByDynamicBorder(
                 origin: ByBorderOrigin.topCenter,
-                colors: const [Color(0xFF38BDF8), Color(0xFF818CF8)],
+                colors: const [Colors.white, Color(0xFFE2E8F0)],
                 duration: const Duration(milliseconds: 1600),
                 beamLength: 0.32,
                 width: pulseWidth,

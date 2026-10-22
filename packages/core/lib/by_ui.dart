@@ -43,9 +43,19 @@ export 'src/button/by_button_defaults.dart';
 export 'src/button/by_button_enums.dart';
 export 'src/button/by_button_style.dart';
 
+// Auto Shimmer Component
+export 'src/skeleton/by_auto_shimmer.dart';
+export 'src/skeleton/by_bone.dart';
+export 'src/skeleton/by_shimmer_scope.dart';
+export 'src/skeleton/by_skeleton_style.dart';
+
+// Navigation Components
+export 'src/bottom_nav/by_bottom_nav.dart';
+export 'src/sidebar/by_sidebar.dart';
+export 'src/tab_bar/by_tab_bar.dart';
+
 /// Package metadata and library version constants.
 abstract final class ByUI {
   /// Current semantic version of the ByUI component library.
-  static const String version = '0.1.7';
+  static const String version = '0.1.8';
 }
-
