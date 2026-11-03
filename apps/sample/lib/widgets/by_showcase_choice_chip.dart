@@ -136,8 +136,9 @@ class ByShowcaseSwitchTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle!,
-                    style:
-                        AppTextStyle.caption.copyWith(color: colors.textMuted),
+                    style: AppTextStyle.caption.copyWith(
+                      color: colors.textMuted,
+                    ),
                   ),
                 ],
               ],

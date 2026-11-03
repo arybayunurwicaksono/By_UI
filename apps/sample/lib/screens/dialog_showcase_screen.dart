@@ -14,6 +14,7 @@ import '../widgets/by_showcase_integration_banner.dart';
 import '../widgets/by_showcase_preview_card.dart';
 import '../widgets/by_dynamic_border_controls.dart';
 import '../widgets/widget_params_dialog.dart';
+import '../widgets/by_code_dialog.dart';
 
 /// Highly customizable interactive showcase screen for ByDialog components.
 /// Features live controls matching ByToast: Theme colors, gradients, borders,
@@ -404,6 +405,50 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     });
   }
 
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final buffer = StringBuffer();
+    if (_selectedDialogType == 0) {
+      buffer.writeln('final confirmed = await ByDialog.confirm(');
+      buffer.writeln('  context,');
+      buffer.writeln("  title: 'Void Transaction?',");
+      buffer.writeln(
+        "  message: 'This will reverse ledger balance for transaction #1042.',",
+      );
+      buffer.writeln("  confirmText: 'Void Now',");
+      buffer.writeln("  cancelText: 'Keep',");
+      buffer.writeln('  confirmColor: const Color(0xFFEF4444),');
+      if (_buttonCornerRadius != 12.0) {
+        buffer.writeln(
+          '  buttonBorderRadius: BorderRadius.circular(${_buttonCornerRadius.toInt()}),',
+        );
+      }
+      if (_reverseButtonOrder) {
+        buffer.writeln('  reverseButtonOrder: true,');
+      }
+      buffer.write(');');
+    } else {
+      buffer.writeln('await ByDialog.alert(');
+      buffer.writeln('  context,');
+      buffer.writeln("  title: 'System Notice',");
+      buffer.writeln(
+        "  message: 'Maintenance window scheduled tonight at 02:00 AM UTC.',",
+      );
+      buffer.writeln("  buttonText: 'Understood',");
+      buffer.writeln('  buttonColor: const Color(0xFF00F5FF),');
+      buffer.write(');');
+    }
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'ByDialog',
+      code: _generateCodeSnippet(),
+    );
+  }
+
   void _showByDialogParams(BuildContext context) {
     showWidgetParametersDialog(
       context,
@@ -578,11 +623,10 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
                 componentName: 'ByDialog',
                 onReset: _resetToDefaults,
                 onOpenParams: () => _showByDialogParams(context),
+                onViewCode: () => _showCodeDialog(context),
               ),
             ),
-            drawer: const ByDrawer(
-              activeComponent: 'ByDialog',
-            ),
+            drawer: const ByDrawer(activeComponent: 'ByDialog'),
             body: ListView(
               padding: EdgeInsets.fromLTRB(
                 12,
@@ -1184,11 +1228,7 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     required IconData icon,
     required List<Widget> children,
   }) {
-    return ByShowcaseControlCard(
-      title: title,
-      icon: icon,
-      children: children,
-    );
+    return ByShowcaseControlCard(title: title, icon: icon, children: children);
   }
 
   Widget _buildChoiceChip({
@@ -1205,4 +1245,3 @@ class _DialogShowcaseScreenState extends State<DialogShowcaseScreen> {
     );
   }
 }
-

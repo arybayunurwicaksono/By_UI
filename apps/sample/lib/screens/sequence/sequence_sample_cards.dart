@@ -3276,5 +3276,4 @@ class SequenceSampleCards {
       ),
     );
   }
-
 }

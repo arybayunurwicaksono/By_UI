@@ -570,9 +570,7 @@ void main() {
   testWidgets(
     'Button showcase Enabled State switch triggers state transition pulse',
     (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: ButtonShowcaseScreen()),
-      );
+      await tester.pumpWidget(const MaterialApp(home: ButtonShowcaseScreen()));
       await tester.pumpAndSettle();
 
       final switchFinder = find.text('Enabled State');
@@ -616,34 +614,35 @@ void main() {
     },
   );
 
-  testWidgets(
-    'New showcase screens render and function properly',
-    (WidgetTester tester) async {
-      // 1. ByAutoShimmer
-      await tester.pumpWidget(const MaterialApp(home: AutoShimmerShowcaseScreen()));
-      await tester.pump();
-      expect(find.text('ByAutoShimmer'), findsWidgets);
-      expect(find.text('Active Configuration Preview'), findsOneWidget);
+  testWidgets('New showcase screens render and function properly', (
+    WidgetTester tester,
+  ) async {
+    // 1. ByAutoShimmer
+    await tester.pumpWidget(
+      const MaterialApp(home: AutoShimmerShowcaseScreen()),
+    );
+    await tester.pump();
+    expect(find.text('ByAutoShimmer'), findsWidgets);
+    expect(find.text('Active Configuration Preview'), findsOneWidget);
 
-      // 2. ByTabBar
-      await tester.pumpWidget(const MaterialApp(home: TabBarShowcaseScreen()));
-      await tester.pump();
-      expect(find.text('ByTabBar'), findsWidgets);
-      expect(find.text('Active Configuration Preview'), findsOneWidget);
+    // 2. ByTabBar
+    await tester.pumpWidget(const MaterialApp(home: TabBarShowcaseScreen()));
+    await tester.pump();
+    expect(find.text('ByTabBar'), findsWidgets);
+    expect(find.text('Active Configuration Preview'), findsOneWidget);
 
-      // 3. ByBottomNav
-      await tester.pumpWidget(const MaterialApp(home: BottomNavShowcaseScreen()));
-      await tester.pump();
-      expect(find.text('ByBottomNav'), findsWidgets);
-      expect(find.text('Active Configuration Preview'), findsOneWidget);
+    // 3. ByBottomNav
+    await tester.pumpWidget(const MaterialApp(home: BottomNavShowcaseScreen()));
+    await tester.pump();
+    expect(find.text('ByBottomNav'), findsWidgets);
+    expect(find.text('Active Configuration Preview'), findsOneWidget);
 
-      // 4. BySidebar
-      await tester.pumpWidget(const MaterialApp(home: SidebarShowcaseScreen()));
-      await tester.pump();
-      expect(find.text('BySidebar'), findsWidgets);
-      expect(find.text('Active Configuration Preview'), findsOneWidget);
-    },
-  );
+    // 4. BySidebar
+    await tester.pumpWidget(const MaterialApp(home: SidebarShowcaseScreen()));
+    await tester.pump();
+    expect(find.text('BySidebar'), findsWidgets);
+    expect(find.text('Active Configuration Preview'), findsOneWidget);
+  });
 
   testWidgets('ShowcaseNavigator routes to all new screens', (tester) async {
     await tester.pumpWidget(
@@ -671,9 +670,7 @@ void main() {
     'Settings tab in TabBar and Sidebar renders without ListTile assertions',
     (WidgetTester tester) async {
       // 1. BySidebar live preview with settings route (index 5)
-      await tester.pumpWidget(
-        const MaterialApp(home: SidebarShowcaseScreen()),
-      );
+      await tester.pumpWidget(const MaterialApp(home: SidebarShowcaseScreen()));
       await tester.pumpAndSettle();
 
       // Click maximize button
@@ -696,9 +693,7 @@ void main() {
       expect(find.text('Strict Mutual TLS (mTLS) Encryption'), findsOneWidget);
 
       // 2. ByTabBar live preview with Settings tab
-      await tester.pumpWidget(
-        const MaterialApp(home: TabBarShowcaseScreen()),
-      );
+      await tester.pumpWidget(const MaterialApp(home: TabBarShowcaseScreen()));
       await tester.pumpAndSettle();
 
       final maxTabFinder = find.byTooltip('Maximize Preview');
@@ -713,6 +708,46 @@ void main() {
 
       expect(find.text('Cluster Node Preferences'), findsOneWidget);
       expect(find.text('Continuous Sensor Polling'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'ByShowcaseHeader view code button opens ByCodeDialog with generated code snippet',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const ByUISampleApp());
+      await tester.pumpAndSettle();
+
+      // Find the code snippet button in ByShowcaseHeader
+      final codeBtnFinder = find.byTooltip('View & Copy Code');
+      expect(codeBtnFinder, findsOneWidget);
+
+      // Tap View & Copy Code
+      await tester.tap(codeBtnFinder);
+      await tester.pumpAndSettle();
+
+      // Verify ByCodeDialog opened
+      expect(find.text('Active Configuration Code'), findsOneWidget);
+      expect(find.text('Copy Code'), findsOneWidget);
+      expect(find.text('Close'), findsOneWidget);
+
+      // Verify code contains ByToast invocation
+      expect(find.textContaining('ByToast.show('), findsOneWidget);
+
+      // Tap Copy Code button
+      await tester.tap(find.text('Copy Code'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Verify button updates state to Copied!
+      expect(find.text('Copied!'), findsOneWidget);
+
+      // Close the dialog
+      await tester.tap(find.text('Close'));
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+
+      // Dialog is dismissed
+      expect(find.text('Active Configuration Code'), findsNothing);
     },
   );
 }

@@ -14,18 +14,17 @@ import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/by_showcase_slider_tile.dart';
 import '../widgets/by_color_palette.dart';
 import '../widgets/widget_params_dialog.dart';
+import '../widgets/by_code_dialog.dart';
 
 /// Interactive showcase screen for [BySidebar].
 class SidebarShowcaseScreen extends StatefulWidget {
   const SidebarShowcaseScreen({super.key});
 
   @override
-  State<SidebarShowcaseScreen> createState() =>
-      _SidebarShowcaseScreenState();
+  State<SidebarShowcaseScreen> createState() => _SidebarShowcaseScreenState();
 }
 
-class _SidebarShowcaseScreenState
-    extends State<SidebarShowcaseScreen> {
+class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
   int _selectedIndex = 1;
   bool _isCollapsed = false;
   BySidebarPosition _sidebarPosition = BySidebarPosition.left;
@@ -96,7 +95,11 @@ class _SidebarShowcaseScreenState
   final List<BySidebarItem> _sidebarItems = const [
     BySidebarItem.section('MAIN MENU'),
     BySidebarItem(icon: Icons.dashboard_rounded, label: 'Dashboard'),
-    BySidebarItem(icon: Icons.analytics_rounded, label: 'Analytics', badge: 'PRO'),
+    BySidebarItem(
+      icon: Icons.analytics_rounded,
+      label: 'Analytics',
+      badge: 'PRO',
+    ),
     BySidebarItem(icon: Icons.folder_rounded, label: 'Projects'),
     BySidebarItem.section('PREFERENCES'),
     BySidebarItem(
@@ -121,7 +124,7 @@ class _SidebarShowcaseScreenState
 
         final selectedActiveCol =
             _activeColorOptions[_selectedActiveColorIndex].color ??
-                AppColors.primary;
+            AppColors.primary;
         final selectedBgCol = _bgColorOptions[_selectedBgColorIndex].color;
         final selectedBorderCol =
             _borderColorOptions[_selectedBorderColorIndex].color;
@@ -159,12 +162,16 @@ class _SidebarShowcaseScreenState
                           IconButton(
                             icon: const Icon(Icons.fullscreen_exit_rounded),
                             tooltip: 'Minimize Preview',
-                            onPressed: () => setState(() => _isMaximized = false),
+                            onPressed: () =>
+                                setState(() => _isMaximized = false),
                           ),
                         ]
                       : null,
                   onReset: _isMaximized ? null : _resetToDefaults,
-                  onOpenParams: _isMaximized ? null : () => _showParamsDialog(context),
+                  onOpenParams: _isMaximized
+                      ? null
+                      : () => _showParamsDialog(context),
+                  onViewCode: () => _showCodeDialog(context),
                 ),
               ),
               drawer: const ByDrawer(activeComponent: 'BySidebar'),
@@ -187,524 +194,614 @@ class _SidebarShowcaseScreenState
                       children: [
                         // ── LAYER 1: Active Configuration Preview Card ────────────
                         ByShowcasePreviewCard(
-                  icon: Icons.view_sidebar_rounded,
-                  subtitle: 'Live metrics for BySidebar configuration state',
-                  metrics: [
-                    ByMetricBadge(
-                      label: 'Layout',
-                      value: (_enableHoverExpand ? _isHoverExpanded : !_isCollapsed)
-                          ? 'EXPANDED'
-                          : 'COLLAPSED',
-                    ),
-                    ByMetricBadge(
-                      label: 'Width',
-                      value:
-                          '${((_enableHoverExpand ? _isHoverExpanded : !_isCollapsed) ? _expandedWidth : _collapsedWidth).toInt()}px',
-                    ),
-                    ByMetricBadge(
-                      label: 'Item Radius',
-                      value: '${_itemRadius.toInt()}px',
-                    ),
-                    ByMetricBadge(
-                      label: 'Spotlight',
-                      value: _enableSpotlight
-                          ? '${_spotlightRadius.toInt()}px'
-                          : 'OFF',
-                    ),
-                    ByMetricBadge(
-                      label: 'Toggle UI',
-                      value: _togglePlacement.name.toUpperCase(),
-                    ),
-                    ByMetricBadge(
-                      label: 'Route',
-                      value: _sidebarItems[_selectedIndex].label.toUpperCase(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // ── LAYER 2: Preset Example Card ──────────────────────────
-                ByShowcasePresetCard(
-                  presets: [
-                    ByShowcasePresetItem(
-                      label: 'Expanded Desktop',
-                      themeColor: AppColors.primary,
-                      isSelected: _activePresetIndex == 0,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 0;
-                          _isCollapsed = false;
-                          _indicatorStyle = BySidebarIndicatorStyle.fill;
-                          _enableSpotlight = true;
-                          _enableBorderTrack = true;
-                          _expandedWidth = 240.0;
-                          _collapsedWidth = 72.0;
-                          _itemRadius = 10.0;
-                          _itemSpacing = 6.0;
-                          _spotlightRadius = 120.0;
-                          _cursorGlowHeight = 100.0;
-                          _selectedActiveColorIndex = 0;
-                          _selectedBgColorIndex = 0;
-                          _selectedBorderColorIndex = 0;
-                        });
-                      },
-                    ),
-                    ByShowcasePresetItem(
-                      label: 'Compact Tablet',
-                      themeColor: AppColors.primaryAccent,
-                      isSelected: _activePresetIndex == 1,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 1;
-                          _isCollapsed = true;
-                          _indicatorStyle = BySidebarIndicatorStyle.leadingBar;
-                          _enableSpotlight = true;
-                          _enableBorderTrack = true;
-                          _expandedWidth = 240.0;
-                          _collapsedWidth = 72.0;
-                          _itemRadius = 12.0;
-                          _itemSpacing = 8.0;
-                          _spotlightRadius = 90.0;
-                          _cursorGlowHeight = 80.0;
-                          _selectedActiveColorIndex = 1;
-                          _selectedBgColorIndex = 0;
-                          _selectedBorderColorIndex = 0;
-                        });
-                      },
-                    ),
-                    ByShowcasePresetItem(
-                      label: 'Emerald Modern',
-                      themeColor: AppColors.success,
-                      isSelected: _activePresetIndex == 2,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 2;
-                          _isCollapsed = false;
-                          _indicatorStyle = BySidebarIndicatorStyle.outline;
-                          _enableSpotlight = true;
-                          _enableBorderTrack = true;
-                          _expandedWidth = 260.0;
-                          _itemRadius = 14.0;
-                          _itemSpacing = 6.0;
-                          _spotlightRadius = 140.0;
-                          _cursorGlowHeight = 120.0;
-                          _selectedActiveColorIndex = 3;
-                          _selectedBgColorIndex = 0;
-                          _selectedBorderColorIndex = 0;
-                        });
-                      },
-                    ),
-                    ByShowcasePresetItem(
-                      label: 'Static Clean',
-                      themeColor: AppColors.textMuted(isDark),
-                      isSelected: _activePresetIndex == 3,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 3;
-                          _isCollapsed = false;
-                          _indicatorStyle = BySidebarIndicatorStyle.fill;
-                          _enableSpotlight = false;
-                          _enableBorderTrack = false;
-                          _expandedWidth = 220.0;
-                          _itemRadius = 8.0;
-                          _itemSpacing = 4.0;
-                          _selectedActiveColorIndex = 0;
-                          _selectedBgColorIndex = 0;
-                          _selectedBorderColorIndex = 0;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // ── LAYER 3: Cross-Component Integration Banner ───────────
-                const ByShowcaseIntegrationBanner(
-                  componentName: 'ByDynamicBorder',
-                  description:
-                      'BySidebar features real-time cursor proximity illuminated borders and spotlight ambient backlight spill.',
-                ),
-                const SizedBox(height: 14),
-
-                // ── LAYER 4: Standalone Widget Display (Hero Live Preview) ─
-                _buildHeroPreview(
-                  colors: colors,
-                  activeColor: selectedActiveCol,
-                  bgColor: selectedBgCol,
-                  borderColor: selectedBorderCol,
-                ),
-                const SizedBox(height: 14),
-
-                // ── LAYER 5: Numbered Control Cards ───────────────────────
-                ByShowcaseControlCard(
-                  title: '1. EXPAND / COLLAPSE & INTERACTION UX',
-                  icon: Icons.unfold_more_rounded,
-                  children: [
-                    ByShowcaseSwitchTile(
-                      title: 'Collapsed (Icon-Only) Mode',
-                      subtitle:
-                          'Toggles between expanded label navigation and compact icon bar',
-                      value: _isCollapsed,
-                      onChanged: (val) => setState(() => _isCollapsed = val),
-                    ),
-                    const SizedBox(height: 8),
-                    ByShowcaseSwitchTile(
-                      title: 'Hover Auto-Expand Preview',
-                      subtitle:
-                          'Defaults to collapsed and expands when cursor hovers over rail',
-                      value: _enableHoverExpand,
-                      onChanged: (val) {
-                        setState(() {
-                          _enableHoverExpand = val;
-                          if (val) {
-                            _isCollapsed = true;
-                          }
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    ByShowcaseSwitchTile(
-                      title: 'Horizontal Drag / Swipe Gesture',
-                      subtitle:
-                          'Swipe outward to expand or inward to collapse seamlessly',
-                      value: _enableSwipeGesture,
-                      onChanged: (val) =>
-                          setState(() => _enableSwipeGesture = val),
-                    ),
-                    if (!_enableHoverExpand) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'Toggle Control Placement:',
-                        style: AppTextStyle.fieldLabel
-                            .copyWith(color: colors.textSecondary),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          ByShowcaseChoiceChip(
-                            label: 'Bottom Action Tile',
-                            isSelected: _togglePlacement ==
-                                BySidebarTogglePlacement.bottom,
-                            onTap: () => setState(() => _togglePlacement =
-                                BySidebarTogglePlacement.bottom),
-                          ),
-                          ByShowcaseChoiceChip(
-                            label: 'Header Slot',
-                            isSelected: _togglePlacement ==
-                                BySidebarTogglePlacement.header,
-                            onTap: () => setState(() => _togglePlacement =
-                                BySidebarTogglePlacement.header),
-                          ),
-                          ByShowcaseChoiceChip(
-                            label: 'None (External)',
-                            isSelected:
-                                _togglePlacement == BySidebarTogglePlacement.none,
-                            onTap: () => setState(() => _togglePlacement =
-                                BySidebarTogglePlacement.none),
-                          ),
-                        ],
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    Text(
-                      'Active Indicator Style:',
-                      style: AppTextStyle.fieldLabel
-                          .copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          ByShowcaseChoiceChip(
-                            label: 'Full Fill (Default)',
-                            isSelected: _indicatorStyle ==
-                                BySidebarIndicatorStyle.fill,
-                            onTap: () => setState(() => _indicatorStyle =
-                                BySidebarIndicatorStyle.fill),
-                          ),
-                          const SizedBox(width: 8),
-                          ByShowcaseChoiceChip(
-                            label: 'Leading Accent Bar',
-                            isSelected: _indicatorStyle ==
-                                BySidebarIndicatorStyle.leadingBar,
-                            onTap: () => setState(() => _indicatorStyle =
-                                BySidebarIndicatorStyle.leadingBar),
-                          ),
-                          const SizedBox(width: 8),
-                          ByShowcaseChoiceChip(
-                            label: 'Subtle Outline',
-                            isSelected: _indicatorStyle ==
-                                BySidebarIndicatorStyle.outline,
-                            onTap: () => setState(() => _indicatorStyle =
-                                BySidebarIndicatorStyle.outline),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '2. SPATIAL LIGHTING & TRACKING',
-                  icon: Icons.lightbulb_rounded,
-                  children: [
-                    ByShowcaseSwitchTile(
-                      title: 'Spotlight Ambient Backlight Spill',
-                      subtitle:
-                          'Casts a soft radial gradient glow behind hovered and active items',
-                      value: _enableSpotlight,
-                      onChanged: (val) => setState(() => _enableSpotlight = val),
-                    ),
-                    const SizedBox(height: 8),
-                    ByShowcaseSwitchTile(
-                      title: 'Cursor Proximity Trailing Border',
-                      subtitle:
-                          'Illuminates the vertical dividing line dynamically near cursor coordinates',
-                      value: _enableBorderTrack,
-                      onChanged: (val) => setState(() => _enableBorderTrack = val),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '3. SIDEBAR & ITEM GEOMETRY',
-                  icon: Icons.straighten_rounded,
-                  children: [
-                    Text(
-                      'Sidebar Dock Placement:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _sidebarPosition = BySidebarPosition.left),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                color: _sidebarPosition == BySidebarPosition.left
-                                    ? selectedActiveCol.withValues(alpha: 0.18)
-                                    : colors.cardBg,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: _sidebarPosition == BySidebarPosition.left
-                                      ? selectedActiveCol
-                                      : colors.border,
-                                ),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.dock_rounded,
-                                      size: 16,
-                                      color: _sidebarPosition == BySidebarPosition.left
-                                          ? selectedActiveCol
-                                          : colors.textSecondary,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Left Edge',
-                                      style: AppTextStyle.captionBold.copyWith(
-                                        color: _sidebarPosition == BySidebarPosition.left
-                                            ? selectedActiveCol
-                                            : colors.textPrimary,
-                                        fontWeight: _sidebarPosition == BySidebarPosition.left
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                          icon: Icons.view_sidebar_rounded,
+                          subtitle:
+                              'Live metrics for BySidebar configuration state',
+                          metrics: [
+                            ByMetricBadge(
+                              label: 'Layout',
+                              value:
+                                  (_enableHoverExpand
+                                      ? _isHoverExpanded
+                                      : !_isCollapsed)
+                                  ? 'EXPANDED'
+                                  : 'COLLAPSED',
                             ),
-                          ),
+                            ByMetricBadge(
+                              label: 'Width',
+                              value:
+                                  '${((_enableHoverExpand ? _isHoverExpanded : !_isCollapsed) ? _expandedWidth : _collapsedWidth).toInt()}px',
+                            ),
+                            ByMetricBadge(
+                              label: 'Item Radius',
+                              value: '${_itemRadius.toInt()}px',
+                            ),
+                            ByMetricBadge(
+                              label: 'Spotlight',
+                              value: _enableSpotlight
+                                  ? '${_spotlightRadius.toInt()}px'
+                                  : 'OFF',
+                            ),
+                            ByMetricBadge(
+                              label: 'Toggle UI',
+                              value: _togglePlacement.name.toUpperCase(),
+                            ),
+                            ByMetricBadge(
+                              label: 'Route',
+                              value: _sidebarItems[_selectedIndex].label
+                                  .toUpperCase(),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _sidebarPosition = BySidebarPosition.right),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                color: _sidebarPosition == BySidebarPosition.right
-                                    ? selectedActiveCol.withValues(alpha: 0.18)
-                                    : colors.cardBg,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: _sidebarPosition == BySidebarPosition.right
-                                      ? selectedActiveCol
-                                      : colors.border,
+                        const SizedBox(height: 12),
+
+                        // ── LAYER 2: Preset Example Card ──────────────────────────
+                        ByShowcasePresetCard(
+                          presets: [
+                            ByShowcasePresetItem(
+                              label: 'Expanded Desktop',
+                              themeColor: AppColors.primary,
+                              isSelected: _activePresetIndex == 0,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 0;
+                                  _isCollapsed = false;
+                                  _indicatorStyle =
+                                      BySidebarIndicatorStyle.fill;
+                                  _enableSpotlight = true;
+                                  _enableBorderTrack = true;
+                                  _expandedWidth = 240.0;
+                                  _collapsedWidth = 72.0;
+                                  _itemRadius = 10.0;
+                                  _itemSpacing = 6.0;
+                                  _spotlightRadius = 120.0;
+                                  _cursorGlowHeight = 100.0;
+                                  _selectedActiveColorIndex = 0;
+                                  _selectedBgColorIndex = 0;
+                                  _selectedBorderColorIndex = 0;
+                                });
+                              },
+                            ),
+                            ByShowcasePresetItem(
+                              label: 'Compact Tablet',
+                              themeColor: AppColors.primaryAccent,
+                              isSelected: _activePresetIndex == 1,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 1;
+                                  _isCollapsed = true;
+                                  _indicatorStyle =
+                                      BySidebarIndicatorStyle.leadingBar;
+                                  _enableSpotlight = true;
+                                  _enableBorderTrack = true;
+                                  _expandedWidth = 240.0;
+                                  _collapsedWidth = 72.0;
+                                  _itemRadius = 12.0;
+                                  _itemSpacing = 8.0;
+                                  _spotlightRadius = 90.0;
+                                  _cursorGlowHeight = 80.0;
+                                  _selectedActiveColorIndex = 1;
+                                  _selectedBgColorIndex = 0;
+                                  _selectedBorderColorIndex = 0;
+                                });
+                              },
+                            ),
+                            ByShowcasePresetItem(
+                              label: 'Emerald Modern',
+                              themeColor: AppColors.success,
+                              isSelected: _activePresetIndex == 2,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 2;
+                                  _isCollapsed = false;
+                                  _indicatorStyle =
+                                      BySidebarIndicatorStyle.outline;
+                                  _enableSpotlight = true;
+                                  _enableBorderTrack = true;
+                                  _expandedWidth = 260.0;
+                                  _itemRadius = 14.0;
+                                  _itemSpacing = 6.0;
+                                  _spotlightRadius = 140.0;
+                                  _cursorGlowHeight = 120.0;
+                                  _selectedActiveColorIndex = 3;
+                                  _selectedBgColorIndex = 0;
+                                  _selectedBorderColorIndex = 0;
+                                });
+                              },
+                            ),
+                            ByShowcasePresetItem(
+                              label: 'Static Clean',
+                              themeColor: AppColors.textMuted(isDark),
+                              isSelected: _activePresetIndex == 3,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 3;
+                                  _isCollapsed = false;
+                                  _indicatorStyle =
+                                      BySidebarIndicatorStyle.fill;
+                                  _enableSpotlight = false;
+                                  _enableBorderTrack = false;
+                                  _expandedWidth = 220.0;
+                                  _itemRadius = 8.0;
+                                  _itemSpacing = 4.0;
+                                  _selectedActiveColorIndex = 0;
+                                  _selectedBgColorIndex = 0;
+                                  _selectedBorderColorIndex = 0;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // ── LAYER 3: Cross-Component Integration Banner ───────────
+                        const ByShowcaseIntegrationBanner(
+                          componentName: 'ByDynamicBorder',
+                          description:
+                              'BySidebar features real-time cursor proximity illuminated borders and spotlight ambient backlight spill.',
+                        ),
+                        const SizedBox(height: 14),
+
+                        // ── LAYER 4: Standalone Widget Display (Hero Live Preview) ─
+                        _buildHeroPreview(
+                          colors: colors,
+                          activeColor: selectedActiveCol,
+                          bgColor: selectedBgCol,
+                          borderColor: selectedBorderCol,
+                        ),
+                        const SizedBox(height: 14),
+
+                        // ── LAYER 5: Numbered Control Cards ───────────────────────
+                        ByShowcaseControlCard(
+                          title: '1. EXPAND / COLLAPSE & INTERACTION UX',
+                          icon: Icons.unfold_more_rounded,
+                          children: [
+                            ByShowcaseSwitchTile(
+                              title: 'Collapsed (Icon-Only) Mode',
+                              subtitle:
+                                  'Toggles between expanded label navigation and compact icon bar',
+                              value: _isCollapsed,
+                              onChanged: (val) =>
+                                  setState(() => _isCollapsed = val),
+                            ),
+                            const SizedBox(height: 8),
+                            ByShowcaseSwitchTile(
+                              title: 'Hover Auto-Expand Preview',
+                              subtitle:
+                                  'Defaults to collapsed and expands when cursor hovers over rail',
+                              value: _enableHoverExpand,
+                              onChanged: (val) {
+                                setState(() {
+                                  _enableHoverExpand = val;
+                                  if (val) {
+                                    _isCollapsed = true;
+                                  }
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            ByShowcaseSwitchTile(
+                              title: 'Horizontal Drag / Swipe Gesture',
+                              subtitle:
+                                  'Swipe outward to expand or inward to collapse seamlessly',
+                              value: _enableSwipeGesture,
+                              onChanged: (val) =>
+                                  setState(() => _enableSwipeGesture = val),
+                            ),
+                            if (!_enableHoverExpand) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                'Toggle Control Placement:',
+                                style: AppTextStyle.fieldLabel.copyWith(
+                                  color: colors.textSecondary,
                                 ),
                               ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.dock_rounded,
-                                      size: 16,
-                                      color: _sidebarPosition == BySidebarPosition.right
-                                          ? selectedActiveCol
-                                          : colors.textSecondary,
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  ByShowcaseChoiceChip(
+                                    label: 'Bottom Action Tile',
+                                    isSelected:
+                                        _togglePlacement ==
+                                        BySidebarTogglePlacement.bottom,
+                                    onTap: () => setState(
+                                      () => _togglePlacement =
+                                          BySidebarTogglePlacement.bottom,
                                     ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Right Edge',
-                                      style: AppTextStyle.captionBold.copyWith(
-                                        color: _sidebarPosition == BySidebarPosition.right
-                                            ? selectedActiveCol
-                                            : colors.textPrimary,
-                                        fontWeight: _sidebarPosition == BySidebarPosition.right
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                      ),
+                                  ),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Header Slot',
+                                    isSelected:
+                                        _togglePlacement ==
+                                        BySidebarTogglePlacement.header,
+                                    onTap: () => setState(
+                                      () => _togglePlacement =
+                                          BySidebarTogglePlacement.header,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  ByShowcaseChoiceChip(
+                                    label: 'None (External)',
+                                    isSelected:
+                                        _togglePlacement ==
+                                        BySidebarTogglePlacement.none,
+                                    onTap: () => setState(
+                                      () => _togglePlacement =
+                                          BySidebarTogglePlacement.none,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            const SizedBox(height: 12),
+                            Text(
+                              'Active Indicator Style:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 8),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  ByShowcaseChoiceChip(
+                                    label: 'Full Fill (Default)',
+                                    isSelected:
+                                        _indicatorStyle ==
+                                        BySidebarIndicatorStyle.fill,
+                                    onTap: () => setState(
+                                      () => _indicatorStyle =
+                                          BySidebarIndicatorStyle.fill,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Leading Accent Bar',
+                                    isSelected:
+                                        _indicatorStyle ==
+                                        BySidebarIndicatorStyle.leadingBar,
+                                    onTap: () => setState(
+                                      () => _indicatorStyle =
+                                          BySidebarIndicatorStyle.leadingBar,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Subtle Outline',
+                                    isSelected:
+                                        _indicatorStyle ==
+                                        BySidebarIndicatorStyle.outline,
+                                    onTap: () => setState(
+                                      () => _indicatorStyle =
+                                          BySidebarIndicatorStyle.outline,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '2. SPATIAL LIGHTING & TRACKING',
+                          icon: Icons.lightbulb_rounded,
+                          children: [
+                            ByShowcaseSwitchTile(
+                              title: 'Spotlight Ambient Backlight Spill',
+                              subtitle:
+                                  'Casts a soft radial gradient glow behind hovered and active items',
+                              value: _enableSpotlight,
+                              onChanged: (val) =>
+                                  setState(() => _enableSpotlight = val),
+                            ),
+                            const SizedBox(height: 8),
+                            ByShowcaseSwitchTile(
+                              title: 'Cursor Proximity Trailing Border',
+                              subtitle:
+                                  'Illuminates the vertical dividing line dynamically near cursor coordinates',
+                              value: _enableBorderTrack,
+                              onChanged: (val) =>
+                                  setState(() => _enableBorderTrack = val),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '3. SIDEBAR & ITEM GEOMETRY',
+                          icon: Icons.straighten_rounded,
+                          children: [
+                            Text(
+                              'Sidebar Dock Placement:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(
+                                      () => _sidebarPosition =
+                                          BySidebarPosition.left,
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            _sidebarPosition ==
+                                                BySidebarPosition.left
+                                            ? selectedActiveCol.withValues(
+                                                alpha: 0.18,
+                                              )
+                                            : colors.cardBg,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color:
+                                              _sidebarPosition ==
+                                                  BySidebarPosition.left
+                                              ? selectedActiveCol
+                                              : colors.border,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.dock_rounded,
+                                              size: 16,
+                                              color:
+                                                  _sidebarPosition ==
+                                                      BySidebarPosition.left
+                                                  ? selectedActiveCol
+                                                  : colors.textSecondary,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'Left Edge',
+                                              style: AppTextStyle.captionBold
+                                                  .copyWith(
+                                                    color:
+                                                        _sidebarPosition ==
+                                                            BySidebarPosition
+                                                                .left
+                                                        ? selectedActiveCol
+                                                        : colors.textPrimary,
+                                                    fontWeight:
+                                                        _sidebarPosition ==
+                                                            BySidebarPosition
+                                                                .left
+                                                        ? FontWeight.w700
+                                                        : FontWeight.w500,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(
+                                      () => _sidebarPosition =
+                                          BySidebarPosition.right,
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            _sidebarPosition ==
+                                                BySidebarPosition.right
+                                            ? selectedActiveCol.withValues(
+                                                alpha: 0.18,
+                                              )
+                                            : colors.cardBg,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color:
+                                              _sidebarPosition ==
+                                                  BySidebarPosition.right
+                                              ? selectedActiveCol
+                                              : colors.border,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.dock_rounded,
+                                              size: 16,
+                                              color:
+                                                  _sidebarPosition ==
+                                                      BySidebarPosition.right
+                                                  ? selectedActiveCol
+                                                  : colors.textSecondary,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'Right Edge',
+                                              style: AppTextStyle.captionBold
+                                                  .copyWith(
+                                                    color:
+                                                        _sidebarPosition ==
+                                                            BySidebarPosition
+                                                                .right
+                                                        ? selectedActiveCol
+                                                        : colors.textPrimary,
+                                                    fontWeight:
+                                                        _sidebarPosition ==
+                                                            BySidebarPosition
+                                                                .right
+                                                        ? FontWeight.w700
+                                                        : FontWeight.w500,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            ByShowcaseSliderTile(
+                              label: 'Expanded Width:',
+                              valueText: '${_expandedWidth.toInt()}px',
+                              value: _expandedWidth,
+                              min: 180.0,
+                              max: 300.0,
+                              divisions: 24,
+                              onChanged: (val) =>
+                                  setState(() => _expandedWidth = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Collapsed Width:',
+                              valueText: '${_collapsedWidth.toInt()}px',
+                              value: _collapsedWidth,
+                              min: 56.0,
+                              max: 88.0,
+                              divisions: 16,
+                              onChanged: (val) =>
+                                  setState(() => _collapsedWidth = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Item Corner Radius:',
+                              valueText: '${_itemRadius.toInt()}px',
+                              value: _itemRadius,
+                              min: 0.0,
+                              max: 20.0,
+                              divisions: 20,
+                              onChanged: (val) =>
+                                  setState(() => _itemRadius = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Item Vertical Spacing:',
+                              valueText: '${_itemSpacing.toInt()}px',
+                              value: _itemSpacing,
+                              min: 2.0,
+                              max: 14.0,
+                              divisions: 12,
+                              onChanged: (val) =>
+                                  setState(() => _itemSpacing = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Trailing Border Width:',
+                              valueText: '${_borderWidth.toStringAsFixed(1)}px',
+                              value: _borderWidth,
+                              min: 0.5,
+                              max: 3.0,
+                              divisions: 5,
+                              onChanged: (val) =>
+                                  setState(() => _borderWidth = val),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '4. COLOR PALETTES & SURFACES',
+                          icon: Icons.palette_rounded,
+                          children: [
+                            Text(
+                              'Active Route Accent Color:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByColorPalette.fromOptions(
+                              options: _activeColorOptions,
+                              selectedIndex: _selectedActiveColorIndex,
+                              onSelected: (idx) => setState(
+                                () => _selectedActiveColorIndex = idx,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'Sidebar Surface Background Color:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByColorPalette.fromOptions(
+                              options: _bgColorOptions,
+                              selectedIndex: _selectedBgColorIndex,
+                              onSelected: (idx) =>
+                                  setState(() => _selectedBgColorIndex = idx),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'Trailing Dividing Border Color:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByColorPalette.fromOptions(
+                              options: _borderColorOptions,
+                              selectedIndex: _selectedBorderColorIndex,
+                              onSelected: (idx) => setState(
+                                () => _selectedBorderColorIndex = idx,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '5. SPATIAL LIGHTING ADJUSTMENTS',
+                          icon: Icons.blur_on_rounded,
+                          children: [
+                            ByShowcaseSliderTile(
+                              label: 'Spotlight Spill Radius:',
+                              valueText: '${_spotlightRadius.toInt()}px',
+                              value: _spotlightRadius,
+                              min: 60.0,
+                              max: 220.0,
+                              divisions: 16,
+                              onChanged: (val) =>
+                                  setState(() => _spotlightRadius = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Cursor Border Glow Height:',
+                              valueText: '${_cursorGlowHeight.toInt()}px',
+                              value: _cursorGlowHeight,
+                              min: 40.0,
+                              max: 200.0,
+                              divisions: 16,
+                              onChanged: (val) =>
+                                  setState(() => _cursorGlowHeight = val),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    ByShowcaseSliderTile(
-                      label: 'Expanded Width:',
-                      valueText: '${_expandedWidth.toInt()}px',
-                      value: _expandedWidth,
-                      min: 180.0,
-                      max: 300.0,
-                      divisions: 24,
-                      onChanged: (val) => setState(() => _expandedWidth = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Collapsed Width:',
-                      valueText: '${_collapsedWidth.toInt()}px',
-                      value: _collapsedWidth,
-                      min: 56.0,
-                      max: 88.0,
-                      divisions: 16,
-                      onChanged: (val) => setState(() => _collapsedWidth = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Item Corner Radius:',
-                      valueText: '${_itemRadius.toInt()}px',
-                      value: _itemRadius,
-                      min: 0.0,
-                      max: 20.0,
-                      divisions: 20,
-                      onChanged: (val) => setState(() => _itemRadius = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Item Vertical Spacing:',
-                      valueText: '${_itemSpacing.toInt()}px',
-                      value: _itemSpacing,
-                      min: 2.0,
-                      max: 14.0,
-                      divisions: 12,
-                      onChanged: (val) => setState(() => _itemSpacing = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Trailing Border Width:',
-                      valueText: '${_borderWidth.toStringAsFixed(1)}px',
-                      value: _borderWidth,
-                      min: 0.5,
-                      max: 3.0,
-                      divisions: 5,
-                      onChanged: (val) => setState(() => _borderWidth = val),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '4. COLOR PALETTES & SURFACES',
-                  icon: Icons.palette_rounded,
-                  children: [
-                    Text(
-                      'Active Route Accent Color:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: _activeColorOptions,
-                      selectedIndex: _selectedActiveColorIndex,
-                      onSelected: (idx) =>
-                          setState(() => _selectedActiveColorIndex = idx),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Sidebar Surface Background Color:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: _bgColorOptions,
-                      selectedIndex: _selectedBgColorIndex,
-                      onSelected: (idx) => setState(() => _selectedBgColorIndex = idx),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Trailing Dividing Border Color:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: _borderColorOptions,
-                      selectedIndex: _selectedBorderColorIndex,
-                      onSelected: (idx) =>
-                          setState(() => _selectedBorderColorIndex = idx),
-                    ),
-                    const SizedBox(height: 6),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '5. SPATIAL LIGHTING ADJUSTMENTS',
-                  icon: Icons.blur_on_rounded,
-                  children: [
-                    ByShowcaseSliderTile(
-                      label: 'Spotlight Spill Radius:',
-                      valueText: '${_spotlightRadius.toInt()}px',
-                      value: _spotlightRadius,
-                      min: 60.0,
-                      max: 220.0,
-                      divisions: 16,
-                      onChanged: (val) => setState(() => _spotlightRadius = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Cursor Border Glow Height:',
-                      valueText: '${_cursorGlowHeight.toInt()}px',
-                      value: _cursorGlowHeight,
-                      min: 40.0,
-                      max: 200.0,
-                      divisions: 16,
-                      onChanged: (val) => setState(() => _cursorGlowHeight = val),
-                    ),
-                  ],
-                ),
-              ],
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   void _resetToDefaults() {
     setState(() {
@@ -732,6 +829,50 @@ class _SidebarShowcaseScreenState
     });
   }
 
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final buffer = StringBuffer();
+    buffer.writeln('BySidebar(');
+    buffer.writeln('  selectedIndex: _selectedIndex,');
+    buffer.writeln(
+      '  onItemSelected: (index) => setState(() => _selectedIndex = index),',
+    );
+    buffer.writeln('  isExpanded: !_isCollapsed,');
+    buffer.writeln(
+      '  onToggleExpand: (val) => setState(() => _isCollapsed = !val),',
+    );
+    buffer.writeln('  items: const [');
+    buffer.writeln(
+      "    BySidebarItem(label: 'Dashboard', icon: Icons.dashboard_rounded),",
+    );
+    buffer.writeln(
+      "    BySidebarItem(label: 'Analytics', icon: Icons.analytics_rounded, badge: 'HOT'),",
+    );
+    buffer.writeln("    BySidebarItem.section(title: 'PREFERENCES'),");
+    buffer.writeln(
+      "    BySidebarItem(label: 'Settings', icon: Icons.settings_rounded),",
+    );
+    buffer.writeln('  ],');
+    buffer.writeln('  indicatorStyle: $_indicatorStyle,');
+    buffer.writeln('  togglePlacement: $_togglePlacement,');
+    if (_enableHoverExpand) {
+      buffer.writeln('  enableHoverExpand: true,');
+    }
+    buffer.writeln('  expandedWidth: ${_expandedWidth.toStringAsFixed(1)},');
+    buffer.writeln('  collapsedWidth: ${_collapsedWidth.toStringAsFixed(1)},');
+    buffer.writeln('  activeColor: const Color(0xFF00F5FF),');
+    buffer.write(')');
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'BySidebar',
+      code: _generateCodeSnippet(),
+    );
+  }
+
   void _showParamsDialog(BuildContext context) {
     showWidgetParametersDialog(
       context,
@@ -742,37 +883,43 @@ class _SidebarShowcaseScreenState
         WidgetParamInfo(
           name: 'indicatorStyle',
           type: 'BySidebarIndicatorStyle',
-          description: 'Active selection highlight style (fill, leadingBar, outline).',
+          description:
+              'Active selection highlight style (fill, leadingBar, outline).',
           defaultValue: 'BySidebarIndicatorStyle.fill',
         ),
         WidgetParamInfo(
           name: 'leadingBarWidth',
           type: 'double',
-          description: 'Thickness of the leading indicator bar when using leadingBar style.',
+          description:
+              'Thickness of the leading indicator bar when using leadingBar style.',
           defaultValue: '3.5',
         ),
         WidgetParamInfo(
           name: 'togglePlacement',
           type: 'BySidebarTogglePlacement',
-          description: 'Placement position for collapse/expand toggles (bottom, header, none).',
+          description:
+              'Placement position for collapse/expand toggles (bottom, header, none).',
           defaultValue: 'BySidebarTogglePlacement.bottom',
         ),
         WidgetParamInfo(
           name: 'enableSwipeGesture',
           type: 'bool',
-          description: 'Whether to allow horizontal swipe/drag gestures to expand or collapse.',
+          description:
+              'Whether to allow horizontal swipe/drag gestures to expand or collapse.',
           defaultValue: 'true',
         ),
         WidgetParamInfo(
           name: 'enableHoverExpand',
           type: 'bool',
-          description: 'Whether hovering over the collapsed sidebar expands it temporarily as a preview overlay.',
+          description:
+              'Whether hovering over the collapsed sidebar expands it temporarily as a preview overlay.',
           defaultValue: 'false',
         ),
         WidgetParamInfo(
           name: 'items',
           type: 'List<BySidebarItem>',
-          description: 'The collection of navigation items and dividers in the sidebar.',
+          description:
+              'The collection of navigation items and dividers in the sidebar.',
           isRequired: true,
         ),
         WidgetParamInfo(
@@ -784,19 +931,22 @@ class _SidebarShowcaseScreenState
         WidgetParamInfo(
           name: 'isCollapsed',
           type: 'bool',
-          description: 'Whether the sidebar is rendered in compact icon-only mode.',
+          description:
+              'Whether the sidebar is rendered in compact icon-only mode.',
           defaultValue: 'false',
         ),
         WidgetParamInfo(
           name: 'expandedWidth',
           type: 'double',
-          description: 'Width in pixels when sidebar is in full expanded layout mode.',
+          description:
+              'Width in pixels when sidebar is in full expanded layout mode.',
           defaultValue: '240.0',
         ),
         WidgetParamInfo(
           name: 'collapsedWidth',
           type: 'double',
-          description: 'Width in pixels when sidebar is in compact icon-only mode.',
+          description:
+              'Width in pixels when sidebar is in compact icon-only mode.',
           defaultValue: '72.0',
         ),
         WidgetParamInfo(
@@ -814,13 +964,15 @@ class _SidebarShowcaseScreenState
         WidgetParamInfo(
           name: 'spotlightRadius',
           type: 'double',
-          description: 'Radial radius for the cursor proximity backlight spill.',
+          description:
+              'Radial radius for the cursor proximity backlight spill.',
           defaultValue: '120.0',
         ),
         WidgetParamInfo(
           name: 'cursorBorderGlowHeight',
           type: 'double',
-          description: 'Height of the illuminated trailing border glow segment.',
+          description:
+              'Height of the illuminated trailing border glow segment.',
           defaultValue: '100.0',
         ),
       ],
@@ -917,7 +1069,7 @@ class _SidebarShowcaseScreenState
                         enableSpotlightSpill: _enableSpotlight,
                         spotlightRadius: _spotlightRadius,
                         enableCursorBorderTracking: _enableBorderTrack,
-                                                cursorBorderGlowHeight: _cursorGlowHeight,
+                        cursorBorderGlowHeight: _cursorGlowHeight,
                         togglePlacement: _togglePlacement,
                         enableSwipeGesture: _enableSwipeGesture,
                         enableHoverExpand: _enableHoverExpand,
@@ -987,7 +1139,7 @@ class _SidebarShowcaseScreenState
                         enableSpotlightSpill: _enableSpotlight,
                         spotlightRadius: _spotlightRadius,
                         enableCursorBorderTracking: _enableBorderTrack,
-                                                cursorBorderGlowHeight: _cursorGlowHeight,
+                        cursorBorderGlowHeight: _cursorGlowHeight,
                         togglePlacement: _togglePlacement,
                         enableSwipeGesture: _enableSwipeGesture,
                         enableHoverExpand: _enableHoverExpand,
@@ -1029,10 +1181,12 @@ class _SidebarShowcaseScreenState
         final totalWidth = constraints.maxWidth;
         // Rigidly fix content width to (totalWidth - _collapsedWidth) so expanding sidebar NEVER squeezes or overflows content
         final contentWidth = math.max(320.0, totalWidth - _collapsedWidth);
-        final isExpanded =
-            _enableHoverExpand ? _isHoverExpanded : !_isCollapsed;
-        final currentSidebarWidth =
-            isExpanded ? _expandedWidth : _collapsedWidth;
+        final isExpanded = _enableHoverExpand
+            ? _isHoverExpanded
+            : !_isCollapsed;
+        final currentSidebarWidth = isExpanded
+            ? _expandedWidth
+            : _collapsedWidth;
         final isDockLeft = _sidebarPosition == BySidebarPosition.left;
 
         Widget buildSidebarWidget() {
@@ -1052,16 +1206,16 @@ class _SidebarShowcaseScreenState
             enableSpotlightSpill: _enableSpotlight,
             spotlightRadius: _spotlightRadius,
             enableCursorBorderTracking: _enableBorderTrack,
-                                    cursorBorderGlowHeight: _cursorGlowHeight,
-                        togglePlacement: _togglePlacement,
-                        enableSwipeGesture: _enableSwipeGesture,
-                        enableHoverExpand: _enableHoverExpand,
-                        indicatorStyle: _indicatorStyle,
-                        onHoverExpandChanged: (hovered) {
-                          if (_isHoverExpanded != hovered) {
-                            setState(() => _isHoverExpanded = hovered);
-                          }
-                        },
+            cursorBorderGlowHeight: _cursorGlowHeight,
+            togglePlacement: _togglePlacement,
+            enableSwipeGesture: _enableSwipeGesture,
+            enableHoverExpand: _enableHoverExpand,
+            indicatorStyle: _indicatorStyle,
+            onHoverExpandChanged: (hovered) {
+              if (_isHoverExpanded != hovered) {
+                setState(() => _isHoverExpanded = hovered);
+              }
+            },
             onToggleCollapse: () {
               setState(() => _isCollapsed = !_isCollapsed);
             },
@@ -1175,7 +1329,9 @@ class _SidebarShowcaseScreenState
               bottom: 0,
               child: ClipRect(
                 child: OverflowBox(
-                  alignment: isDockLeft ? Alignment.topLeft : Alignment.topRight,
+                  alignment: isDockLeft
+                      ? Alignment.topLeft
+                      : Alignment.topRight,
                   minWidth: contentWidth,
                   maxWidth: contentWidth,
                   child: buildConsoleViewport(),
@@ -1189,9 +1345,7 @@ class _SidebarShowcaseScreenState
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => setState(() => _isCollapsed = true),
-                  child: Container(
-                    color: Colors.black.withValues(alpha: 0.35),
-                  ),
+                  child: Container(color: Colors.black.withValues(alpha: 0.35)),
                 ),
               ),
 
@@ -1434,8 +1588,18 @@ class _SidebarShowcaseScreenState
               const SizedBox(height: 14),
               ...[
                 ('Ingress Traffic', '8.4 GB/s', 0.85, activeColor),
-                ('Egress Traffic', '4.2 GB/s', 0.52, activeColor.withValues(alpha: 0.7)),
-                ('Inter-cluster RPC', '12.8 GB/s', 0.94, activeColor.withValues(alpha: 0.45)),
+                (
+                  'Egress Traffic',
+                  '4.2 GB/s',
+                  0.52,
+                  activeColor.withValues(alpha: 0.7),
+                ),
+                (
+                  'Inter-cluster RPC',
+                  '12.8 GB/s',
+                  0.94,
+                  activeColor.withValues(alpha: 0.45),
+                ),
               ].map(
                 (item) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -1490,7 +1654,12 @@ class _SidebarShowcaseScreenState
       ('auth-gateway-service', 'v3.1.2', 'Healthy', activeColor),
       ('payment-broker-mesh', 'v2.8.0', 'Healthy', activeColor),
       ('notification-pubsub', 'v1.14.4', 'Healthy', activeColor),
-      ('search-indexer-daemon', 'v4.0.1', 'Syncing', activeColor.withValues(alpha: 0.7)),
+      (
+        'search-indexer-daemon',
+        'v4.0.1',
+        'Syncing',
+        activeColor.withValues(alpha: 0.7),
+      ),
     ];
 
     return ListView(
@@ -1524,7 +1693,11 @@ class _SidebarShowcaseScreenState
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.inventory_2_rounded, size: 20, color: activeColor),
+                      Icon(
+                        Icons.inventory_2_rounded,
+                        size: 20,
+                        color: activeColor,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -1582,7 +1755,11 @@ class _SidebarShowcaseScreenState
   }) {
     final auditLogs = [
       ('Autoscaler scaled replica count from 32 to 48', '3m ago', activeColor),
-      ('Mutual TLS certificate rotated for auth-gateway', '18m ago', activeColor),
+      (
+        'Mutual TLS certificate rotated for auth-gateway',
+        '18m ago',
+        activeColor,
+      ),
       ('Canary traffic split reached 100% on us-east', '45m ago', activeColor),
     ];
 
@@ -1690,8 +1867,7 @@ class _SidebarShowcaseScreenState
               Divider(color: colors.border, height: 24),
               _buildSettingRow(
                 title: 'Strict Mutual TLS (mTLS) Encryption',
-                subtitle:
-                    'Enforce cryptographic service-to-service handshake',
+                subtitle: 'Enforce cryptographic service-to-service handshake',
                 value: true,
                 activeColor: activeColor,
                 colors: colors,
@@ -1770,13 +1946,11 @@ class _SidebarShowcaseScreenState
             children: [
               Icon(icon, size: 18, color: accent),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: (trendPositive ? accent : colors.textMuted)
-                      .withValues(alpha: 0.15),
+                  color: (trendPositive ? accent : colors.textMuted).withValues(
+                    alpha: 0.15,
+                  ),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

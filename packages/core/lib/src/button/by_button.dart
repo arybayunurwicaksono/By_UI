@@ -952,51 +952,58 @@ class _ByButtonState extends State<ByButton> with TickerProviderStateMixin {
                       ),
 
                     // Unmorphed Content with Overflow Isolation
-                    Opacity(
-                      opacity: (1.0 - morphProgress * 2.8).clamp(0.0, 1.0),
-                      child: Offstage(
-                        offstage: morphProgress >= 0.35,
-                        child: ClipRect(
-                          child: OverflowBox(
-                            minWidth: 0.0,
-                            maxWidth: double.infinity,
-                            alignment: Alignment.center,
-                            child: Padding(
-                              padding: resolvedPadding,
-                              child: IconTheme(
-                                data: IconThemeData(
-                                  color: effectiveIconColor,
-                                  size: resolvedStyle.iconSize ??
-                                      ByButtonDefaults.iconSizeFor(widget.size),
-                                ),
-                                child: DefaultTextStyle(
-                                  style:
-                                      ByButtonDefaults.textStyleFor(widget.size)
-                                          .copyWith(color: effectiveFg),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      if (widget.prefix != null) ...[
-                                        widget.prefix!,
-                                        SizedBox(width: widget.spacing),
-                                      ],
-                                      widget.child,
-                                      if (widget.suffix != null) ...[
-                                        SizedBox(width: widget.spacing),
-                                        widget.suffix!,
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                              ),
+                    () {
+                      final content = Padding(
+                        padding: resolvedPadding,
+                        child: IconTheme(
+                          data: IconThemeData(
+                            color: effectiveIconColor,
+                            size: resolvedStyle.iconSize ??
+                                ByButtonDefaults.iconSizeFor(widget.size),
+                          ),
+                          child: DefaultTextStyle(
+                            style: ByButtonDefaults.textStyleFor(widget.size)
+                                .copyWith(color: effectiveFg),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                if (widget.prefix != null) ...[
+                                  widget.prefix!,
+                                  SizedBox(width: widget.spacing),
+                                ],
+                                widget.child,
+                                if (widget.suffix != null) ...[
+                                  SizedBox(width: widget.spacing),
+                                  widget.suffix!,
+                                ],
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+
+                      final isBounded =
+                          morphProgress > 0.0 || widget.width != null;
+
+                      return Opacity(
+                        opacity: (1.0 - morphProgress * 2.8).clamp(0.0, 1.0),
+                        child: Offstage(
+                          offstage: morphProgress >= 0.35,
+                          child: ClipRect(
+                            child: isBounded
+                                ? OverflowBox(
+                                    minWidth: 0.0,
+                                    maxWidth: double.infinity,
+                                    alignment: Alignment.center,
+                                    child: content,
+                                  )
+                                : content,
+                          ),
+                        ),
+                      );
+                    }(),
 
                     // Morphed Circular Result Content (Success Check or Error Cross)
                     if (morphProgress > 0.3 &&

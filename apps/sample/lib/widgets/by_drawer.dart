@@ -55,7 +55,10 @@ class ByDrawer extends StatelessWidget {
                       ),
                       children: [
                         // Active Components Section
-                        _buildSectionHeader('AVAILABLE COMPONENTS (10)', colors),
+                        _buildSectionHeader(
+                          'AVAILABLE COMPONENTS (10)',
+                          colors,
+                        ),
                         const SizedBox(height: 8),
 
                         _buildDrawerItem(

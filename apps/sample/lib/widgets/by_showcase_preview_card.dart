@@ -47,11 +47,7 @@ class ByShowcasePreviewCard extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 18,
-                ),
+                child: Icon(icon, color: Colors.white, size: 18),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -88,11 +84,7 @@ class ByShowcasePreviewCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: metrics,
-          ),
+          Wrap(spacing: 6, runSpacing: 6, children: metrics),
         ],
       ),
     );

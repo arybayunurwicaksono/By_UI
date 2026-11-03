@@ -26,10 +26,7 @@ class ByShowcasePresetItem {
 class ByShowcasePresetCard extends StatelessWidget {
   final List<ByShowcasePresetItem> presets;
 
-  const ByShowcasePresetCard({
-    super.key,
-    required this.presets,
-  });
+  const ByShowcasePresetCard({super.key, required this.presets});
 
   @override
   Widget build(BuildContext context) {

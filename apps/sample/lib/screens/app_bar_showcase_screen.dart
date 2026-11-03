@@ -14,6 +14,7 @@ import '../widgets/by_showcase_preset_card.dart';
 import '../widgets/by_showcase_integration_banner.dart';
 import '../widgets/by_dynamic_border_controls.dart';
 import '../widgets/widget_params_dialog.dart';
+import '../widgets/by_code_dialog.dart';
 
 /// Interactive showcase screen for the [ByAppBar] dynamic floating component.
 class AppBarShowcaseScreen extends StatefulWidget {
@@ -145,6 +146,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                 centerTitle: store.centerTitle,
                 onReset: _resetToDefaults,
                 onOpenParams: () => _showByAppBarParams(context),
+                onViewCode: () => _showCodeDialog(context),
               ),
             ),
             // 2. Uniform Drawer Navigation
@@ -382,7 +384,8 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                           ),
                           const SizedBox(width: 8),
                           ByShowcaseChoiceChip(
-                            label: 'Enabled (Hide on Scroll Down, Show on Scroll Up)',
+                            label:
+                                'Enabled (Hide on Scroll Down, Show on Scroll Up)',
                             isSelected: store.autoHideOnScroll,
                             onTap: () => store.update(autoHideOnScroll: true),
                           ),
@@ -915,9 +918,7 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
                     onPressed: store.enablePulseBorder
                         ? () => _pulseController.pulse()
                         : null,
-                    child: const Text(
-                      'Trigger Pulse Now (Point A → Point A)',
-                    ),
+                    child: const Text('Trigger Pulse Now (Point A → Point A)'),
                   ),
                 ),
               ],
@@ -935,6 +936,81 @@ class _AppBarShowcaseScreenState extends State<AppBarShowcaseScreen> {
       _tiltX = 0.0;
       _tiltY = 1.0;
     });
+  }
+
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final store = AppBarConfigStore.instance;
+    final buffer = StringBuffer();
+    buffer.writeln('// 1. Wrap Scaffold with ByScrollScope:');
+    buffer.writeln('ByScrollScope(');
+    buffer.writeln(
+      '  scrollThreshold: ${store.scrollThreshold.toStringAsFixed(1)},',
+    );
+    buffer.writeln('  child: Scaffold(');
+    buffer.writeln('    extendBodyBehindAppBar: true,');
+    buffer.writeln('    appBar: ByAppBar(');
+    if (!store.isFloatingEnabled) {
+      buffer.writeln('      isFloatingEnabled: false,');
+    }
+    buffer.writeln(
+      '      scrollThreshold: ${store.scrollThreshold.toStringAsFixed(1)},',
+    );
+    if (!store.enableSensor) {
+      buffer.writeln('      enableSensor: false,');
+    }
+    if (!store.enableHoverTilt) {
+      buffer.writeln('      enableHoverTilt: false,');
+    }
+    buffer.writeln(
+      '      floatingBlurSigma: ${store.blurSigma.toStringAsFixed(1)},',
+    );
+    buffer.writeln(
+      '      floatingOpacity: ${store.floatingOpacity.toStringAsFixed(2)},',
+    );
+    buffer.writeln(
+      '      borderWidth: ${store.borderWidth.toStringAsFixed(1)},',
+    );
+    buffer.writeln(
+      '      borderRadius: BorderRadius.circular(${store.borderRadius.toInt()}),',
+    );
+    if (store.enableInnerShadow) {
+      buffer.writeln('      enableInnerShadow: true,');
+      buffer.writeln(
+        '      innerShadowOpacity: ${store.innerShadowOpacity.toStringAsFixed(1)},',
+      );
+    }
+    buffer.writeln('      child: Row(');
+    buffer.writeln('        children: [');
+    buffer.writeln(
+      '          IconButton(icon: const Icon(Icons.menu), onPressed: () {}),',
+    );
+    buffer.writeln(
+      "          const Text('Page Title', style: TextStyle(fontWeight: FontWeight.bold)),",
+    );
+    buffer.writeln('        ],');
+    buffer.writeln('      ),');
+    buffer.writeln('    ),');
+    buffer.writeln('    body: ListView.builder(');
+    buffer.writeln(
+      '      padding: EdgeInsets.fromLTRB(16, ByAppBar.getContentTopPadding(context), 16, 24),',
+    );
+    buffer.writeln('      itemCount: 40,');
+    buffer.writeln(
+      "      itemBuilder: (_, i) => ListTile(title: Text('Item \$i')),",
+    );
+    buffer.writeln('    ),');
+    buffer.writeln('  ),');
+    buffer.write(')');
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'ByAppBar',
+      code: _generateCodeSnippet(),
+    );
   }
 
   // Help Parameter Dialog (Strict Rule 6.5)

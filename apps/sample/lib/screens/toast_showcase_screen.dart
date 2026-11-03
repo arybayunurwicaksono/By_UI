@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:by_ui/by_ui.dart';
 import '../models/app_theme_store.dart';
@@ -14,6 +14,7 @@ import '../widgets/by_showcase_preview_card.dart';
 import '../widgets/by_showcase_integration_banner.dart';
 import '../widgets/by_dynamic_border_controls.dart';
 import '../widgets/widget_params_dialog.dart';
+import '../widgets/by_code_dialog.dart';
 
 /// Interactive showcase screen for the ByToast component.
 class ToastShowcaseScreen extends StatefulWidget {
@@ -405,6 +406,46 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
     ByToast.clear();
   }
 
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final buffer = StringBuffer();
+    buffer.writeln('ByToast.show(');
+    buffer.writeln('  context,');
+    buffer.writeln("  title: 'Order Status',");
+    buffer.writeln(
+      "  message: 'Transaction completed. Tap or drag to view full details.',",
+    );
+    buffer.writeln('  icon: Icons.receipt_long_rounded,');
+    buffer.writeln('  position: $_position,');
+    buffer.writeln('  animationType: $_animationType,');
+    if (_backgroundOpacity < 1.0) {
+      buffer.writeln(
+        '  backgroundOpacity: ${_backgroundOpacity.toStringAsFixed(2)},',
+      );
+    }
+    if (_maxLines != 3) {
+      buffer.writeln('  maxLines: $_maxLines,');
+    }
+    if (_enableTapToDialog) {
+      buffer.writeln('  enableTapToExpand: true,');
+      buffer.writeln('  enableDragToExpand: true,');
+    }
+    buffer.writeln("  detailTitle: 'Transaction #1042',");
+    buffer.writeln(
+      "  detailMessage: 'Double Espresso x2\\nButter Croissant x1\\nTotal: Rp 78.000',",
+    );
+    buffer.write(');');
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'ByToast',
+      code: _generateCodeSnippet(),
+    );
+  }
+
   void _showByToastParams(BuildContext context) {
     showWidgetParametersDialog(
       context,
@@ -580,6 +621,7 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                 componentName: 'ByToast',
                 onReset: _resetToDefaults,
                 onOpenParams: () => _showByToastParams(context),
+                onViewCode: () => _showCodeDialog(context),
               ),
             ),
             drawer: const ByDrawer(activeComponent: 'ByToast'),
@@ -1433,11 +1475,7 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
     required IconData icon,
     required List<Widget> children,
   }) {
-    return ByShowcaseControlCard(
-      title: title,
-      icon: icon,
-      children: children,
-    );
+    return ByShowcaseControlCard(title: title, icon: icon, children: children);
   }
 
   Widget _buildChoiceChip({
@@ -1495,4 +1533,3 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
     );
   }
 }
-

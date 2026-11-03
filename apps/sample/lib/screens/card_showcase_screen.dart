@@ -11,6 +11,7 @@ import '../widgets/by_showcase_preset_card.dart';
 import '../widgets/by_showcase_preview_card.dart';
 import '../widgets/by_showcase_integration_banner.dart';
 import '../widgets/by_dynamic_border_controls.dart';
+import '../widgets/by_code_dialog.dart';
 
 /// Interactive showcase screen for the [ByCard] spatial and normal component.
 class CardShowcaseScreen extends StatefulWidget {
@@ -88,6 +89,63 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
       _sensorResumeDelayMs = 300;
       _sensorEntranceDurationMs = 400;
     });
+  }
+
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final buffer = StringBuffer();
+    if (_variant == ByCardVariant.dynamicSensor) {
+      buffer.writeln('ByCard.dynamicSensor(');
+      buffer.writeln('  colors: const [');
+      buffer.writeln('    Color(0xFF38BDF8),');
+      buffer.writeln('    Color(0xFF818CF8),');
+      buffer.writeln('    Color(0xFFC084FC),');
+      buffer.writeln('  ],');
+      buffer.writeln('  borderWidth: ${_borderWidth.toStringAsFixed(1)},');
+      buffer.writeln(
+        '  borderRadius: BorderRadius.circular(${_borderRadius.toInt()}),',
+      );
+      if (!_enableSensor) {
+        buffer.writeln('  enableSensor: false,');
+      }
+      if (!_enableHoverTilt) {
+        buffer.writeln('  enableHoverTilt: false,');
+      }
+      if (_enableInnerGlow) {
+        buffer.writeln('  enableInnerGlow: true,');
+        buffer.writeln(
+          '  innerGlowOpacity: ${_innerGlowOpacity.toStringAsFixed(1)},',
+        );
+      }
+      buffer.writeln('  child: YourContentWidget(),');
+      buffer.write(')');
+    } else if (_variant == ByCardVariant.gradient) {
+      buffer.writeln('ByCard.gradient(');
+      buffer.writeln('  colors: const [Color(0xFFF43F5E), Color(0xFFFB923C)],');
+      buffer.writeln('  borderWidth: ${_borderWidth.toStringAsFixed(1)},');
+      buffer.writeln(
+        '  borderRadius: BorderRadius.circular(${_borderRadius.toInt()}),',
+      );
+      buffer.writeln('  child: YourContentWidget(),');
+      buffer.write(')');
+    } else {
+      buffer.writeln('ByCard(');
+      buffer.writeln('  borderWidth: ${_borderWidth.toStringAsFixed(1)},');
+      buffer.writeln(
+        '  borderRadius: BorderRadius.circular(${_borderRadius.toInt()}),',
+      );
+      buffer.writeln('  child: YourContentWidget(),');
+      buffer.write(')');
+    }
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'ByCard',
+      code: _generateCodeSnippet(),
+    );
   }
 
   void _showByCardParams(BuildContext context) {
@@ -285,8 +343,6 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 )]['color']
                 as Color;
 
-
-
         // Dynamic dual-tone gradient based on custom selected Color A & Color B
         final borderGradient = LinearGradient(
           begin: Alignment.topLeft,
@@ -314,6 +370,7 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                 componentName: 'ByCard',
                 onReset: _resetToDefaults,
                 onOpenParams: () => _showByCardParams(context),
+                onViewCode: () => _showCodeDialog(context),
               ),
             ),
             drawer: const ByDrawer(activeComponent: 'ByCard'),
@@ -810,8 +867,9 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
               Builder(
                 builder: (context) {
                   final isCurrentBgLight = currentBg.computeLuminance() > 0.55;
-                  final effectiveTitleColor =
-                      isCurrentBgLight ? colors.textPrimary : Colors.white;
+                  final effectiveTitleColor = isCurrentBgLight
+                      ? colors.textPrimary
+                      : Colors.white;
                   final effectiveBodyColor = isCurrentBgLight
                       ? colors.textSecondary
                       : Colors.white.withValues(alpha: 0.85);
@@ -852,8 +910,9 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'Tap to switch color',
-                            style: AppTextStyle.captionBold
-                                .copyWith(color: colorA),
+                            style: AppTextStyle.captionBold.copyWith(
+                              color: colorA,
+                            ),
                           ),
                         ],
                       ),
@@ -912,10 +971,7 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
       metrics: [
         ByMetricBadge(label: 'Variant', value: _variant.name),
         ByMetricBadge(label: 'Background', value: currentBgName),
-        ByMetricBadge(
-          label: 'Sensor',
-          value: _enableSensor ? 'Active' : 'Off',
-        ),
+        ByMetricBadge(label: 'Sensor', value: _enableSensor ? 'Active' : 'Off'),
         ByMetricBadge(
           label: 'Hover Tilt',
           value: _enableHoverTilt ? 'Active' : 'Off',
@@ -930,15 +986,11 @@ class _CardShowcaseScreenState extends State<CardShowcaseScreen> {
           label: 'Border',
           value: '${_borderWidth.toStringAsFixed(1)}px',
         ),
-        ByMetricBadge(
-          label: 'Radius',
-          value: '${_borderRadius.toInt()}px',
-        ),
+        ByMetricBadge(label: 'Radius', value: '${_borderRadius.toInt()}px'),
         ByMetricBadge(label: 'Blur', value: '${_shadowBlur.toInt()}px'),
         ByMetricBadge(
           label: 'Vector',
-          value:
-              '(${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
+          value: '(${_tiltX.toStringAsFixed(2)}, ${_tiltY.toStringAsFixed(2)})',
         ),
         ByMetricBadge(
           label: 'Pulse Border',

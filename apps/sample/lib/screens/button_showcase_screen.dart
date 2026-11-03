@@ -14,6 +14,7 @@ import '../widgets/by_showcase_preset_card.dart';
 import '../widgets/by_showcase_preview_card.dart';
 import '../widgets/by_showcase_integration_banner.dart';
 import '../widgets/by_dynamic_border_controls.dart';
+import '../widgets/by_code_dialog.dart';
 
 /// Interactive showcase screen for the [ByButton] flagship button component.
 class ButtonShowcaseScreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
   // 3. Variant, Sizing & Geometry
   ByButtonVariant _variant = ByButtonVariant.filled;
   ByButtonSize _size = ByButtonSize.medium;
-  bool _isFullWidth = false;
+  bool _isFullWidth = true;
   double _customRadius = 28.0;
   double _customBorderWidth = 0.0;
   double? _customLoadingBorderWidth;
@@ -192,7 +193,10 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
           {'name': 'Silver Slate', 'color': const Color(0xFF94A3B8)},
         ];
 
-        final selectedBeamColors = [_pulseBorderConfig.colorA, _pulseBorderConfig.colorB];
+        final selectedBeamColors = [
+          _pulseBorderConfig.colorA,
+          _pulseBorderConfig.colorB,
+        ];
 
         final dynamicBorderConfig = _pulseBorderConfig.enabled
             ? ByDynamicBorder(
@@ -253,6 +257,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
                 componentName: 'ByButton',
                 onReset: _resetToDefaults,
                 onOpenParams: () => _showParamsDialog(context),
+                onViewCode: () => _showCodeDialog(context),
               ),
             ),
 
@@ -879,9 +884,9 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
                     ),
                     const SizedBox(height: 10),
                     ByShowcaseSwitchTile(
-                      title: 'Expand to Full Width (280px)',
+                      title: 'Full Width (Edge-to-Edge)',
                       subtitle:
-                          'Force fixed width constraint instead of intrinsic content wrap',
+                          'Expand button horizontally to fill container width (double.infinity)',
                       value: _isFullWidth,
                       onChanged: (val) {
                         setState(() {
@@ -1122,9 +1127,10 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
               ? _manualState.name.toUpperCase()
               : (_isLoading ? 'LOADING' : 'IDLE'),
         ),
+        ByMetricBadge(label: 'Variant', value: _variant.name.toUpperCase()),
         ByMetricBadge(
-          label: 'Variant',
-          value: _variant.name.toUpperCase(),
+          label: 'Width',
+          value: _isFullWidth ? 'Full Width' : 'Wrap Content',
         ),
         ByMetricBadge(
           label: 'Radius',
@@ -1140,10 +1146,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
             ByButtonSize.large => 'Large (56px)',
           },
         ),
-        ByMetricBadge(
-          label: 'Async',
-          value: _useAutoAsync ? 'Active' : 'Sync',
-        ),
+        ByMetricBadge(label: 'Async', value: _useAutoAsync ? 'Active' : 'Sync'),
         ByMetricBadge(
           label: 'Idle Border',
           value: '${_customBorderWidth.toStringAsFixed(1)}px',
@@ -1341,7 +1344,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
         child: ByButton(
           variant: _variant,
           size: _size,
-          width: _isFullWidth ? 280.0 : null,
+          width: _isFullWidth ? double.infinity : null,
           borderRadius: BorderRadius.circular(_customRadius),
           borderWidth: customBorderWidth,
           loadingBorderWidth: _customLoadingBorderWidth,
@@ -1449,7 +1452,6 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
     );
   }
 
-
   // ── RESET CONFIGURATION TO DEFAULTS ─────────────────────────────────────
   void _resetToDefaults() {
     setState(() {
@@ -1463,7 +1465,7 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
       _showBadge = false;
       _variant = ByButtonVariant.filled;
       _size = ByButtonSize.medium;
-      _isFullWidth = false;
+      _isFullWidth = true;
       _customRadius = 28.0;
       _selectedBgColorIndex = 0;
       _selectedFgColorIndex = 0;
@@ -1488,6 +1490,67 @@ class _ButtonShowcaseScreenState extends State<ButtonShowcaseScreen> {
       _enableAmbientPulse = false;
       _activePresetIndex = 0;
     });
+  }
+
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final buffer = StringBuffer();
+    buffer.writeln('ByButton(');
+    buffer.writeln('  variant: $_variant,');
+    buffer.writeln('  size: $_size,');
+    if (!_isEnabled) {
+      buffer.writeln('  isEnabled: false,');
+    }
+    if (_isFullWidth) {
+      buffer.writeln('  width: double.infinity,');
+    }
+    if (_customRadius != 28.0) {
+      buffer.writeln('  borderRadius: ${_customRadius.toStringAsFixed(1)},');
+    }
+    if (_customBorderWidth > 0.0) {
+      buffer.writeln(
+        '  borderWidth: ${_customBorderWidth.toStringAsFixed(1)},',
+      );
+    }
+    if (_customLoadingBorderWidth != null) {
+      buffer.writeln(
+        '  loadingBorderWidth: ${_customLoadingBorderWidth!.toStringAsFixed(1)},',
+      );
+    }
+    if (_enableStateTransitionPulse) {
+      buffer.writeln('  enableStateTransitionPulse: true,');
+    }
+    if (_enableAmbientPulse) {
+      buffer.writeln('  enableAmbientPulse: true,');
+      buffer.writeln(
+        '  periodicPulseInterval: const Duration(seconds: ${_periodicIntervalSeconds.toInt()}),',
+      );
+    }
+    if (_showPrefix) {
+      buffer.writeln('  prefix: const Icon(Icons.bolt_rounded, size: 18),');
+    }
+    if (_showSuffix) {
+      buffer.writeln(
+        '  suffix: const Icon(Icons.arrow_forward_rounded, size: 16),',
+      );
+    }
+    if (_showBadge) {
+      buffer.writeln("  badge: 'NEW',");
+    }
+    buffer.writeln('  onPressed: () async {');
+    buffer.writeln('    // Handle action or async operation');
+    buffer.writeln('  },');
+    buffer.writeln("  child: const Text('$_buttonLabel'),");
+    buffer.write(')');
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'ByButton',
+      code: _generateCodeSnippet(),
+    );
   }
 
   // ── WIDGET PARAMETERS REFERENCE DIALOG ──────────────────────────────────

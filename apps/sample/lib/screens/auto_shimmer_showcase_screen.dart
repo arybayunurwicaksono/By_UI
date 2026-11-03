@@ -14,13 +14,15 @@ import '../widgets/by_showcase_choice_chip.dart';
 import '../widgets/by_showcase_slider_tile.dart';
 import '../widgets/by_color_palette.dart';
 import '../widgets/widget_params_dialog.dart';
+import '../widgets/by_code_dialog.dart';
 
 /// Interactive showcase screen for [ByAutoShimmer], [ByBone], and [ByShimmerScope].
 class AutoShimmerShowcaseScreen extends StatefulWidget {
   const AutoShimmerShowcaseScreen({super.key});
 
   @override
-  State<AutoShimmerShowcaseScreen> createState() => _AutoShimmerShowcaseScreenState();
+  State<AutoShimmerShowcaseScreen> createState() =>
+      _AutoShimmerShowcaseScreenState();
 }
 
 class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
@@ -64,7 +66,7 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
   double _dynamicBorderWidth = 2.0;
   double _dynamicBorderGlowBlur = 10.0;
 
-  // Color Swatch Selection 
+  // Color Swatch Selection
   int _selectedBaseColorIndex = 0;
   int _selectedHighlightColorIndex = 0;
   int _selectedWaveGradientIndex = 0;
@@ -114,9 +116,7 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
     ShowcaseThemePreset(
       name: 'Sunset Glow Wave',
       color: AppColors.warning,
-      gradient: LinearGradient(
-        colors: [AppColors.warning, Colors.pinkAccent],
-      ),
+      gradient: LinearGradient(colors: [AppColors.warning, Colors.pinkAccent]),
     ),
     ShowcaseThemePreset(
       name: 'Emerald Matrix Wave',
@@ -153,7 +153,8 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
             ? BySkeletonStyle.cyberGlass
             : (isDark ? BySkeletonStyle.darkSlate : BySkeletonStyle.lightSlate);
 
-        final customBaseColor = _baseColorOptions[_selectedBaseColorIndex].color;
+        final customBaseColor =
+            _baseColorOptions[_selectedBaseColorIndex].color;
         final customHighlightColor =
             _highlightColorOptions[_selectedHighlightColorIndex].color;
         final laserGradientPreset =
@@ -167,11 +168,7 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
           final lg = selectedWaveGradientPreset.gradient as LinearGradient;
           final effectiveBase = customBaseColor ?? baseResolved.baseColor;
           effectiveShimmerGradient = LinearGradient(
-            colors: [
-              effectiveBase,
-              ...lg.colors,
-              effectiveBase,
-            ],
+            colors: [effectiveBase, ...lg.colors, effectiveBase],
           );
         }
 
@@ -199,7 +196,10 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                   componentName: 'ByAutoShimmer',
                   titleSuffix: _isMaximized ? 'Live Preview' : 'Showcase',
                   onReset: _isMaximized ? null : _resetToDefaults,
-                  onOpenParams: _isMaximized ? null : () => _showParamsDialog(context),
+                  onOpenParams: _isMaximized
+                      ? null
+                      : () => _showParamsDialog(context),
+                  onViewCode: () => _showCodeDialog(context),
                   extraActions: _isMaximized
                       ? [
                           IconButton(
@@ -220,7 +220,8 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                               color: colors.textPrimary,
                               size: 22,
                             ),
-                            onPressed: () => setState(() => _isMaximized = false),
+                            onPressed: () =>
+                                setState(() => _isMaximized = false),
                           ),
                         ]
                       : null,
@@ -232,7 +233,8 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                       colors: colors,
                       isDark: isDark,
                       style: skeletonStyle,
-                      laserColors: laserGradientPreset.colors ??
+                      laserColors:
+                          laserGradientPreset.colors ??
                           const [AppColors.cyanAccent, AppColors.primary],
                     )
                   : ListView(
@@ -242,516 +244,601 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                         12,
                         24,
                       ),
-              children: [
-                // ── LAYER 1: Active Configuration Preview Card ────────────
-                ByShowcasePreviewCard(
-                  icon: Icons.auto_awesome_rounded,
-                  subtitle: 'Live metrics for ByAutoShimmer configuration state',
-                  metrics: [
-                    ByMetricBadge(
-                      label: 'State',
-                      value: _isLoading ? 'LOADING' : 'READY',
-                    ),
-                    ByMetricBadge(
-                      label: 'Variant',
-                      value: _selectedVariantIndex == 1 ? 'CYBER GLASS' : 'SOLID SLATE',
-                    ),
-                    ByMetricBadge(
-                      label: 'Radius',
-                      value: '${_containerRadius.toInt()}px',
-                    ),
-                    ByMetricBadge(
-                      label: 'Shimmer',
-                      value: '${_shimmerDurationMs.toInt()}ms',
-                    ),
-                    ByMetricBadge(
-                      label: 'Laser Glow',
-                      value: '${_dynamicBorderGlowBlur.toInt()}px',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // ── LAYER 2: Preset Example Card ──────────────────────────
-                ByShowcasePresetCard(
-                  presets: [
-                    ByShowcasePresetItem(
-                      label: 'Standard Slate',
-                      themeColor: AppColors.primary,
-                      isSelected: _activePresetIndex == 0,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 0;
-                          _isLoading = true;
-                          _direction = ByShimmerDirection.ltr;
-                          _shimmerWaveWidth = 1.5;
-                          _selectedVariantIndex = 0;
-                          _enablePulse = true;
-                          _enableLaserReveal = true;
-                          _containerRadius = 16.0;
-                          _boneRadius = 6.0;
-                          _selectedBaseColorIndex = 0;
-                          _selectedHighlightColorIndex = 0;
-                          _selectedWaveGradientIndex = 0;
-                          _selectedLaserGradientIndex = 0;
-                          _shimmerDurationMs = 1500.0;
-                        });
-                      },
-                    ),
-                    ByShowcasePresetItem(
-                      label: 'Cyber Blueprint',
-                      themeColor: AppColors.primaryAccent,
-                      isSelected: _activePresetIndex == 1,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 1;
-                          _isLoading = true;
-                          _direction = ByShimmerDirection.diagonal;
-                          _shimmerWaveWidth = 1.6;
-                          _selectedVariantIndex = 1;
-                          _enablePulse = true;
-                          _enableLaserReveal = true;
-                          _containerRadius = 18.0;
-                          _boneRadius = 8.0;
-                          _selectedBaseColorIndex = 2;
-                          _selectedHighlightColorIndex = 1;
-                          _selectedWaveGradientIndex = 1;
-                          _selectedLaserGradientIndex = 1;
-                          _shimmerDurationMs = 1200.0;
-                        });
-                      },
-                    ),
-                    ByShowcasePresetItem(
-                      label: 'Emerald Matrix',
-                      themeColor: AppColors.success,
-                      isSelected: _activePresetIndex == 2,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 2;
-                          _isLoading = true;
-                          _direction = ByShimmerDirection.ttb;
-                          _shimmerWaveWidth = 1.4;
-                          _selectedVariantIndex = 0;
-                          _enablePulse = true;
-                          _enableLaserReveal = true;
-                          _containerRadius = 14.0;
-                          _boneRadius = 6.0;
-                          _selectedBaseColorIndex = 4;
-                          _selectedHighlightColorIndex = 4;
-                          _selectedWaveGradientIndex = 3;
-                          _selectedLaserGradientIndex = 2;
-                          _shimmerDurationMs = 1000.0;
-                        });
-                      },
-                    ),
-                    ByShowcasePresetItem(
-                      label: 'Instant Content',
-                      themeColor: AppColors.info,
-                      isSelected: _activePresetIndex == 3,
-                      onTap: () {
-                        setState(() {
-                          _activePresetIndex = 3;
-                          _isLoading = false;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // ── LAYER 3: Cross-Component Integration Banner ───────────
-                const ByShowcaseIntegrationBanner(
-                  componentName: 'ByDynamicBorder',
-                  description:
-                      'ByAutoShimmer seamlessly orchestrates ByDynamicBorder for active perimeter pulses and laser reveal transitions.',
-                ),
-                const SizedBox(height: 14),
-
-                // ── LAYER 4: Standalone Widget Display (Hero Live Preview) ─
-                _buildHeroPreview(
-                  colors: colors,
-                  isDark: isDark,
-                  style: skeletonStyle,
-                  laserColors: laserGradientPreset.colors ??
-                      const [AppColors.cyanAccent, AppColors.primary],
-                ),
-                const SizedBox(height: 14),
-
-                // ── LAYER 5: Numbered Control Cards ───────────────────────
-                ByShowcaseControlCard(
-                  title: '1. STATE & ANIMATION TRIGGERS',
-                  icon: Icons.bolt_rounded,
-                  children: [
-                    ByShowcaseSwitchTile(
-                      title: 'Data Fetching State (isLoading)',
-                      subtitle:
-                          'Toggle between the active skeleton placeholder and live content',
-                      value: _isLoading,
-                      onChanged: (val) => setState(() => _isLoading = val),
-                    ),
-                    const SizedBox(height: 8),
-                    ByShowcaseSwitchTile(
-                      title: 'Perimeter Dynamic Border Pulse',
-                      subtitle:
-                          'Pulses a traveling laser beam along the outer perimeter while loading',
-                      value: _enablePulse,
-                      onChanged: (val) => setState(() => _enablePulse = val),
-                    ),
-                    const SizedBox(height: 8),
-                    ByShowcaseSwitchTile(
-                      title: 'Laser Beam Materialize Reveal',
-                      subtitle:
-                          'Executes a fast perimeter laser sweep when morphing into live content',
-                      value: _enableLaserReveal,
-                      onChanged: (val) => setState(() => _enableLaserReveal = val),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '2. GEOMETRY & CORNERS',
-                  icon: Icons.rounded_corner_rounded,
-                  children: [
-                    ByShowcaseSliderTile(
-                      label: 'Container Corner Radius:',
-                      valueText: '${_containerRadius.toInt()}px',
-                      value: _containerRadius,
-                      min: 0.0,
-                      max: 32.0,
-                      divisions: 32,
-                      onChanged: (val) => setState(() => _containerRadius = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Bone Corner Radius:',
-                      valueText: '${_boneRadius.toInt()}px',
-                      value: _boneRadius,
-                      min: 0.0,
-                      max: 20.0,
-                      divisions: 20,
-                      onChanged: (val) => setState(() => _boneRadius = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Container Padding:',
-                      valueText: '${_containerPadding.toInt()}px',
-                      value: _containerPadding,
-                      min: 8.0,
-                      max: 28.0,
-                      divisions: 20,
-                      onChanged: (val) => setState(() => _containerPadding = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Border Stroke Width:',
-                      valueText: '${_containerBorderWidth.toStringAsFixed(1)}px',
-                      value: _containerBorderWidth,
-                      min: 0.0,
-                      max: 3.0,
-                      divisions: 6,
-                      onChanged: (val) => setState(() => _containerBorderWidth = val),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '3. COLOR PALETTES & THEMES',
-                  icon: Icons.palette_rounded,
-                  children: [
-                    Text(
-                      'Skeleton Bone Variant:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          ByShowcaseChoiceChip(
-                            label: 'Solid Slate',
-                            isSelected: _selectedVariantIndex == 0,
-                            onTap: () => setState(() => _selectedVariantIndex = 0),
-                          ),
-                          const SizedBox(width: 8),
-                          ByShowcaseChoiceChip(
-                            label: 'Cyber Glassmorphic',
-                            isSelected: _selectedVariantIndex == 1,
-                            onTap: () => setState(() => _selectedVariantIndex = 1),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Bone Base Surface Color:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: _baseColorOptions,
-                      selectedIndex: _selectedBaseColorIndex,
-                      onSelected: (idx) => setState(() => _selectedBaseColorIndex = idx),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Shimmer Traveling Highlight Color:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromOptions(
-                      options: _highlightColorOptions,
-                      selectedIndex: _selectedHighlightColorIndex,
-                      onSelected: (idx) =>
-                          setState(() => _selectedHighlightColorIndex = idx),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Shimmer Multi-Tone Wave Gradient (Optional):',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromPresets(
-                      presets: _waveGradientOptions,
-                      selectedIndex: _selectedWaveGradientIndex,
-                      onSelected: (idx) =>
-                          setState(() => _selectedWaveGradientIndex = idx),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Perimeter Dynamic Laser Colors:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByColorPalette.fromPresets(
-                      presets: AppColors.appBarSensorGradients,
-                      selectedIndex: _selectedLaserGradientIndex,
-                      onSelected: (idx) =>
-                          setState(() => _selectedLaserGradientIndex = idx),
-                    ),
-                    const SizedBox(height: 6),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '4. SHIMMER OPTICS & TIMING',
-                  icon: Icons.speed_rounded,
-                  children: [
-                    Text(
-                      'Shimmer Wave Direction:',
-                      style: AppTextStyle.fieldLabel
-                          .copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          ByShowcaseChoiceChip(
-                            label: 'Left to Right (LTR)',
-                            isSelected: _direction == ByShimmerDirection.ltr,
-                            onTap: () => setState(
-                                () => _direction = ByShimmerDirection.ltr),
-                          ),
-                          const SizedBox(width: 8),
-                          ByShowcaseChoiceChip(
-                            label: 'Right to Left (RTL)',
-                            isSelected: _direction == ByShimmerDirection.rtl,
-                            onTap: () => setState(
-                                () => _direction = ByShimmerDirection.rtl),
-                          ),
-                          const SizedBox(width: 8),
-                          ByShowcaseChoiceChip(
-                            label: 'Top to Bottom (TTB)',
-                            isSelected: _direction == ByShimmerDirection.ttb,
-                            onTap: () => setState(
-                                () => _direction = ByShimmerDirection.ttb),
-                          ),
-                          const SizedBox(width: 8),
-                          ByShowcaseChoiceChip(
-                            label: 'Diagonal',
-                            isSelected:
-                                _direction == ByShimmerDirection.diagonal,
-                            onTap: () => setState(
-                                () => _direction = ByShimmerDirection.diagonal),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ByShowcaseSliderTile(
-                      label: 'Shimmer Wave Width:',
-                      valueText: '${_shimmerWaveWidth.toStringAsFixed(2)}x',
-                      value: _shimmerWaveWidth,
-                      min: 0.5,
-                      max: 2.5,
-                      divisions: 20,
-                      onChanged: (val) =>
-                          setState(() => _shimmerWaveWidth = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Shimmer Sweep Duration:',
-                      valueText: '${_shimmerDurationMs.toInt()}ms',
-                      value: _shimmerDurationMs,
-                      min: 600.0,
-                      max: 3000.0,
-                      divisions: 24,
-                      onChanged: (val) => setState(() => _shimmerDurationMs = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Laser Dynamic Border Width:',
-                      valueText: '${_dynamicBorderWidth.toStringAsFixed(1)}px',
-                      value: _dynamicBorderWidth,
-                      min: 1.0,
-                      max: 4.0,
-                      divisions: 6,
-                      onChanged: (val) => setState(() => _dynamicBorderWidth = val),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShowcaseSliderTile(
-                      label: 'Laser Glow Blur:',
-                      valueText: '${_dynamicBorderGlowBlur.toInt()}px',
-                      value: _dynamicBorderGlowBlur,
-                      min: 4.0,
-                      max: 20.0,
-                      divisions: 16,
-                      onChanged: (val) => setState(() => _dynamicBorderGlowBlur = val),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '5. SYNCHRONIZED MULTI-CARD SHIMMER SCOPE',
-                  icon: Icons.sync_rounded,
-                  children: [
-                    Text(
-                      'Ancestor ByShimmerScope synchronizing 3 cards in uniform clock phase:',
-                      style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                    ),
-                    const SizedBox(height: 10),
-                    ByShimmerScope(
-                      duration: Duration(milliseconds: _shimmerDurationMs.toInt()),
-                      child: Row(
-                        children: [
-                          Expanded(child: _buildMiniSkeletonCard(colors)),
-                          const SizedBox(width: 8),
-                          Expanded(child: _buildMiniSkeletonCard(colors)),
-                          const SizedBox(width: 8),
-                          Expanded(child: _buildMiniSkeletonCard(colors)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                ByShowcaseControlCard(
-                  title: '6. CONVENIENCE PRESET FACTORIES',
-                  icon: Icons.auto_awesome_rounded,
-                  children: [
-                    Text(
-                      'Ready-to-use factory constructors without manual skeleton boilerplate:',
-                      style: AppTextStyle.caption.copyWith(color: colors.textMuted),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'ByAutoShimmer.card:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByAutoShimmer.card(
-                      isLoading: _isLoading,
-                      direction: _direction,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: colors.cardBg,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: colors.border),
+                      children: [
+                        // ── LAYER 1: Active Configuration Preview Card ────────────
+                        ByShowcasePreviewCard(
+                          icon: Icons.auto_awesome_rounded,
+                          subtitle:
+                              'Live metrics for ByAutoShimmer configuration state',
+                          metrics: [
+                            ByMetricBadge(
+                              label: 'State',
+                              value: _isLoading ? 'LOADING' : 'READY',
+                            ),
+                            ByMetricBadge(
+                              label: 'Variant',
+                              value: _selectedVariantIndex == 1
+                                  ? 'CYBER GLASS'
+                                  : 'SOLID SLATE',
+                            ),
+                            ByMetricBadge(
+                              label: 'Radius',
+                              value: '${_containerRadius.toInt()}px',
+                            ),
+                            ByMetricBadge(
+                              label: 'Shimmer',
+                              value: '${_shimmerDurationMs.toInt()}ms',
+                            ),
+                            ByMetricBadge(
+                              label: 'Laser Glow',
+                              value: '${_dynamicBorderGlowBlur.toInt()}px',
+                            ),
+                          ],
                         ),
-                        child: Row(
+                        const SizedBox(height: 12),
+
+                        // ── LAYER 2: Preset Example Card ──────────────────────────
+                        ByShowcasePresetCard(
+                          presets: [
+                            ByShowcasePresetItem(
+                              label: 'Standard Slate',
+                              themeColor: AppColors.primary,
+                              isSelected: _activePresetIndex == 0,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 0;
+                                  _isLoading = true;
+                                  _direction = ByShimmerDirection.ltr;
+                                  _shimmerWaveWidth = 1.5;
+                                  _selectedVariantIndex = 0;
+                                  _enablePulse = true;
+                                  _enableLaserReveal = true;
+                                  _containerRadius = 16.0;
+                                  _boneRadius = 6.0;
+                                  _selectedBaseColorIndex = 0;
+                                  _selectedHighlightColorIndex = 0;
+                                  _selectedWaveGradientIndex = 0;
+                                  _selectedLaserGradientIndex = 0;
+                                  _shimmerDurationMs = 1500.0;
+                                });
+                              },
+                            ),
+                            ByShowcasePresetItem(
+                              label: 'Cyber Blueprint',
+                              themeColor: AppColors.primaryAccent,
+                              isSelected: _activePresetIndex == 1,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 1;
+                                  _isLoading = true;
+                                  _direction = ByShimmerDirection.diagonal;
+                                  _shimmerWaveWidth = 1.6;
+                                  _selectedVariantIndex = 1;
+                                  _enablePulse = true;
+                                  _enableLaserReveal = true;
+                                  _containerRadius = 18.0;
+                                  _boneRadius = 8.0;
+                                  _selectedBaseColorIndex = 2;
+                                  _selectedHighlightColorIndex = 1;
+                                  _selectedWaveGradientIndex = 1;
+                                  _selectedLaserGradientIndex = 1;
+                                  _shimmerDurationMs = 1200.0;
+                                });
+                              },
+                            ),
+                            ByShowcasePresetItem(
+                              label: 'Emerald Matrix',
+                              themeColor: AppColors.success,
+                              isSelected: _activePresetIndex == 2,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 2;
+                                  _isLoading = true;
+                                  _direction = ByShimmerDirection.ttb;
+                                  _shimmerWaveWidth = 1.4;
+                                  _selectedVariantIndex = 0;
+                                  _enablePulse = true;
+                                  _enableLaserReveal = true;
+                                  _containerRadius = 14.0;
+                                  _boneRadius = 6.0;
+                                  _selectedBaseColorIndex = 4;
+                                  _selectedHighlightColorIndex = 4;
+                                  _selectedWaveGradientIndex = 3;
+                                  _selectedLaserGradientIndex = 2;
+                                  _shimmerDurationMs = 1000.0;
+                                });
+                              },
+                            ),
+                            ByShowcasePresetItem(
+                              label: 'Instant Content',
+                              themeColor: AppColors.info,
+                              isSelected: _activePresetIndex == 3,
+                              onTap: () {
+                                setState(() {
+                                  _activePresetIndex = 3;
+                                  _isLoading = false;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // ── LAYER 3: Cross-Component Integration Banner ───────────
+                        const ByShowcaseIntegrationBanner(
+                          componentName: 'ByDynamicBorder',
+                          description:
+                              'ByAutoShimmer seamlessly orchestrates ByDynamicBorder for active perimeter pulses and laser reveal transitions.',
+                        ),
+                        const SizedBox(height: 14),
+
+                        // ── LAYER 4: Standalone Widget Display (Hero Live Preview) ─
+                        _buildHeroPreview(
+                          colors: colors,
+                          isDark: isDark,
+                          style: skeletonStyle,
+                          laserColors:
+                              laserGradientPreset.colors ??
+                              const [AppColors.cyanAccent, AppColors.primary],
+                        ),
+                        const SizedBox(height: 14),
+
+                        // ── LAYER 5: Numbered Control Cards ───────────────────────
+                        ByShowcaseControlCard(
+                          title: '1. STATE & ANIMATION TRIGGERS',
+                          icon: Icons.bolt_rounded,
                           children: [
-                            const Icon(Icons.credit_card_rounded, color: AppColors.primary, size: 36),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            ByShowcaseSwitchTile(
+                              title: 'Data Fetching State (isLoading)',
+                              subtitle:
+                                  'Toggle between the active skeleton placeholder and live content',
+                              value: _isLoading,
+                              onChanged: (val) =>
+                                  setState(() => _isLoading = val),
+                            ),
+                            const SizedBox(height: 8),
+                            ByShowcaseSwitchTile(
+                              title: 'Perimeter Dynamic Border Pulse',
+                              subtitle:
+                                  'Pulses a traveling laser beam along the outer perimeter while loading',
+                              value: _enablePulse,
+                              onChanged: (val) =>
+                                  setState(() => _enablePulse = val),
+                            ),
+                            const SizedBox(height: 8),
+                            ByShowcaseSwitchTile(
+                              title: 'Laser Beam Materialize Reveal',
+                              subtitle:
+                                  'Executes a fast perimeter laser sweep when morphing into live content',
+                              value: _enableLaserReveal,
+                              onChanged: (val) =>
+                                  setState(() => _enableLaserReveal = val),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '2. GEOMETRY & CORNERS',
+                          icon: Icons.rounded_corner_rounded,
+                          children: [
+                            ByShowcaseSliderTile(
+                              label: 'Container Corner Radius:',
+                              valueText: '${_containerRadius.toInt()}px',
+                              value: _containerRadius,
+                              min: 0.0,
+                              max: 32.0,
+                              divisions: 32,
+                              onChanged: (val) =>
+                                  setState(() => _containerRadius = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Bone Corner Radius:',
+                              valueText: '${_boneRadius.toInt()}px',
+                              value: _boneRadius,
+                              min: 0.0,
+                              max: 20.0,
+                              divisions: 20,
+                              onChanged: (val) =>
+                                  setState(() => _boneRadius = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Container Padding:',
+                              valueText: '${_containerPadding.toInt()}px',
+                              value: _containerPadding,
+                              min: 8.0,
+                              max: 28.0,
+                              divisions: 20,
+                              onChanged: (val) =>
+                                  setState(() => _containerPadding = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Border Stroke Width:',
+                              valueText:
+                                  '${_containerBorderWidth.toStringAsFixed(1)}px',
+                              value: _containerBorderWidth,
+                              min: 0.0,
+                              max: 3.0,
+                              divisions: 6,
+                              onChanged: (val) =>
+                                  setState(() => _containerBorderWidth = val),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '3. COLOR PALETTES & THEMES',
+                          icon: Icons.palette_rounded,
+                          children: [
+                            Text(
+                              'Skeleton Bone Variant:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
                                 children: [
-                                  Text(
-                                    'Platinum Rewards Card',
-                                    style: AppTextStyle.body.copyWith(
-                                      color: colors.textPrimary,
-                                      fontWeight: FontWeight.bold,
+                                  ByShowcaseChoiceChip(
+                                    label: 'Solid Slate',
+                                    isSelected: _selectedVariantIndex == 0,
+                                    onTap: () => setState(
+                                      () => _selectedVariantIndex = 0,
                                     ),
                                   ),
-                                  Text(
-                                    '•••• 4242 — Active',
-                                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                                  const SizedBox(width: 8),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Cyber Glassmorphic',
+                                    isSelected: _selectedVariantIndex == 1,
+                                    onTap: () => setState(
+                                      () => _selectedVariantIndex = 1,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'Bone Base Surface Color:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByColorPalette.fromOptions(
+                              options: _baseColorOptions,
+                              selectedIndex: _selectedBaseColorIndex,
+                              onSelected: (idx) =>
+                                  setState(() => _selectedBaseColorIndex = idx),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'Shimmer Traveling Highlight Color:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByColorPalette.fromOptions(
+                              options: _highlightColorOptions,
+                              selectedIndex: _selectedHighlightColorIndex,
+                              onSelected: (idx) => setState(
+                                () => _selectedHighlightColorIndex = idx,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'Shimmer Multi-Tone Wave Gradient (Optional):',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByColorPalette.fromPresets(
+                              presets: _waveGradientOptions,
+                              selectedIndex: _selectedWaveGradientIndex,
+                              onSelected: (idx) => setState(
+                                () => _selectedWaveGradientIndex = idx,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'Perimeter Dynamic Laser Colors:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByColorPalette.fromPresets(
+                              presets: AppColors.appBarSensorGradients,
+                              selectedIndex: _selectedLaserGradientIndex,
+                              onSelected: (idx) => setState(
+                                () => _selectedLaserGradientIndex = idx,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
                           ],
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'ByAutoShimmer.listTile:',
-                      style: AppTextStyle.fieldLabel.copyWith(color: colors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    ByAutoShimmer.listTile(
-                      isLoading: _isLoading,
-                      direction: _direction,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: colors.cardBg,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: colors.border),
-                        ),
-                        child: Row(
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '4. SHIMMER OPTICS & TIMING',
+                          icon: Icons.speed_rounded,
                           children: [
-                            CircleAvatar(
-                              backgroundColor: AppColors.cyanAccent.withValues(alpha: 0.2),
-                              child: const Icon(Icons.person_rounded, color: AppColors.cyanAccent),
+                            Text(
+                              'Shimmer Wave Direction:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            const SizedBox(height: 8),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
                                 children: [
-                                  Text(
-                                    'Jane Doe (Lead Architect)',
-                                    style: AppTextStyle.body.copyWith(color: colors.textPrimary),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Left to Right (LTR)',
+                                    isSelected:
+                                        _direction == ByShimmerDirection.ltr,
+                                    onTap: () => setState(
+                                      () => _direction = ByShimmerDirection.ltr,
+                                    ),
                                   ),
-                                  Text(
-                                    'Online 5m ago',
-                                    style: AppTextStyle.caption.copyWith(color: colors.textMuted),
+                                  const SizedBox(width: 8),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Right to Left (RTL)',
+                                    isSelected:
+                                        _direction == ByShimmerDirection.rtl,
+                                    onTap: () => setState(
+                                      () => _direction = ByShimmerDirection.rtl,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Top to Bottom (TTB)',
+                                    isSelected:
+                                        _direction == ByShimmerDirection.ttb,
+                                    onTap: () => setState(
+                                      () => _direction = ByShimmerDirection.ttb,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ByShowcaseChoiceChip(
+                                    label: 'Diagonal',
+                                    isSelected:
+                                        _direction ==
+                                        ByShimmerDirection.diagonal,
+                                    onTap: () => setState(
+                                      () => _direction =
+                                          ByShimmerDirection.diagonal,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+                            const SizedBox(height: 12),
+                            ByShowcaseSliderTile(
+                              label: 'Shimmer Wave Width:',
+                              valueText:
+                                  '${_shimmerWaveWidth.toStringAsFixed(2)}x',
+                              value: _shimmerWaveWidth,
+                              min: 0.5,
+                              max: 2.5,
+                              divisions: 20,
+                              onChanged: (val) =>
+                                  setState(() => _shimmerWaveWidth = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Shimmer Sweep Duration:',
+                              valueText: '${_shimmerDurationMs.toInt()}ms',
+                              value: _shimmerDurationMs,
+                              min: 600.0,
+                              max: 3000.0,
+                              divisions: 24,
+                              onChanged: (val) =>
+                                  setState(() => _shimmerDurationMs = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Laser Dynamic Border Width:',
+                              valueText:
+                                  '${_dynamicBorderWidth.toStringAsFixed(1)}px',
+                              value: _dynamicBorderWidth,
+                              min: 1.0,
+                              max: 4.0,
+                              divisions: 6,
+                              onChanged: (val) =>
+                                  setState(() => _dynamicBorderWidth = val),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShowcaseSliderTile(
+                              label: 'Laser Glow Blur:',
+                              valueText: '${_dynamicBorderGlowBlur.toInt()}px',
+                              value: _dynamicBorderGlowBlur,
+                              min: 4.0,
+                              max: 20.0,
+                              divisions: 16,
+                              onChanged: (val) =>
+                                  setState(() => _dynamicBorderGlowBlur = val),
+                            ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '5. SYNCHRONIZED MULTI-CARD SHIMMER SCOPE',
+                          icon: Icons.sync_rounded,
+                          children: [
+                            Text(
+                              'Ancestor ByShimmerScope synchronizing 3 cards in uniform clock phase:',
+                              style: AppTextStyle.caption.copyWith(
+                                color: colors.textMuted,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ByShimmerScope(
+                              duration: Duration(
+                                milliseconds: _shimmerDurationMs.toInt(),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMiniSkeletonCard(colors),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _buildMiniSkeletonCard(colors),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _buildMiniSkeletonCard(colors),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        ByShowcaseControlCard(
+                          title: '6. CONVENIENCE PRESET FACTORIES',
+                          icon: Icons.auto_awesome_rounded,
+                          children: [
+                            Text(
+                              'Ready-to-use factory constructors without manual skeleton boilerplate:',
+                              style: AppTextStyle.caption.copyWith(
+                                color: colors.textMuted,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'ByAutoShimmer.card:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByAutoShimmer.card(
+                              isLoading: _isLoading,
+                              direction: _direction,
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: colors.cardBg,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: colors.border),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.credit_card_rounded,
+                                      color: AppColors.primary,
+                                      size: 36,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Platinum Rewards Card',
+                                            style: AppTextStyle.body.copyWith(
+                                              color: colors.textPrimary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            '•••• 4242 — Active',
+                                            style: AppTextStyle.caption
+                                                .copyWith(
+                                                  color: colors.textMuted,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'ByAutoShimmer.listTile:',
+                              style: AppTextStyle.fieldLabel.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ByAutoShimmer.listTile(
+                              isLoading: _isLoading,
+                              direction: _direction,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colors.cardBg,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: colors.border),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: AppColors.cyanAccent
+                                          .withValues(alpha: 0.2),
+                                      child: const Icon(
+                                        Icons.person_rounded,
+                                        color: AppColors.cyanAccent,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Jane Doe (Lead Architect)',
+                                            style: AppTextStyle.body.copyWith(
+                                              color: colors.textPrimary,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Online 5m ago',
+                                            style: AppTextStyle.caption
+                                                .copyWith(
+                                                  color: colors.textMuted,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
             ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
   }
 
   void _resetToDefaults() {
@@ -777,6 +864,44 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
     });
   }
 
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final buffer = StringBuffer();
+    buffer.writeln('ByAutoShimmer(');
+    buffer.writeln('  isLoading: _isLoading,');
+    buffer.writeln('  direction: $_direction,');
+    buffer.writeln(
+      '  shimmerDuration: const Duration(milliseconds: ${_shimmerDurationMs.toInt()}),',
+    );
+    buffer.writeln(
+      '  shimmerWaveWidth: ${_shimmerWaveWidth.toStringAsFixed(2)},',
+    );
+    if (_enablePulse) {
+      buffer.writeln('  enableDynamicBorderPulse: true,');
+    }
+    if (!_enableLaserReveal) {
+      buffer.writeln('  enableLaserReveal: false,');
+    }
+    buffer.writeln('  style: const BySkeletonStyle(');
+    buffer.writeln('    shimmerGradient: LinearGradient(');
+    buffer.writeln(
+      '      colors: [Color(0xFF1E293B), Color(0xFF38BDF8), Color(0xFF1E293B)],',
+    );
+    buffer.writeln('    ),');
+    buffer.writeln('  ),');
+    buffer.writeln('  child: YourCardWidget(),');
+    buffer.write(')');
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'ByAutoShimmer',
+      code: _generateCodeSnippet(),
+    );
+  }
+
   void _showParamsDialog(BuildContext context) {
     showWidgetParametersDialog(
       context,
@@ -787,20 +912,23 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
         WidgetParamInfo(
           name: 'isLoading',
           type: 'bool',
-          description: 'Whether the widget is in the active skeleton fetching state.',
+          description:
+              'Whether the widget is in the active skeleton fetching state.',
           defaultValue: 'true',
           isRequired: true,
         ),
         WidgetParamInfo(
           name: 'direction',
           type: 'ByShimmerDirection',
-          description: 'Direction of traveling shimmer gradient (ltr, rtl, ttb, btt, diagonal).',
+          description:
+              'Direction of traveling shimmer gradient (ltr, rtl, ttb, btt, diagonal).',
           defaultValue: 'ByShimmerDirection.ltr',
         ),
         WidgetParamInfo(
           name: 'shimmerWaveWidth',
           type: 'double',
-          description: 'Relative thickness fraction of the traveling shimmer wave (0.0 to 1.0).',
+          description:
+              'Relative thickness fraction of the traveling shimmer wave (0.0 to 1.0).',
           defaultValue: '0.3',
         ),
         WidgetParamInfo(
@@ -812,7 +940,8 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
         WidgetParamInfo(
           name: 'transitionCurve',
           type: 'Curve',
-          description: 'Animation easing curve used when cross-fading skeleton and live content.',
+          description:
+              'Animation easing curve used when cross-fading skeleton and live content.',
           defaultValue: 'Curves.easeInOut',
         ),
         WidgetParamInfo(
@@ -846,13 +975,15 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
         WidgetParamInfo(
           name: 'borderRadius',
           type: 'BorderRadius',
-          description: 'Curvature geometry for the skeleton container perimeter.',
+          description:
+              'Curvature geometry for the skeleton container perimeter.',
           defaultValue: 'BorderRadius.circular(12.0)',
         ),
         WidgetParamInfo(
           name: 'dynamicBorderWidth',
           type: 'double',
-          description: 'Stroke width of the perimeter traveling dynamic laser border.',
+          description:
+              'Stroke width of the perimeter traveling dynamic laser border.',
           defaultValue: '2.0',
         ),
         WidgetParamInfo(
@@ -864,7 +995,8 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
         WidgetParamInfo(
           name: 'dynamicBorderDuration',
           type: 'Duration',
-          description: 'Animation duration for one full cycle of the dynamic border.',
+          description:
+              'Animation duration for one full cycle of the dynamic border.',
           defaultValue: 'Duration(milliseconds: 1400)',
         ),
       ],
@@ -935,8 +1067,9 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                 laserColors: laserColors,
                 dynamicBorderWidth: _dynamicBorderWidth,
                 dynamicBorderGlowBlur: _dynamicBorderGlowBlur,
-                dynamicBorderDuration:
-                    Duration(milliseconds: _shimmerDurationMs.toInt()),
+                dynamicBorderDuration: Duration(
+                  milliseconds: _shimmerDurationMs.toInt(),
+                ),
                 style: style,
                 borderRadius: BorderRadius.circular(_containerRadius),
                 skeletonBuilder: (context) {
@@ -962,9 +1095,17 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ByBone.text(width: 140, height: 16, style: style),
+                                  ByBone.text(
+                                    width: 140,
+                                    height: 16,
+                                    style: style,
+                                  ),
                                   const SizedBox(height: 6),
-                                  ByBone.text(width: 90, height: 12, style: style),
+                                  ByBone.text(
+                                    width: 90,
+                                    height: 12,
+                                    style: style,
+                                  ),
                                 ],
                               ),
                             ),
@@ -1015,7 +1156,10 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                             height: 48,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [AppColors.cyanAccent, AppColors.primary],
+                                colors: [
+                                  AppColors.cyanAccent,
+                                  AppColors.primary,
+                                ],
                               ),
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -1141,14 +1285,19 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                       ? 'Simulating 2s Shimmer Preload Cycle...'
                       : 'Preload Complete • 4 Skeletons Rendered Real Data',
                   style: AppTextStyle.caption.copyWith(
-                    color: _isPreloading ? AppColors.primary : AppColors.success,
+                    color: _isPreloading
+                        ? AppColors.primary
+                        : AppColors.success,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               TextButton.icon(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   visualDensity: VisualDensity.compact,
                 ),
                 onPressed: _startPreloadCycle,
@@ -1170,7 +1319,9 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
           laserColors: laserColors,
           dynamicBorderWidth: _dynamicBorderWidth,
           dynamicBorderGlowBlur: _dynamicBorderGlowBlur,
-          dynamicBorderDuration: Duration(milliseconds: _shimmerDurationMs.toInt()),
+          dynamicBorderDuration: Duration(
+            milliseconds: _shimmerDurationMs.toInt(),
+          ),
           style: style,
           borderRadius: BorderRadius.circular(16),
           skeletonBuilder: (context) {
@@ -1393,7 +1544,9 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
           laserColors: laserColors,
           dynamicBorderWidth: _dynamicBorderWidth,
           dynamicBorderGlowBlur: _dynamicBorderGlowBlur,
-          dynamicBorderDuration: Duration(milliseconds: _shimmerDurationMs.toInt()),
+          dynamicBorderDuration: Duration(
+            milliseconds: _shimmerDurationMs.toInt(),
+          ),
           style: style,
           borderRadius: BorderRadius.circular(16),
           skeletonBuilder: (context) {
@@ -1467,7 +1620,10 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
                 ),
                 const SizedBox(height: 14),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
@@ -1538,7 +1694,9 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
           laserColors: laserColors,
           dynamicBorderWidth: _dynamicBorderWidth,
           dynamicBorderGlowBlur: _dynamicBorderGlowBlur,
-          dynamicBorderDuration: Duration(milliseconds: _shimmerDurationMs.toInt()),
+          dynamicBorderDuration: Duration(
+            milliseconds: _shimmerDurationMs.toInt(),
+          ),
           style: style,
           borderRadius: BorderRadius.circular(16),
           skeletonBuilder: (context) {
@@ -1698,7 +1856,10 @@ class _AutoShimmerShowcaseScreenState extends State<AutoShimmerShowcaseScreen> {
               children: [
                 Icon(icon, size: 20, color: AppColors.primary),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: (isPositive ? AppColors.success : AppColors.warning)
                         .withValues(alpha: 0.15),

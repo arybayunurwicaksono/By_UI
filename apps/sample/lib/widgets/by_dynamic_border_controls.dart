@@ -85,8 +85,7 @@ class ByPulseBorderConfig {
       shadowWidth: shadowWidth,
       shadowLength: shadowLength,
       colors: [colorA, colorB],
-      sensorResumeDelay:
-          sensorResumeDelay ?? const Duration(milliseconds: 300),
+      sensorResumeDelay: sensorResumeDelay ?? const Duration(milliseconds: 300),
       sensorEntranceDuration:
           sensorEntranceDuration ?? const Duration(milliseconds: 400),
     );

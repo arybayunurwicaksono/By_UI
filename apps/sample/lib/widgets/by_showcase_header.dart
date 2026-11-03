@@ -18,6 +18,9 @@ class ByShowcaseHeader extends StatelessWidget {
   /// Callback executed when tapping the 'Widget Parameters' documentation action button.
   final VoidCallback? onOpenParams;
 
+  /// Callback executed when tapping the 'View & Copy Code' action button.
+  final VoidCallback? onViewCode;
+
   /// Optional extra action widgets placed before the default Reset and Help buttons.
   final List<Widget>? extraActions;
 
@@ -42,6 +45,7 @@ class ByShowcaseHeader extends StatelessWidget {
     this.titleSuffix = 'Showcase',
     this.onReset,
     this.onOpenParams,
+    this.onViewCode,
     this.extraActions,
     this.leading,
     this.automaticallyImplyLeading = true,
@@ -121,6 +125,13 @@ class ByShowcaseHeader extends StatelessWidget {
 
           // 3. Action Buttons (Uniform Rule 6.1)
           ...?extraActions,
+          if (onViewCode != null)
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'View & Copy Code',
+              icon: Icon(Icons.code_rounded, color: effectiveActionColor),
+              onPressed: onViewCode,
+            ),
           if (onReset != null)
             IconButton(
               visualDensity: VisualDensity.compact,

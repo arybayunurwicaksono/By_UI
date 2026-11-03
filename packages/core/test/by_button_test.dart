@@ -717,5 +717,38 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
       expect(controller.isPulsing, isTrue);
     });
+
+    testWidgets(
+        'renders properly inside unconstrained Row without layout exceptions',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ByButton(
+                  variant: ByButtonVariant.ghost,
+                  size: ByButtonSize.small,
+                  onPressed: () {},
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 8),
+                ByButton(
+                  variant: ByButtonVariant.filled,
+                  size: ByButtonSize.small,
+                  onPressed: () {},
+                  child: const Text('Confirm'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Confirm'), findsOneWidget);
+    });
   });
 }

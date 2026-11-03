@@ -33,11 +33,12 @@ class ByShowcaseSliderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    final displayValue = valueText ??
+    final displayValue =
+        valueText ??
         (suffix != null
             ? (suffix == 'ms' || suffix == 'px'
-                ? '${value.toInt()} $suffix'
-                : '${value.toStringAsFixed(1)} $suffix')
+                  ? '${value.toInt()} $suffix'
+                  : '${value.toStringAsFixed(1)} $suffix')
             : value.toStringAsFixed(1));
 
     return Padding(
@@ -80,9 +81,7 @@ class ByShowcaseSliderTile extends StatelessWidget {
               thumbColor: AppColors.primaryLight,
               overlayColor: AppColors.primary.withValues(alpha: 0.18),
               trackHeight: 3.5,
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 6.5,
-              ),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.5),
             ),
             child: Slider(
               value: value.clamp(min, max),

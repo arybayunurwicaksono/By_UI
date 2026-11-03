@@ -11,6 +11,7 @@ import '../widgets/by_showcase_preset_card.dart';
 import '../widgets/by_showcase_integration_banner.dart';
 import '../widgets/by_showcase_preview_card.dart';
 import '../widgets/widget_params_dialog.dart';
+import '../widgets/by_code_dialog.dart';
 import 'sequence/sequence_sample_cards.dart';
 
 /// Interactive showcase screen for the [BySequence] sequential scroll animation component.
@@ -127,6 +128,51 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
       _newsletterController.text = 'newsletter@byui.dev';
       _promoController.text = 'BYUI-2026';
     });
+  }
+
+  // ── CODE SNIPPET GENERATOR ──────────────────────────────────────────────
+  String _generateCodeSnippet() {
+    final buffer = StringBuffer();
+    buffer.writeln('BySequence(');
+    if (_scrub) {
+      buffer.writeln('  scrub: true,');
+    }
+    buffer.writeln('  trigger: ${_trigger.toStringAsFixed(2)},');
+    buffer.writeln('  spacing: ${_spacing.toStringAsFixed(1)},');
+    if (_scrollDirection == Axis.horizontal) {
+      buffer.writeln('  scrollDirection: Axis.horizontal,');
+    }
+    if (_reverse) {
+      buffer.writeln('  reverse: true,');
+    }
+    if (_replay) {
+      buffer.writeln('  replay: true,');
+    }
+    if (_groupSize > 0) {
+      buffer.writeln('  groupSize: $_groupSize,');
+      buffer.writeln(
+        '  groupStaggerDelay: const Duration(milliseconds: $_staggerMs),',
+      );
+    }
+    buffer.writeln('  animation: const BySequenceAnimation(');
+    buffer.writeln('    opacity: BySequenceRange(0.0, 1.0),');
+    buffer.writeln('    translateY: BySequenceRange(40.0, 0.0),');
+    buffer.writeln('  ),');
+    buffer.writeln('  children: [');
+    buffer.writeln('    FeatureCard(title: "Step 1: Discover"),');
+    buffer.writeln('    FeatureCard(title: "Step 2: Configure"),');
+    buffer.writeln('    FeatureCard(title: "Step 3: Deploy"),');
+    buffer.writeln('  ],');
+    buffer.write(')');
+    return buffer.toString();
+  }
+
+  void _showCodeDialog(BuildContext context) {
+    showByCodeDialog(
+      context,
+      componentName: 'BySequence',
+      code: _generateCodeSnippet(),
+    );
   }
 
   void _applyPreset(int index) {
@@ -488,6 +534,7 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
                   onOpenParams: _isMaximized
                       ? null
                       : () => _showParamsDialog(context),
+                  onViewCode: () => _showCodeDialog(context),
                   extraActions: _isMaximized
                       ? [
                           IconButton(
@@ -505,9 +552,7 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
                       : null,
                 ),
               ),
-              drawer: const ByDrawer(
-                activeComponent: 'BySequence',
-              ),
+              drawer: const ByDrawer(activeComponent: 'BySequence'),
               body: _isMaximized
                   ? _buildMaximizedSequenceBody(
                       colors: colors,
@@ -1344,15 +1389,11 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
               ? 'From Bottom'
               : (_entryDirection == 'left'
                     ? 'From Left'
-                    : (_entryDirection == 'right'
-                          ? 'From Right'
-                          : 'Custom')),
+                    : (_entryDirection == 'right' ? 'From Right' : 'Custom')),
         ),
         ByMetricBadge(
           label: 'Direction',
-          value: _scrollDirection == Axis.vertical
-              ? 'Vertical'
-              : 'Horizontal',
+          value: _scrollDirection == Axis.vertical ? 'Vertical' : 'Horizontal',
         ),
         ByMetricBadge(
           label: 'Reverse',
@@ -1693,10 +1734,6 @@ class _SequenceShowcaseScreenState extends State<SequenceShowcaseScreen> {
     required List<Widget> children,
     AppColorPalette? colors,
   }) {
-    return ByShowcaseControlCard(
-      title: title,
-      icon: icon,
-      children: children,
-    );
+    return ByShowcaseControlCard(title: title, icon: icon, children: children);
   }
 }

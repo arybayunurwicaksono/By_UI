@@ -31,11 +31,7 @@ class ByShowcaseIntegrationBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
-            AppIcons.sparkle,
-            color: AppColors.primary,
-            size: 20,
-          ),
+          const Icon(AppIcons.sparkle, color: AppColors.primary, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -51,9 +47,7 @@ class ByShowcaseIntegrationBanner extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   description,
-                  style: AppTextStyle.caption.copyWith(
-                    color: colors.textMuted,
-                  ),
+                  style: AppTextStyle.caption.copyWith(color: colors.textMuted),
                 ),
               ],
             ),
