@@ -114,6 +114,17 @@ A modern, highly customizable Flutter UI component library featuring dynamic bor
   * **Seamless State Transitions**: Zero-overflow cross-fade morphing between skeleton and loaded content (`ClipRect` + `OverflowBox`).
   * **Standalone Bone Primitives**: `ByBone.square`, `ByBone.rounded`, `ByBone.circle`, and `ByBone.text`.
 
+* **ByTooltip / ByPopover / ByHoverCard (Interactive Contextual Tooltips & Popovers)**:
+  * **Dynamic Laser Border Pulses**: Traces a neon perimeter laser beam on tooltip emergence (`dynamicBorder: ByDynamicBorder(...)`).
+  * **Dual Emergent Anchoring**:
+    * Dynamic cursor-anchored tracking (`ByTooltipAnchor.cursor`) with frozen emergence position.
+    * Target-relative bound anchoring (`ByTooltipAnchor.target`) with centered horizontal alignment.
+  * **Interactive Hover Bridge**: Moving cursor directly into the tooltip keeps it active and interactable without dismissal.
+  * **Screen-Aware Auto-Flipping**: Automatically flips above trigger when overflowing viewport bottom, and clamps within margins.
+  * **Universal Mobile Parity**: Native tap and long-press emergent triggers (`ByMobileTrigger.tap`, `ByMobileTrigger.longPress`).
+  * **Smooth Transition Physics**: Support for `fadeAndScale`, `slideAndFade`, `fadeOnly`, and `bounce` animations.
+  * **Scope Control & Semantic Aliases**: Direct dismiss via `ByTooltipScope.close(context)` and convenience aliases `ByPopover` and `ByHoverCard`.
+
 * **ByCard (Standard, Gradient & Dynamic Motion Sensor)**:
   * **Zero-Boilerplate Motion (`ByCard.dynamicSensor`)**: Responsive border gradient that shifts dynamically with physical tilt and pointer motion.
     * **Mobile (Android & iOS)**: Reacts to hardware gyroscope / accelerometer sensors with smooth low-pass filtering.
@@ -153,7 +164,7 @@ Add `by_ui` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  by_ui: ^0.1.8
+  by_ui: ^0.1.9
 ```
 
 Or run:
@@ -531,6 +542,53 @@ BySequence(
     FeatureCard(title: 'Step 3: Deploy'),
   ],
 )
+```
+
+---
+
+### ByTooltip / ByPopover
+
+#### 11. Interactive Contextual Tooltip with Laser Dynamic Border
+Emerges adjacent to cursor or target widget, keeping active when hovered and supporting interactive buttons inside:
+
+```dart
+ByTooltip(
+  anchor: ByTooltipAnchor.target,
+  offset: const Offset(0, 10),
+  width: 260,
+  borderRadius: BorderRadius.circular(14),
+  dynamicBorder: const ByDynamicBorder(
+    colors: [Color(0xFF38BDF8), Color(0xFF818CF8)],
+    duration: Duration(milliseconds: 1400),
+  ),
+  builder: (context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'User Profile Preview',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Interactive popover with dynamic laser perimeter sweep.',
+          style: TextStyle(color: Colors.grey, fontSize: 11),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () => ByTooltipScope.close(context),
+          child: const Text('Dismiss'),
+        ),
+      ],
+    ),
+  ),
+  child: ElevatedButton(
+    onPressed: () {},
+    child: const Text('Hover or Tap Me'),
+  ),
+);
 ```
 
 ---

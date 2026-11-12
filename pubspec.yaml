@@ -8,3 +8,4 @@ environment:
 workspace:
   - packages/core
   - apps/sample
+  - apps/ux_sample

@@ -84,42 +84,46 @@ class ByShowcaseHeader extends StatelessWidget {
 
           // 2. Signature Gradient Brand Badge Pill & Suffix Title
           Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: isCentered
-                  ? MainAxisAlignment.center
-                  : MainAxisAlignment.start,
-              children: [
-                if (componentName != null) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 3.5,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: isCentered ? Alignment.center : Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: isCentered
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  if (componentName != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3.5,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: effectivePillGradient,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        componentName!,
+                        style: AppTextStyle.buttonPrimary.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      gradient: effectivePillGradient,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Flexible(
                     child: Text(
-                      componentName!,
-                      style: AppTextStyle.buttonPrimary.copyWith(
-                        color: Colors.white,
+                      titleSuffix,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyle.bodyMedium.copyWith(
+                        color: colors.textMuted,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
                 ],
-                Flexible(
-                  child: Text(
-                    titleSuffix,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bodyMedium.copyWith(
-                      color: colors.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
 

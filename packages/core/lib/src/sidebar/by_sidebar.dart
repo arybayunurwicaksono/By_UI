@@ -319,7 +319,7 @@ class BySidebar extends StatefulWidget {
 }
 
 class _BySidebarState extends State<BySidebar> {
-  Offset? _cursorPosition;
+  final ValueNotifier<Offset?> _cursorPosition = ValueNotifier<Offset?>(null);
   int? _hoveredIndex;
   bool _isHoverExpanded = false;
   bool _isToggleHovered = false;
@@ -340,6 +340,12 @@ class _BySidebarState extends State<BySidebar> {
       });
       widget.onHoverExpandChanged?.call(value);
     }
+  }
+
+  @override
+  void dispose() {
+    _cursorPosition.dispose();
+    super.dispose();
   }
 
   @override
@@ -501,85 +507,105 @@ class _BySidebarState extends State<BySidebar> {
     final hoverBg = widget.hoverItemBackgroundColor ??
         activeCol.withValues(alpha: isBgLight ? 0.06 : 0.12);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isNarrow = constraints.maxWidth < 110 || _effectiveCollapsed;
+    final double hPad = 12.5;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            onEnter: (_) => setState(() => _isToggleHovered = true),
-            onExit: (_) => setState(() => _isToggleHovered = false),
-            child: Tooltip(
-              message: label,
-              waitDuration: const Duration(milliseconds: 300),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: widget.onToggleCollapse,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  height: 40,
-                  clipBehavior: Clip.hardEdge,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isNarrow ? 0 : 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _isToggleHovered ? hoverBg : Colors.transparent,
-                    borderRadius: widget.itemBorderRadius,
-                    border: Border.all(
-                      color: _isToggleHovered
-                          ? activeCol.withValues(alpha: 0.4)
-                          : borderCol.withValues(alpha: 0.7),
-                      width: 1.0,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isToggleHovered = true),
+        onExit: (_) => setState(() => _isToggleHovered = false),
+        child: Tooltip(
+          message: label,
+          waitDuration: const Duration(milliseconds: 300),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.onToggleCollapse,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              height: 40,
+              clipBehavior: Clip.hardEdge,
+              padding: EdgeInsets.symmetric(
+                horizontal: hPad,
+              ),
+              decoration: BoxDecoration(
+                color: _isToggleHovered ? hoverBg : Colors.transparent,
+                borderRadius: widget.itemBorderRadius,
+                border: Border.all(
+                  color: _isToggleHovered
+                      ? activeCol.withValues(alpha: 0.4)
+                      : borderCol.withValues(alpha: 0.7),
+                  width: 1.0,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Center(
+                      child: Icon(
+                        iconData,
+                        size: 20,
+                        color:
+                            _isToggleHovered ? activeCol : unselectedIconColor,
+                      ),
                     ),
                   ),
-                  child: isNarrow
-                      ? Center(
-                          child: Icon(
-                            iconData,
-                            size: 20,
-                            color: _isToggleHovered
-                                ? activeCol
-                                : unselectedIconColor,
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              iconData,
-                              size: 20,
-                              color: _isToggleHovered
-                                  ? activeCol
-                                  : unselectedIconColor,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: false,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: _isToggleHovered
-                                      ? (isBgLight
-                                          ? const Color(0xFF0F172A)
-                                          : Colors.white)
-                                      : unselectedTextColor,
+                  if (!_effectiveCollapsed)
+                    Expanded(
+                      child: SizedBox(
+                        height: 24,
+                        child: ClipRect(
+                          child: OverflowBox(
+                            alignment: Alignment.centerLeft,
+                            minWidth: 0,
+                            maxWidth:
+                                (widget.expandedWidth).clamp(240.0, 500.0),
+                            minHeight: 0,
+                            maxHeight: 24,
+                            child: SizedBox(
+                              width: (widget.expandedWidth).clamp(240.0, 500.0),
+                              height: 24,
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeInOut,
+                                opacity: _effectiveCollapsed ? 0.0 : 1.0,
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        label,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: false,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: _isToggleHovered
+                                              ? (isBgLight
+                                                  ? const Color(0xFF0F172A)
+                                                  : Colors.white)
+                                              : unselectedTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -647,15 +673,17 @@ class _BySidebarState extends State<BySidebar> {
           if (widget.enableHoverExpand && !_isHoverExpanded) {
             _setHoverExpanded(true);
           }
-          setState(() {
-            _cursorPosition = event.localPosition;
-          });
+          if (_cursorPosition.value != event.localPosition) {
+            _cursorPosition.value = event.localPosition;
+          }
         },
         onExit: (_) {
-          setState(() {
-            _cursorPosition = null;
-            _hoveredIndex = null;
-          });
+          _cursorPosition.value = null;
+          if (_hoveredIndex != null) {
+            setState(() {
+              _hoveredIndex = null;
+            });
+          }
           if (_isHoverExpanded) {
             _setHoverExpanded(false);
           }
@@ -668,6 +696,19 @@ class _BySidebarState extends State<BySidebar> {
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: widget.borderRadius,
+            boxShadow: (_isHoverExpanded || !_effectiveCollapsed)
+                ? [
+                    BoxShadow(
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                      blurRadius: 16,
+                      offset: Offset(
+                        widget.position == BySidebarPosition.left ? 4 : -4,
+                        0,
+                      ),
+                    ),
+                  ]
+                : null,
             border: widget.borderWidth > 0
                 ? (widget.position == BySidebarPosition.left
                     ? Border(
@@ -688,16 +729,22 @@ class _BySidebarState extends State<BySidebar> {
             clipBehavior: Clip.none,
             children: [
               // 1. Spotlight Ambient Spill Layer
-              if (widget.enableSpotlightSpill && _cursorPosition != null)
+              if (widget.enableSpotlightSpill)
                 Positioned.fill(
-                  child: CustomPaint(
-                    painter: _SidebarSpotlightPainter(
-                      cursorPosition: _cursorPosition!,
-                      color: effectiveSpotlightColor.withValues(
-                        alpha: effectiveSpotlightAlpha,
-                      ),
-                      radius: widget.spotlightRadius,
-                    ),
+                  child: ValueListenableBuilder<Offset?>(
+                    valueListenable: _cursorPosition,
+                    builder: (context, pos, _) {
+                      if (pos == null) return const SizedBox.shrink();
+                      return CustomPaint(
+                        painter: _SidebarSpotlightPainter(
+                          cursorPosition: pos,
+                          color: effectiveSpotlightColor.withValues(
+                            alpha: effectiveSpotlightAlpha,
+                          ),
+                          radius: widget.spotlightRadius,
+                        ),
+                      );
+                    },
                   ),
                 ),
 
@@ -736,8 +783,12 @@ class _BySidebarState extends State<BySidebar> {
                         }
 
                         if (item.isSectionHeader) {
-                          if (_effectiveCollapsed) {
-                            return Padding(
+                          return AnimatedCrossFade(
+                            duration: const Duration(milliseconds: 180),
+                            crossFadeState: _effectiveCollapsed
+                                ? CrossFadeState.showFirst
+                                : CrossFadeState.showSecond,
+                            firstChild: Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),
                               child: Center(
@@ -750,28 +801,28 @@ class _BySidebarState extends State<BySidebar> {
                                   ),
                                 ),
                               ),
-                            );
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              top: 14.0,
-                              bottom: 6.0,
-                              left: 12.0,
-                              right: 12.0,
                             ),
-                            child: Text(
-                              item.label.toUpperCase(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: widget.sectionTextStyle ??
-                                  TextStyle(
-                                    color: isBgLight
-                                        ? const Color(0xFF64748B)
-                                        : const Color(0xFF94A3B8),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 1.1,
-                                  ),
+                            secondChild: Padding(
+                              padding: const EdgeInsets.only(
+                                top: 14.0,
+                                bottom: 6.0,
+                                left: 12.0,
+                                right: 12.0,
+                              ),
+                              child: Text(
+                                item.label.toUpperCase(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: widget.sectionTextStyle ??
+                                    TextStyle(
+                                      color: isBgLight
+                                          ? const Color(0xFF64748B)
+                                          : const Color(0xFF94A3B8),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.1,
+                                    ),
+                              ),
                             ),
                           );
                         }
@@ -850,6 +901,174 @@ class _BySidebarState extends State<BySidebar> {
                             widget.badgeTextColor ??
                             itemActiveColor;
 
+                        final double hPad = 12.5;
+
+                        final itemRow = Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Center(
+                                child: item.customIcon ??
+                                    Icon(
+                                      item.icon,
+                                      size: 20,
+                                      color: itemIconColor,
+                                    ),
+                              ),
+                            ),
+                            if (!_effectiveCollapsed)
+                              Expanded(
+                                child: SizedBox(
+                                  height: 24,
+                                  child: ClipRect(
+                                    child: OverflowBox(
+                                      alignment: Alignment.centerLeft,
+                                      minWidth: 0,
+                                      maxWidth: (widget.expandedWidth)
+                                          .clamp(240.0, 500.0),
+                                      minHeight: 0,
+                                      maxHeight: 24,
+                                      child: SizedBox(
+                                        width: (widget.expandedWidth)
+                                            .clamp(240.0, 500.0),
+                                        height: 24,
+                                        child: AnimatedOpacity(
+                                          duration:
+                                              const Duration(milliseconds: 200),
+                                          curve: Curves.easeInOut,
+                                          opacity:
+                                              _effectiveCollapsed ? 0.0 : 1.0,
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Text(
+                                                  item.label,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  softWrap: false,
+                                                  style: TextStyle(
+                                                    color: isSelected
+                                                        ? effectiveSelectedTextColor
+                                                        : effectiveUnselectedTextColor,
+                                                    fontSize: 13,
+                                                    fontWeight: isSelected
+                                                        ? FontWeight.w700
+                                                        : FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                              if (item.badge != null) ...[
+                                                const SizedBox(width: 6),
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 2,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: badgeBackground,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            6),
+                                                  ),
+                                                  child: Text(
+                                                    item.badge!,
+                                                    style: TextStyle(
+                                                      color: badgeForeground,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                              if (item.trailing != null) ...[
+                                                const SizedBox(width: 6),
+                                                item.trailing!,
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+
+                        final itemContainer = AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          clipBehavior: Clip.hardEdge,
+                          padding: widget.itemPadding ??
+                              EdgeInsets.symmetric(
+                                horizontal: hPad,
+                                vertical: 10,
+                              ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? selectedBg
+                                : (isHovered ? hoverBg : Colors.transparent),
+                            borderRadius: widget.itemBorderRadius,
+                            border: isSelected
+                                ? selectedBorder
+                                : Border.all(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              itemRow,
+                              if (isSelected &&
+                                  widget.indicatorStyle ==
+                                      BySidebarIndicatorStyle.leadingBar)
+                                Positioned(
+                                  top: 4,
+                                  bottom: 4,
+                                  left:
+                                      widget.position == BySidebarPosition.left
+                                          ? 0
+                                          : null,
+                                  right:
+                                      widget.position == BySidebarPosition.right
+                                          ? 0
+                                          : null,
+                                  width: widget.leadingBarWidth,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: itemActiveColor,
+                                      borderRadius: BorderRadius.circular(
+                                        widget.leadingBarWidth / 2,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: itemActiveColor.withValues(
+                                              alpha: 0.4),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+
+                        Widget finalItemWidget = itemContainer;
+                        if (_effectiveCollapsed && item.label.isNotEmpty) {
+                          finalItemWidget = Tooltip(
+                            message: item.label,
+                            waitDuration: const Duration(milliseconds: 300),
+                            child: itemContainer,
+                          );
+                        }
+
                         return MouseRegion(
                           onEnter: (_) => setState(() => _hoveredIndex = index),
                           onExit: (_) => setState(() => _hoveredIndex = null),
@@ -860,165 +1079,7 @@ class _BySidebarState extends State<BySidebar> {
                               onTap: item.enabled
                                   ? () => widget.onItemSelected(index)
                                   : null,
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final isNarrow = constraints.maxWidth < 110 ||
-                                      _effectiveCollapsed;
-
-                                  final defaultPadding = EdgeInsets.symmetric(
-                                    horizontal: isNarrow ? 0 : 12,
-                                    vertical: 10,
-                                  );
-
-                                  Widget itemRow = isNarrow
-                                      ? Center(
-                                          child: SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: Center(
-                                              child: item.customIcon ??
-                                                  Icon(
-                                                    item.icon,
-                                                    size: 20,
-                                                    color: itemIconColor,
-                                                  ),
-                                            ),
-                                          ),
-                                        )
-                                      : Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              width: 24,
-                                              height: 24,
-                                              child: Center(
-                                                child: item.customIcon ??
-                                                    Icon(
-                                                      item.icon,
-                                                      size: 20,
-                                                      color: itemIconColor,
-                                                    ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Text(
-                                                item.label,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                softWrap: false,
-                                                style: TextStyle(
-                                                  color: isSelected
-                                                      ? effectiveSelectedTextColor
-                                                      : effectiveUnselectedTextColor,
-                                                  fontSize: 13,
-                                                  fontWeight: isSelected
-                                                      ? FontWeight.w700
-                                                      : FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                            if (item.badge != null) ...[
-                                              const SizedBox(width: 6),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 6,
-                                                  vertical: 2,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: badgeBackground,
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                ),
-                                                child: Text(
-                                                  item.badge!,
-                                                  style: TextStyle(
-                                                    color: badgeForeground,
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                            if (item.trailing != null) ...[
-                                              const SizedBox(width: 6),
-                                              item.trailing!,
-                                            ],
-                                          ],
-                                        );
-
-                                  if (isNarrow && item.label.isNotEmpty) {
-                                    itemRow = Tooltip(
-                                      message: item.label,
-                                      waitDuration:
-                                          const Duration(milliseconds: 300),
-                                      child: itemRow,
-                                    );
-                                  }
-
-                                  return AnimatedContainer(
-                                    duration: const Duration(milliseconds: 180),
-                                    clipBehavior: Clip.hardEdge,
-                                    padding:
-                                        widget.itemPadding ?? defaultPadding,
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? selectedBg
-                                          : (isHovered
-                                              ? hoverBg
-                                              : Colors.transparent),
-                                      borderRadius: widget.itemBorderRadius,
-                                      border: isSelected
-                                          ? selectedBorder
-                                          : Border.all(
-                                              color: Colors.transparent,
-                                              width: 1.0,
-                                            ),
-                                    ),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        itemRow,
-                                        if (isSelected &&
-                                            widget.indicatorStyle ==
-                                                BySidebarIndicatorStyle
-                                                    .leadingBar)
-                                          Positioned(
-                                            top: 4,
-                                            bottom: 4,
-                                            left: widget.position ==
-                                                    BySidebarPosition.left
-                                                ? 0
-                                                : null,
-                                            right: widget.position ==
-                                                    BySidebarPosition.right
-                                                ? 0
-                                                : null,
-                                            width: widget.leadingBarWidth,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: itemActiveColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        widget.leadingBarWidth /
-                                                            2),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: itemActiveColor
-                                                        .withValues(alpha: 0.4),
-                                                    blurRadius: 4,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                              child: finalItemWidget,
                             ),
                           ),
                         );
@@ -1042,19 +1103,25 @@ class _BySidebarState extends State<BySidebar> {
               ),
 
               // 3. Trailing Cursor Proximity Illuminated Border
-              if (widget.enableCursorBorderTracking && _cursorPosition != null)
+              if (widget.enableCursorBorderTracking)
                 Positioned(
                   top: 0,
                   bottom: 0,
                   left: widget.position == BySidebarPosition.right ? 0 : null,
                   right: widget.position == BySidebarPosition.left ? 0 : null,
                   width: widget.cursorBorderWidth,
-                  child: CustomPaint(
-                    painter: _SidebarTrailingBorderPainter(
-                      cursorY: _cursorPosition!.dy,
-                      color: effectiveCursorBorderColor,
-                      glowHeight: widget.cursorBorderGlowHeight,
-                    ),
+                  child: ValueListenableBuilder<Offset?>(
+                    valueListenable: _cursorPosition,
+                    builder: (context, cursor, _) {
+                      if (cursor == null) return const SizedBox.shrink();
+                      return CustomPaint(
+                        painter: _SidebarTrailingBorderPainter(
+                          cursorY: cursor.dy,
+                          color: effectiveCursorBorderColor,
+                          glowHeight: widget.cursorBorderGlowHeight,
+                        ),
+                      );
+                    },
                   ),
                 ),
             ],

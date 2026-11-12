@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../dynamic_border/by_dynamic_border_layer.dart';
 import 'by_toast_enums.dart';
@@ -184,27 +185,41 @@ class _ByToastCardState extends State<ByToastCard>
     if (_isDismissing || _hasTriggeredExpand) return;
 
     final isTop = widget.item.position.isTop;
+    final isRight = widget.item.position.isRight;
+    final isLeft = widget.item.position.isLeft;
     final canExpand = widget.item.canDragToExpand;
     final dy = details.delta.dy;
     final dx = details.delta.dx;
 
-    // Center drag: for top toast, positive dy moves toward center.
-    // For bottom toast, negative dy moves toward center.
-    final bool movingTowardsCenter =
+    // Center drag calculation:
+    // Vertical towards center: top toast moves down (+dy), bottom toast moves up (-dy)
+    // Horizontal towards center: right corner toast moves left (-dx), left corner toast moves right (+dx)
+    final bool movingVertTowardsCenter =
         isTop ? (_dragOffset.dy + dy > 0) : (_dragOffset.dy + dy < 0);
+    final bool movingHorizTowardsCenter = isRight
+        ? (_dragOffset.dx + dx < 0)
+        : (isLeft ? (_dragOffset.dx + dx > 0) : false);
 
     double effectiveDy = dy;
-    if (movingTowardsCenter && !canExpand) {
-      effectiveDy *= 0.25;
+    double effectiveDx = dx;
+    if (!canExpand) {
+      if (movingVertTowardsCenter) effectiveDy *= 0.25;
+      if (movingHorizTowardsCenter) effectiveDx *= 0.25;
     }
 
     setState(() {
-      _dragOffset += Offset(dx, effectiveDy);
+      _dragOffset += Offset(effectiveDx, effectiveDy);
     });
 
     // Real-time threshold check: if dragged towards center >= 60px
-    final double centerDragDistance = isTop ? _dragOffset.dy : -_dragOffset.dy;
-    if (canExpand && centerDragDistance >= 60.0) {
+    final double vertCenterDistance = isTop ? _dragOffset.dy : -_dragOffset.dy;
+    final double horizCenterDistance =
+        isRight ? -_dragOffset.dx : (isLeft ? _dragOffset.dx : 0.0);
+    final double effectiveCenterDistance = (isRight || isLeft)
+        ? math.max(vertCenterDistance, horizCenterDistance)
+        : vertCenterDistance;
+
+    if (canExpand && effectiveCenterDistance >= 60.0) {
       _triggerExpandToDialog();
     }
   }
@@ -214,29 +229,48 @@ class _ByToastCardState extends State<ByToastCard>
     _isDragging = false;
 
     final isTop = widget.item.position.isTop;
+    final isRight = widget.item.position.isRight;
+    final isLeft = widget.item.position.isLeft;
     final canExpand = widget.item.canDragToExpand;
-    final double centerDragDistance = isTop ? _dragOffset.dy : -_dragOffset.dy;
+
+    final double vertCenterDistance = isTop ? _dragOffset.dy : -_dragOffset.dy;
+    final double horizCenterDistance =
+        isRight ? -_dragOffset.dx : (isLeft ? _dragOffset.dx : 0.0);
+    final double effectiveCenterDistance = (isRight || isLeft)
+        ? math.max(vertCenterDistance, horizCenterDistance)
+        : vertCenterDistance;
+
     final double velocityY = details.velocity.pixelsPerSecond.dy;
-    final double centerVelocity = isTop ? velocityY : -velocityY;
+    final double velocityX = details.velocity.pixelsPerSecond.dx;
+    final double vertCenterVelocity = isTop ? velocityY : -velocityY;
+    final double horizCenterVelocity =
+        isRight ? -velocityX : (isLeft ? velocityX : 0.0);
+    final double effectiveCenterVelocity = (isRight || isLeft)
+        ? math.max(vertCenterVelocity, horizCenterVelocity)
+        : vertCenterVelocity;
 
     // 1. Check if released after dragging or flicking towards center
-    if (canExpand && (centerDragDistance >= 30.0 || centerVelocity >= 350.0)) {
+    if (canExpand &&
+        (effectiveCenterDistance >= 30.0 || effectiveCenterVelocity >= 350.0)) {
       _triggerExpandToDialog();
       return;
     }
 
-    // 2. Check if swiped away from center to dismiss
-    final double dismissDistance = isTop ? -_dragOffset.dy : _dragOffset.dy;
-    final double dismissVelocity = isTop ? -velocityY : velocityY;
-    if (dismissDistance >= 30.0 || dismissVelocity >= 350.0) {
+    // 2. Check if swiped away from center (towards screen edge) to dismiss
+    final double dismissVertDistance = isTop ? -_dragOffset.dy : _dragOffset.dy;
+    final double dismissVertVelocity = isTop ? -velocityY : velocityY;
+    if (dismissVertDistance >= 30.0 || dismissVertVelocity >= 350.0) {
       _dismissWithAnimation();
       return;
     }
 
     // 3. Check horizontal swipe to dismiss
-    final double horizontalDistance = _dragOffset.dx.abs();
-    final double horizontalVelocity = details.velocity.pixelsPerSecond.dx.abs();
-    if (horizontalDistance >= 40.0 || horizontalVelocity >= 350.0) {
+    final double dismissHorizDistance = isRight
+        ? _dragOffset.dx
+        : (isLeft ? -_dragOffset.dx : _dragOffset.dx.abs());
+    final double dismissHorizVelocity =
+        isRight ? velocityX : (isLeft ? -velocityX : velocityX.abs());
+    if (dismissHorizDistance >= 40.0 || dismissHorizVelocity >= 350.0) {
       _dismissWithAnimation();
       return;
     }

@@ -706,5 +706,195 @@ void main() {
         await tester.pumpAndSettle();
       },
     );
+
+    testWidgets(
+      'ByToast supports defaultPositionResolver for responsive positioning',
+      (WidgetTester tester) async {
+        addTearDown(() {
+          ByToast.defaultPositionResolver = null;
+          ByToast.clear();
+        });
+
+        // Configure resolver: if width >= 600 use bottomRight, else top
+        ByToast.defaultPositionResolver = (context) {
+          final w = MediaQuery.of(context).size.width;
+          return w >= 600 ? ByToastPosition.bottomRight : ByToastPosition.top;
+        };
+
+        // 1. Test on wide screen (800x600) -> should resolve to bottomRight
+        tester.view.physicalSize = const Size(800, 600);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Desktop Toast Notification',
+                    );
+                  },
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('Desktop Toast Notification'), findsOneWidget);
+        final animatedPosFinder = find.byType(AnimatedPositioned);
+        expect(animatedPosFinder, findsWidgets);
+
+        final animatedPos =
+            tester.widget<AnimatedPositioned>(animatedPosFinder.first);
+        expect(animatedPos.right, 16.0);
+        expect(animatedPos.left, isNull);
+        expect(animatedPos.bottom, isNotNull);
+        expect(animatedPos.top, isNull);
+        expect(animatedPos.width, 400.0);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+
+        // 2. Test on narrow screen (360x640) -> should resolve to top
+        tester.view.physicalSize = const Size(360, 640);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Mobile Toast Notification',
+                    );
+                  },
+                  child: const Text('Show Mobile'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show Mobile'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('Mobile Toast Notification'), findsOneWidget);
+        final mobileAnimatedPos = tester
+            .widget<AnimatedPositioned>(find.byType(AnimatedPositioned).first);
+        expect(mobileAnimatedPos.left, 16.0);
+        expect(mobileAnimatedPos.right, 16.0);
+        expect(mobileAnimatedPos.top, isNotNull);
+        expect(mobileAnimatedPos.bottom, isNull);
+        expect(mobileAnimatedPos.width, isNull); // full-width between margins
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToast supports custom width and maxWidth options',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Custom Width Toast',
+                      position: ByToastPosition.bottomRight,
+                      width: 320.0,
+                    );
+                  },
+                  child: const Text('Show Custom Width'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show Custom Width'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        final animatedPos = tester
+            .widget<AnimatedPositioned>(find.byType(AnimatedPositioned).first);
+        expect(animatedPos.width, 320.0);
+        expect(animatedPos.right, 16.0);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'ByToast corner position (bottomRight) drag towards center morphs into detail dialog',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    ByToast.show(
+                      context,
+                      message: 'Drag me to center',
+                      position: ByToastPosition.bottomRight,
+                      enableDragToExpand: true,
+                      detailTitle: 'BottomRight Details',
+                      detailMessage:
+                          'Detailed modal opened from bottom-right corner.',
+                    );
+                  },
+                  child: const Text('Show BR'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show BR'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('Drag me to center'), findsOneWidget);
+        expect(find.text('BottomRight Details'), findsNothing);
+
+        // Drag leftwards towards center
+        await tester.drag(
+          find.text('Drag me to center'),
+          const Offset(-80, 0),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 450));
+
+        // Morphing dialog is visible
+        expect(find.text('BottomRight Details'), findsOneWidget);
+        expect(
+          find.text('Detailed modal opened from bottom-right corner.'),
+          findsOneWidget,
+        );
+
+        // Close dialog
+        await tester.tap(find.byKey(const Key('by_toast_dialog_close')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('BottomRight Details'), findsNothing);
+
+        ByToast.clear();
+        await tester.pumpAndSettle();
+      },
+    );
   });
 }

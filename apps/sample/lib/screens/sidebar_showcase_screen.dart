@@ -92,17 +92,17 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
     ShowcaseColorOption('Transparent', Colors.transparent),
   ];
 
-  final List<BySidebarItem> _sidebarItems = const [
-    BySidebarItem.section('MAIN MENU'),
-    BySidebarItem(icon: Icons.dashboard_rounded, label: 'Dashboard'),
-    BySidebarItem(
+  List<BySidebarItem> _getSidebarItems(AppColorPalette colors) => [
+    const BySidebarItem.section('MAIN MENU'),
+    const BySidebarItem(icon: Icons.dashboard_rounded, label: 'Dashboard'),
+    const BySidebarItem(
       icon: Icons.analytics_rounded,
       label: 'Analytics',
       badge: 'PRO',
     ),
-    BySidebarItem(icon: Icons.folder_rounded, label: 'Projects'),
-    BySidebarItem.section('PREFERENCES'),
-    BySidebarItem(
+    const BySidebarItem(icon: Icons.folder_rounded, label: 'Projects'),
+    const BySidebarItem.section('PREFERENCES'),
+    const BySidebarItem(
       icon: Icons.chat_bubble_outline_rounded,
       label: 'Messages',
       badge: '3',
@@ -110,7 +110,10 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
     BySidebarItem(
       icon: Icons.settings_rounded,
       label: 'Settings',
-      trailing: Text('⌘S', style: TextStyle(fontSize: 10, color: Colors.grey)),
+      trailing: Text(
+        '⌘S',
+        style: TextStyle(fontSize: 10, color: colors.textMuted),
+      ),
     ),
   ];
 
@@ -121,6 +124,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
       builder: (context, _) {
         final colors = AppColors.of(context);
         final isDark = AppThemeStore.instance.isDarkMode(context);
+        final sidebarItems = _getSidebarItems(colors);
 
         final selectedActiveCol =
             _activeColorOptions[_selectedActiveColorIndex].color ??
@@ -228,7 +232,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
                             ),
                             ByMetricBadge(
                               label: 'Route',
-                              value: _sidebarItems[_selectedIndex].label
+                              value: sidebarItems[_selectedIndex].label
                                   .toUpperCase(),
                             ),
                           ],
@@ -985,6 +989,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
     required Color? bgColor,
     required Color? borderColor,
   }) {
+    final sidebarItems = _getSidebarItems(colors);
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 540),
@@ -1027,7 +1032,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
                             ),
                           ),
                           child: Text(
-                            _sidebarItems[_selectedIndex].label.toUpperCase(),
+                            sidebarItems[_selectedIndex].label.toUpperCase(),
                             style: AppTextStyle.badge.copyWith(
                               color: activeColor,
                               fontWeight: FontWeight.w700,
@@ -1054,7 +1059,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
                   children: [
                     if (_sidebarPosition == BySidebarPosition.left)
                       BySidebar(
-                        items: _sidebarItems,
+                        items: sidebarItems,
                         selectedIndex: _selectedIndex,
                         position: _sidebarPosition,
                         isCollapsed: _isCollapsed,
@@ -1096,13 +1101,13 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  _sidebarItems[_selectedIndex].icon,
+                                  sidebarItems[_selectedIndex].icon,
                                   size: 44,
                                   color: activeColor,
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
-                                  _sidebarItems[_selectedIndex].label,
+                                  sidebarItems[_selectedIndex].label,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: AppTextStyle.sectionHeader.copyWith(
@@ -1124,7 +1129,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
                     ),
                     if (_sidebarPosition == BySidebarPosition.right)
                       BySidebar(
-                        items: _sidebarItems,
+                        items: sidebarItems,
                         selectedIndex: _selectedIndex,
                         position: _sidebarPosition,
                         isCollapsed: _isCollapsed,
@@ -1174,6 +1179,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
     required Color? bgColor,
     required Color? borderColor,
   }) {
+    final sidebarItems = _getSidebarItems(colors);
     final topPadding = ByAppBar.getContentTopPadding(context, extra: 0);
 
     return LayoutBuilder(
@@ -1191,7 +1197,7 @@ class _SidebarShowcaseScreenState extends State<SidebarShowcaseScreen> {
 
         Widget buildSidebarWidget() {
           return BySidebar(
-            items: _sidebarItems,
+            items: sidebarItems,
             selectedIndex: _selectedIndex,
             position: _sidebarPosition,
             isCollapsed: _isCollapsed,

@@ -5,6 +5,7 @@ import '../screens/bottom_nav_showcase_screen.dart';
 import '../screens/button_showcase_screen.dart';
 import '../screens/card_showcase_screen.dart';
 import '../screens/dialog_showcase_screen.dart';
+import '../screens/tooltip_showcase_screen.dart';
 import '../screens/sequence_showcase_screen.dart';
 import '../screens/sidebar_showcase_screen.dart';
 import '../screens/tab_bar_showcase_screen.dart';
@@ -51,6 +52,11 @@ class ShowcaseNavigator {
       case 'BySidebar':
       case 'ByVerticalSidebar':
         targetScreen = const SidebarShowcaseScreen();
+        break;
+      case 'ByTooltip':
+      case 'ByHoverCard':
+      case 'ByPopover':
+        targetScreen = const TooltipShowcaseScreen();
         break;
     }
 

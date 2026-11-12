@@ -168,13 +168,36 @@ class ByToastContainerState extends State<ByToastContainer> {
     final bool isRight = item.position.isRight;
 
     // Corner toasts on desktop/web have a neat capped width (e.g. up to 400px),
-    // or capped at available screen width minus horizontal margins.
-    final double maxCornerWidth =
-        (screenWidth - (item.horizontalMargin * 2)).clamp(0.0, 400.0);
+    // or custom width / maxWidth if specified by the developer.
+    final double maxAllowedWidth =
+        (screenWidth - (item.horizontalMargin * 2)).clamp(0.0, double.infinity);
+    const double defaultCornerMaxWidth = 400.0;
+    final double effectiveMaxWidth = (item.maxWidth ??
+            ((isLeft || isRight) ? defaultCornerMaxWidth : double.infinity))
+        .clamp(0.0, maxAllowedWidth);
 
-    final double? left = isRight ? null : item.horizontalMargin;
-    final double? right = isLeft ? null : item.horizontalMargin;
-    final double? width = (isLeft || isRight) ? maxCornerWidth : null;
+    final double? calculatedWidth = item.width != null
+        ? item.width!.clamp(0.0, maxAllowedWidth)
+        : ((isLeft || isRight || item.maxWidth != null)
+            ? effectiveMaxWidth
+            : null);
+
+    final double? left = isRight
+        ? null
+        : (isLeft
+            ? item.horizontalMargin
+            : (calculatedWidth != null
+                ? (screenWidth - calculatedWidth) / 2
+                : item.horizontalMargin));
+
+    final double? right = isLeft
+        ? null
+        : (isRight
+            ? item.horizontalMargin
+            : (calculatedWidth != null ? null : item.horizontalMargin));
+
+    final double? width =
+        (isLeft || isRight || calculatedWidth != null) ? calculatedWidth : null;
 
     return AnimatedPositioned(
       key: ValueKey('pos_${item.id}'),

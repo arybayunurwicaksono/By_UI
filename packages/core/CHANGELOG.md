@@ -5,6 +5,30 @@ All notable changes to the `by_ui` package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.9
+
+### Added
+* **ByTooltip / ByPopover / ByHoverCard**:
+  * Comprehensive interactive tooltip, contextual popover, and hover card overlay system.
+  * **Dynamic Traveling Perimeter Border**: Integrated laser sweeps (`dynamicBorder: ByDynamicBorder(...)`) tracing the emerging tooltip perimeter.
+  * **Dual Emergent Anchoring**:
+    * Real-time cursor coordinate tracking with frozen anchor point upon emergence (`ByTooltipAnchor.cursor`).
+    * Target-relative bound anchoring with centered horizontal alignment (`ByTooltipAnchor.target`).
+  * **Interactive Hover Bridge**: Moving pointer directly into tooltip keeps overlay alive and interactive without dismissing.
+  * **Automatic Viewport Clamping & Auto-Flipping**: Screen-edge aware vertical flip and horizontal margin clamping to prevent clipping.
+  * **Universal Touch Parity**: Native mobile tap and long-press emergent triggers (`ByMobileTrigger.tap`, `ByMobileTrigger.longPress`).
+  * **Multi-Property Transition Animations**: Customizable enter/exit curves with `ByTooltipAnimation.fadeAndScale`, `slideAndFade`, `fadeOnly`, and `bounce`.
+  * **Universal Scope & Backward-Compatible Aliases**: Convenient programmatic closing via `ByTooltipScope.close(context)` with `ByHoverCard`, `ByHoverCardScope`, and `ByPopover` aliases.
+
+### Changed
+* **ByTooltip**:
+  * Optimized auto-flip height estimation from 180px to 220px to prevent bottom-edge clipping on compact viewports (360x800).
+  * Canonical component refactored to `ByTooltip` with `builder` (and `cardBuilder` fallback) in `src/tooltip/`.
+* **Showcase App (`apps/sample`)**:
+  * Fine-tuned ByTooltip interactive card padding for compact aesthetics.
+  * Symmetrically harmonized trigger option button sizes with preset pill dimensions.
+  * Enhanced live reactive theme synchronization across showcase sample layouts and drawer badges.
+
 ## 0.1.8
 
 ### Added

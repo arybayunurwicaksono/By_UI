@@ -77,7 +77,7 @@ class AppColors {
 
   /// Resolves the active [AppColorPalette] from the [BuildContext].
   static AppColorPalette of(BuildContext context) {
-    final isDark = AppThemeStore.instance.isDarkMode(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return fromBrightness(isDark);
   }
 

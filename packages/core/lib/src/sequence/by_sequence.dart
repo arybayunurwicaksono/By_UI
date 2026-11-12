@@ -521,20 +521,28 @@ class _BySequenceItemHostState extends State<_BySequenceItemHost>
     // Classify which items belong to the initial screen viewport
     if (!_initialClassificationDone) {
       _initialClassificationDone = true;
-      if (widget.initialVisibleCount != null) {
-        if (widget.index < widget.initialVisibleCount!) {
-          _isInitiallyRevealed = true;
-        }
-      } else if (widget.initialVisibleFraction != null) {
-        final initialBoundary = viewportLength * widget.initialVisibleFraction!;
-        if (unScrolledItemPos + itemExtent <= initialBoundary + 10.0) {
-          _isInitiallyRevealed = true;
-        }
-      } else if (widget.index == 0) {
-        _isInitiallyRevealed = true;
+      bool isRevealed = false;
+
+      // 1. Minimum discrete count threshold
+      if (widget.initialVisibleCount != null &&
+          widget.index < widget.initialVisibleCount!) {
+        isRevealed = true;
       }
 
-      if (!_isInitiallyRevealed) {
+      // 2. Cooperative responsive fraction threshold
+      if (widget.initialVisibleFraction != null) {
+        final initialBoundary = viewportLength * widget.initialVisibleFraction!;
+        if (unScrolledItemPos + itemExtent <= initialBoundary + 10.0) {
+          isRevealed = true;
+        }
+      } else if (widget.initialVisibleCount == null && widget.index == 0) {
+        // Fallback default: item 0 active initially
+        isRevealed = true;
+      }
+
+      if (isRevealed) {
+        _isInitiallyRevealed = true;
+      } else {
         widget.controller.registerFirstHiddenIndex(widget.index);
       }
     }

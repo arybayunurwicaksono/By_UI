@@ -50,6 +50,12 @@ class ByCardPainter extends CustomPainter {
   /// Used by dynamic border sequential handover to hold/fade-in the sensor border.
   final double sensorBorderOpacity;
 
+  /// Whether to paint the card border directly in this background painter.
+  /// Defaults to `true` for standalone usage, but is set to `false` when [ByCard]
+  /// delegates border rendering to [ByCardBorderPainter] in [CustomPaint.foregroundPainter]
+  /// so that nested child content (such as opaque images) does not obscure the border.
+  final bool paintBorder;
+
   /// Creates a [ByCardPainter].
   ByCardPainter({
     required this.variant,
@@ -67,6 +73,7 @@ class ByCardPainter extends CustomPainter {
     this.innerGlowOpacity,
     this.innerGlowBlur,
     this.sensorBorderOpacity = 1.0,
+    this.paintBorder = true,
     super.repaint,
   });
 
@@ -91,8 +98,8 @@ class ByCardPainter extends CustomPainter {
       _paintInnerGlow(canvas, rrect, rect);
     }
 
-    // 3. Render Border Layer
-    if (borderWidth > 0) {
+    // 3. Render Border Layer (if enabled)
+    if (paintBorder && borderWidth > 0) {
       _paintBorder(canvas, rrect, rect);
     }
   }
@@ -189,118 +196,17 @@ class ByCardPainter extends CustomPainter {
   }
 
   void _paintBorder(Canvas canvas, RRect rrect, Rect rect) {
-    if (sensorBorderOpacity <= 0.001) return;
-
-    final RRect borderRRect = rrect.deflate(borderWidth / 2);
-    final Paint borderPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = borderWidth;
-
-    final bool needsLayer = sensorBorderOpacity < 0.999;
-    if (needsLayer) {
-      canvas.saveLayer(
-        borderRRect.outerRect.inflate(borderWidth * 2),
-        Paint()..color = Color.fromRGBO(255, 255, 255, sensorBorderOpacity),
-      );
-    }
-
-    if (variant == ByCardVariant.normal) {
-      if (borderColor != null && borderColor!.a > 0) {
-        borderPaint.color = borderColor!;
-        canvas.drawRRect(borderRRect, borderPaint);
-      }
-      if (needsLayer) canvas.restore();
-      return;
-    }
-
-    if (variant == ByCardVariant.dynamicSensor) {
-      // 1. Resolve colors from borderGradient or fall back to high-tech defaults
-      List<Color> resolvedColors = const [
-        Color(0xFF38BDF8), // Sky Cyan
-        Color(0xFF6366F1), // Indigo
-      ];
-
-      if (borderGradient != null) {
-        final List<Color> nonTransparent =
-            borderGradient!.colors.where((c) => c.a > 0.05).toList();
-        if (nonTransparent.isNotEmpty) {
-          resolvedColors = nonTransparent;
-        } else {
-          resolvedColors = borderGradient!.colors;
-        }
-      }
-
-      final Color colorA = resolvedColors.first;
-      final Color colorB =
-          resolvedColors.length > 1 ? resolvedColors.last : colorA;
-
-      final double magnitude = tilt.distance.clamp(0.0, 1.0);
-
-      if (magnitude < 0.08) {
-        // Table / neutral pose: full gradient across the entire border
-        if (borderGradient is LinearGradient) {
-          final linear = borderGradient as LinearGradient;
-          borderPaint.shader = LinearGradient(
-            begin: linear.begin,
-            end: linear.end,
-            colors: [colorA, colorB],
-            stops: linear.stops,
-            tileMode: linear.tileMode,
-          ).createShader(borderRRect.outerRect);
-        } else {
-          borderPaint.shader = LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [colorA, colorB],
-          ).createShader(borderRRect.outerRect);
-        }
-      } else {
-        // Physical directional lighting:
-        // Project a direct linear gradient across the card in the direction of the tilt vector.
-        // begin is at the opposite side (shadow), end is at the tilt side (full bright highlight).
-        final double dirX = tilt.dx / magnitude;
-        final double dirY = tilt.dy / magnitude;
-
-        // When magnitude is small (0.08 to 0.40), the opposite side smoothly dims from full color to transparent
-        final double oppositeAlpha =
-            (1.0 - ((magnitude - 0.08) / 0.32)).clamp(0.0, 1.0);
-        final double midStop = (0.50 - 0.15 * magnitude).clamp(0.25, 0.50);
-        final double highlightStop =
-            (0.80 - 0.10 * magnitude).clamp(0.60, 0.85);
-
-        borderPaint.shader = LinearGradient(
-          begin: Alignment(-dirX, -dirY),
-          end: Alignment(dirX, dirY),
-          colors: [
-            colorA.withValues(alpha: oppositeAlpha),
-            colorA.withValues(
-                alpha: oppositeAlpha > 0.08 ? oppositeAlpha : 0.08),
-            colorA,
-            colorB,
-          ],
-          stops: [0.0, midStop, highlightStop, 1.0],
-        ).createShader(borderRRect.outerRect);
-      }
-    } else {
-      // Static gradient mode
-      if (borderGradient != null) {
-        borderPaint.shader =
-            borderGradient!.createShader(borderRRect.outerRect);
-      } else {
-        const Gradient staticGradient = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF6366F1),
-            Color(0xFF38BDF8),
-          ],
-        );
-        borderPaint.shader = staticGradient.createShader(borderRRect.outerRect);
-      }
-    }
-
-    canvas.drawRRect(borderRRect, borderPaint);
-    if (needsLayer) canvas.restore();
+    ByCardBorderPainter.paintBorderStroke(
+      canvas: canvas,
+      rrect: rrect,
+      rect: rect,
+      variant: variant,
+      tilt: tilt,
+      borderWidth: borderWidth,
+      borderColor: borderColor,
+      borderGradient: borderGradient,
+      sensorBorderOpacity: sensorBorderOpacity,
+    );
   }
 
   void _paintInnerGlow(Canvas canvas, RRect rrect, Rect rect) {
@@ -413,6 +319,202 @@ class ByCardPainter extends CustomPainter {
         oldDelegate.enableInnerGlow != enableInnerGlow ||
         oldDelegate.innerGlowOpacity != innerGlowOpacity ||
         oldDelegate.innerGlowBlur != innerGlowBlur ||
+        oldDelegate.sensorBorderOpacity != sensorBorderOpacity ||
+        oldDelegate.paintBorder != paintBorder;
+  }
+}
+
+/// Custom painter rendering the directional gradient or solid border stroke for [ByCard].
+///
+/// Typically utilized as [CustomPaint.foregroundPainter] within [ByCard] so that
+/// nested child content (such as opaque images or solid containers) does not obscure
+/// the outer perimeter border stroke.
+class ByCardBorderPainter extends CustomPainter {
+  /// Visual variant mode of the card.
+  final ByCardVariant variant;
+
+  /// Current normalized tilt coordinate (-1.0 to 1.0).
+  final Offset tilt;
+
+  /// Corner radius of the card.
+  final BorderRadius borderRadius;
+
+  /// Thickness of the outer border.
+  final double borderWidth;
+
+  /// Solid color for standard border.
+  final Color? borderColor;
+
+  /// Gradient specification for the border stroke.
+  final Gradient? borderGradient;
+
+  /// Opacity multiplier for the sensor/base border stroke (0.0 to 1.0).
+  final double sensorBorderOpacity;
+
+  /// Creates a [ByCardBorderPainter].
+  ByCardBorderPainter({
+    required this.variant,
+    required this.tilt,
+    required this.borderRadius,
+    required this.borderWidth,
+    this.borderColor,
+    this.borderGradient,
+    this.sensorBorderOpacity = 1.0,
+    super.repaint,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || borderWidth <= 0 || sensorBorderOpacity <= 0.001) {
+      return;
+    }
+
+    final Rect rect = Offset.zero & size;
+    final RRect rrect = borderRadius.toRRect(rect);
+
+    paintBorderStroke(
+      canvas: canvas,
+      rrect: rrect,
+      rect: rect,
+      variant: variant,
+      tilt: tilt,
+      borderWidth: borderWidth,
+      borderColor: borderColor,
+      borderGradient: borderGradient,
+      sensorBorderOpacity: sensorBorderOpacity,
+    );
+  }
+
+  /// Reusable static routine to paint the card border stroke onto a [canvas].
+  static void paintBorderStroke({
+    required Canvas canvas,
+    required RRect rrect,
+    required Rect rect,
+    required ByCardVariant variant,
+    required Offset tilt,
+    required double borderWidth,
+    required Color? borderColor,
+    required Gradient? borderGradient,
+    required double sensorBorderOpacity,
+  }) {
+    if (sensorBorderOpacity <= 0.001 || borderWidth <= 0) return;
+
+    final RRect borderRRect = rrect.deflate(borderWidth / 2);
+    final Paint borderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    final bool needsLayer = sensorBorderOpacity < 0.999;
+    if (needsLayer) {
+      canvas.saveLayer(
+        borderRRect.outerRect.inflate(borderWidth * 2),
+        Paint()..color = Color.fromRGBO(255, 255, 255, sensorBorderOpacity),
+      );
+    }
+
+    if (variant == ByCardVariant.normal) {
+      if (borderColor != null && borderColor.a > 0) {
+        borderPaint.color = borderColor;
+        canvas.drawRRect(borderRRect, borderPaint);
+      }
+      if (needsLayer) canvas.restore();
+      return;
+    }
+
+    if (variant == ByCardVariant.dynamicSensor) {
+      // 1. Resolve colors from borderGradient or fall back to high-tech defaults
+      List<Color> resolvedColors = const [
+        Color(0xFF38BDF8), // Sky Cyan
+        Color(0xFF6366F1), // Indigo
+      ];
+
+      if (borderGradient != null) {
+        final List<Color> nonTransparent =
+            borderGradient.colors.where((c) => c.a > 0.05).toList();
+        if (nonTransparent.isNotEmpty) {
+          resolvedColors = nonTransparent;
+        } else {
+          resolvedColors = borderGradient.colors;
+        }
+      }
+
+      final Color colorA = resolvedColors.first;
+      final Color colorB =
+          resolvedColors.length > 1 ? resolvedColors.last : colorA;
+
+      final double magnitude = tilt.distance.clamp(0.0, 1.0);
+
+      if (magnitude < 0.08) {
+        // Table / neutral pose: full gradient across the entire border
+        if (borderGradient is LinearGradient) {
+          final linear = borderGradient;
+          borderPaint.shader = LinearGradient(
+            begin: linear.begin,
+            end: linear.end,
+            colors: [colorA, colorB],
+            stops: linear.stops,
+            tileMode: linear.tileMode,
+          ).createShader(borderRRect.outerRect);
+        } else {
+          borderPaint.shader = LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [colorA, colorB],
+          ).createShader(borderRRect.outerRect);
+        }
+      } else {
+        // Physical directional lighting:
+        final double dirX = tilt.dx / magnitude;
+        final double dirY = tilt.dy / magnitude;
+
+        final double oppositeAlpha =
+            (1.0 - ((magnitude - 0.08) / 0.32)).clamp(0.0, 1.0);
+        final double midStop = (0.50 - 0.15 * magnitude).clamp(0.25, 0.50);
+        final double highlightStop =
+            (0.80 - 0.10 * magnitude).clamp(0.60, 0.85);
+
+        borderPaint.shader = LinearGradient(
+          begin: Alignment(-dirX, -dirY),
+          end: Alignment(dirX, dirY),
+          colors: [
+            colorA.withValues(alpha: oppositeAlpha),
+            colorA.withValues(
+                alpha: oppositeAlpha > 0.08 ? oppositeAlpha : 0.08),
+            colorA,
+            colorB,
+          ],
+          stops: [0.0, midStop, highlightStop, 1.0],
+        ).createShader(borderRRect.outerRect);
+      }
+    } else {
+      // Static gradient mode
+      if (borderGradient != null) {
+        borderPaint.shader = borderGradient.createShader(borderRRect.outerRect);
+      } else {
+        const Gradient staticGradient = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF6366F1),
+            Color(0xFF38BDF8),
+          ],
+        );
+        borderPaint.shader = staticGradient.createShader(borderRRect.outerRect);
+      }
+    }
+
+    canvas.drawRRect(borderRRect, borderPaint);
+    if (needsLayer) canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant ByCardBorderPainter oldDelegate) {
+    return oldDelegate.variant != variant ||
+        oldDelegate.tilt != tilt ||
+        oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.borderWidth != borderWidth ||
+        oldDelegate.borderColor != borderColor ||
+        oldDelegate.borderGradient != borderGradient ||
         oldDelegate.sensorBorderOpacity != sensorBorderOpacity;
   }
 }

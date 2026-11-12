@@ -8,6 +8,7 @@ import 'package:sample/navigation/showcase_navigator.dart';
 import 'package:sample/screens/button_showcase_screen.dart';
 import 'package:sample/screens/auto_shimmer_showcase_screen.dart';
 import 'package:sample/screens/bottom_nav_showcase_screen.dart';
+import 'package:sample/screens/tooltip_showcase_screen.dart';
 import 'package:sample/screens/sidebar_showcase_screen.dart';
 import 'package:sample/screens/tab_bar_showcase_screen.dart';
 
@@ -664,6 +665,29 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
     expect(find.byType(AutoShimmerShowcaseScreen), findsOneWidget);
+  });
+
+  testWidgets('ShowcaseNavigator routes to ByTooltip showcase screen', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return ElevatedButton(
+              onPressed: () =>
+                  ShowcaseNavigator.pushReplacement(context, 'ByTooltip'),
+              child: const Text('GO_TOOLTIP'),
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('GO_TOOLTIP'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.byType(TooltipShowcaseScreen), findsOneWidget);
   });
 
   testWidgets(

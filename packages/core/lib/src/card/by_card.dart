@@ -449,7 +449,19 @@ class _ByCardState extends AnimatedWidgetBaseState<ByCard> {
             innerGlowOpacity: resolvedInnerGlowOpacity,
             innerGlowBlur: resolvedInnerGlowBlur,
             sensorBorderOpacity: _sensorBorderController.value,
+            paintBorder: false,
           ),
+          foregroundPainter: resolvedWidth > 0
+              ? ByCardBorderPainter(
+                  variant: widget.variant,
+                  tilt: _tiltController.tiltNotifier.value,
+                  borderRadius: resolvedRadius,
+                  borderWidth: resolvedWidth,
+                  borderColor: resolvedBorderColor,
+                  borderGradient: widget.borderGradient,
+                  sensorBorderOpacity: _sensorBorderController.value,
+                )
+              : null,
           child: content,
         );
       },

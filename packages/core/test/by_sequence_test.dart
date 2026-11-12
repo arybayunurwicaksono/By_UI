@@ -946,5 +946,46 @@ void main() {
       expect(itemProgressMap[3], equals(1.0));
       expect(itemProgressMap[4], greaterThan(0.0));
     });
+
+    testWidgets(
+        'initialVisibleCount and initialVisibleFraction operate cooperatively: viewport expands beyond minimum count',
+        (WidgetTester tester) async {
+      final controller = ScrollController();
+      final itemProgressMap = <int, double>{};
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              height: 800,
+              child: BySequence(
+                controller: controller,
+                initialVisibleCount: 2, // minimum discrete count
+                initialVisibleFraction: 1.0, // cooperative viewport expansion
+                onItemProgress: (index, progress) {
+                  itemProgressMap[index] = progress;
+                },
+                children: List.generate(
+                  6,
+                  (i) => SizedBox(height: 150, child: Text('Card $i')),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Cards 0, 1, 2, 3 fit within 800px (150 * 4 = 600px <= 800px).
+      // They must ALL be 1.0, demonstrating cooperative expansion beyond minimum count 2!
+      expect(itemProgressMap[0], equals(1.0));
+      expect(itemProgressMap[1], equals(1.0));
+      expect(itemProgressMap[2], equals(1.0));
+      expect(itemProgressMap[3], equals(1.0));
+      // Card 4 and 5 extend past 800px (150 * 5 = 750 + 150 = 900 > 800) -> 0.0
+      expect(itemProgressMap[4] ?? 0.0, equals(0.0));
+      expect(itemProgressMap[5] ?? 0.0, equals(0.0));
+    });
   });
 }

@@ -304,5 +304,63 @@ void main() {
       final card = tester.widget<ByCard>(find.byType(ByCard));
       expect(card.enableInnerGlow, isTrue);
     });
+
+    testWidgets(
+        'ByCard renders ByCardBorderPainter as foregroundPainter when borderWidth > 0',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ByCard(
+              borderWidth: 2.0,
+              borderColor: Colors.blue,
+              child: Text('Foreground Border Card'),
+            ),
+          ),
+        ),
+      );
+
+      final customPaint = tester.widget<CustomPaint>(
+        find
+            .descendant(
+              of: find.byType(ByCard),
+              matching: find.byType(CustomPaint),
+            )
+            .first,
+      );
+
+      expect(customPaint.painter, isA<ByCardPainter>());
+      final bgPainter = customPaint.painter as ByCardPainter;
+      expect(bgPainter.paintBorder, isFalse);
+
+      expect(customPaint.foregroundPainter, isA<ByCardBorderPainter>());
+      final fgPainter = customPaint.foregroundPainter as ByCardBorderPainter;
+      expect(fgPainter.borderWidth, 2.0);
+    });
+
+    testWidgets('ByCard sets foregroundPainter to null when borderWidth is 0',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ByCard(
+              borderWidth: 0,
+              child: Text('No Border Card'),
+            ),
+          ),
+        ),
+      );
+
+      final customPaint = tester.widget<CustomPaint>(
+        find
+            .descendant(
+              of: find.byType(ByCard),
+              matching: find.byType(CustomPaint),
+            )
+            .first,
+      );
+
+      expect(customPaint.foregroundPainter, isNull);
+    });
   });
 }

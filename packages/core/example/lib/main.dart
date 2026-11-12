@@ -308,6 +308,71 @@ class _ExampleHomePageState extends State<ExampleHomePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+
+            // ── ByTooltip (Contextual Popover & Tooltip) ───────────────────
+            const Text(
+              'ByTooltip (Interactive Contextual Popover):',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: ByTooltip(
+                anchor: ByTooltipAnchor.target,
+                offset: const Offset(0, 10),
+                width: 280,
+                borderRadius: BorderRadius.circular(14),
+                dynamicBorder: const ByDynamicBorder(
+                  colors: [Color(0xFF38BDF8), Color(0xFF00F5FF)],
+                  duration: Duration(milliseconds: 1400),
+                ),
+                builder: (context) => Container(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Interactive Popover',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Hover bridge keeps this card open while cursor interacts inside.',
+                        style: TextStyle(color: Colors.white70, fontSize: 11),
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => ByTooltipScope.close(context),
+                          child: const Text('Close'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.chat_bubble_outline_rounded,
+                          size: 18, color: Color(0xFF00F5FF)),
+                      SizedBox(width: 8),
+                      Text('Hover or Tap for ByTooltip'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 40),
           ],
         ),

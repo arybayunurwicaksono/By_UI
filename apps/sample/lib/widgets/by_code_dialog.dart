@@ -171,7 +171,7 @@ class _ByCodeDialogState extends State<ByCodeDialog> {
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFF1E293B)),
+            Divider(height: 1, color: colors.border),
 
             // ── Code Viewport ─────────────────────────────────────────────
             Flexible(

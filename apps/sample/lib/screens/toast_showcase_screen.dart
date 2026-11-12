@@ -220,6 +220,7 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
       } else {
         // Option 2: Custom Receipt Builder
         detailBuilder = (dialogContext) {
+          final dialogColors = AppColors.of(dialogContext);
           return Padding(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
             child: Column(
@@ -241,14 +242,14 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Custom Receipt Widget',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: dialogColors.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
@@ -256,7 +257,7 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                           Text(
                             'Rendered via Option 2 (detailBuilder)',
                             style: TextStyle(
-                              color: Color(0xFF94A3B8),
+                              color: dialogColors.textMuted,
                               fontSize: 11,
                             ),
                           ),
@@ -270,12 +271,12 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                         key: const Key('by_toast_dialog_close'),
                         borderRadius: BorderRadius.circular(20),
                         onTap: () => ByToast.clear(),
-                        child: const Padding(
-                          padding: EdgeInsets.all(6.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
                           child: Icon(
                             AppIcons.close,
                             size: 20,
-                            color: Color(0xFF94A3B8),
+                            color: dialogColors.textMuted,
                           ),
                         ),
                       ),
@@ -283,17 +284,34 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                const Divider(color: Color(0xFF1E293B), height: 1),
+                Divider(color: dialogColors.border, height: 1),
                 const SizedBox(height: 12),
-                _buildDialogRow('Robusta Latte x2', 'Rp 50.000'),
+                _buildDialogRow(
+                  'Robusta Latte x2',
+                  'Rp 50.000',
+                  colors: dialogColors,
+                ),
                 const SizedBox(height: 6),
-                _buildDialogRow('Caramel Croissant x1', 'Rp 28.000'),
+                _buildDialogRow(
+                  'Caramel Croissant x1',
+                  'Rp 28.000',
+                  colors: dialogColors,
+                ),
                 const SizedBox(height: 6),
-                _buildDialogRow('Mineral Water x1', 'Rp 10.000'),
+                _buildDialogRow(
+                  'Mineral Water x1',
+                  'Rp 10.000',
+                  colors: dialogColors,
+                ),
                 const SizedBox(height: 12),
-                const Divider(color: Color(0xFF1E293B), height: 1),
+                Divider(color: dialogColors.border, height: 1),
                 const SizedBox(height: 10),
-                _buildDialogRow('Total Paid', 'Rp 88.000', isHighlight: true),
+                _buildDialogRow(
+                  'Total Paid',
+                  'Rp 88.000',
+                  isHighlight: true,
+                  colors: dialogColors,
+                ),
               ],
             ),
           );
@@ -343,7 +361,9 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
     String label,
     String value, {
     bool isHighlight = false,
+    AppColorPalette? colors,
   }) {
+    final effectiveColors = colors ?? this.colors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -356,7 +376,7 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                   .copyWith(
                     color: isHighlight
                         ? AppColors.primaryAccent
-                        : const Color(0xFFCBD5E1),
+                        : effectiveColors.textSecondary,
                   ),
         ),
         Text(
@@ -366,7 +386,9 @@ class _ToastShowcaseScreenState extends State<ToastShowcaseScreen> {
                       ? AppTextStyle.specHighlight
                       : AppTextStyle.specValue)
                   .copyWith(
-                    color: isHighlight ? AppColors.primaryAccent : Colors.white,
+                    color: isHighlight
+                        ? AppColors.primaryAccent
+                        : effectiveColors.textPrimary,
                   ),
         ),
       ],

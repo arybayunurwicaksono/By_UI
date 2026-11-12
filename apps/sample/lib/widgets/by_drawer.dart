@@ -56,7 +56,7 @@ class ByDrawer extends StatelessWidget {
                       children: [
                         // Active Components Section
                         _buildSectionHeader(
-                          'AVAILABLE COMPONENTS (10)',
+                          'AVAILABLE COMPONENTS (11)',
                           colors,
                         ),
                         const SizedBox(height: 8),
@@ -138,8 +138,8 @@ class ByDrawer extends StatelessWidget {
                           subtitle: 'Dynamic border shimmer loader',
                           icon: Icons.auto_awesome_rounded,
                           isActive: activeComponent == 'ByAutoShimmer',
-                          badgeText: 'New',
-                          badgeColor: AppColors.cyanAccent,
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
                           colors: colors,
                           onTap: () => _handleSelect(context, 'ByAutoShimmer'),
                         ),
@@ -150,8 +150,8 @@ class ByDrawer extends StatelessWidget {
                           subtitle: 'Liquid morphing tab selector',
                           icon: Icons.tab_rounded,
                           isActive: activeComponent == 'ByTabBar',
-                          badgeText: 'New',
-                          badgeColor: AppColors.cyanAccent,
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
                           colors: colors,
                           onTap: () => _handleSelect(context, 'ByTabBar'),
                         ),
@@ -162,8 +162,8 @@ class ByDrawer extends StatelessWidget {
                           subtitle: 'Frosted magnetic glass bottom navigation',
                           icon: Icons.dock_rounded,
                           isActive: activeComponent == 'ByBottomNav',
-                          badgeText: 'New',
-                          badgeColor: AppColors.cyanAccent,
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
                           colors: colors,
                           onTap: () => _handleSelect(context, 'ByBottomNav'),
                         ),
@@ -174,10 +174,25 @@ class ByDrawer extends StatelessWidget {
                           subtitle: 'Spatial desktop sidebar navigation',
                           icon: Icons.view_sidebar_rounded,
                           isActive: activeComponent == 'BySidebar',
+                          badgeText: 'Ready',
+                          badgeColor: AppColors.success,
+                          colors: colors,
+                          onTap: () => _handleSelect(context, 'BySidebar'),
+                        ),
+                        const SizedBox(height: 6),
+
+                        _buildDrawerItem(
+                          title: 'ByTooltip',
+                          subtitle: 'Interactive contextual tooltip & popover',
+                          icon: Icons.chat_bubble_outline_rounded,
+                          isActive:
+                              activeComponent == 'ByTooltip' ||
+                              activeComponent == 'ByHoverCard' ||
+                              activeComponent == 'ByPopover',
                           badgeText: 'New',
                           badgeColor: AppColors.cyanAccent,
                           colors: colors,
-                          onTap: () => _handleSelect(context, 'BySidebar'),
+                          onTap: () => _handleSelect(context, 'ByTooltip'),
                         ),
 
                         const SizedBox(height: 18),

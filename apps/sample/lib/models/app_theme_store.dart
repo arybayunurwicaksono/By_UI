@@ -33,12 +33,9 @@ class AppThemeStore extends ChangeNotifier {
 
   /// Evaluates whether the currently displayed brightness is dark.
   ///
-  /// When [themeMode] is [ThemeMode.system], this queries the host platform's
-  /// brightness via [MediaQuery.platformBrightnessOf].
+  /// Queries [Theme.of(context).brightness] so that calling widgets automatically
+  /// register an [InheritedWidget] dependency and rebuild when the theme changes.
   bool isDarkMode(BuildContext context) {
-    if (_themeMode == ThemeMode.system) {
-      return MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    }
-    return _themeMode == ThemeMode.dark;
+    return Theme.of(context).brightness == Brightness.dark;
   }
 }

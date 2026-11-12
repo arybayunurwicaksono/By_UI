@@ -54,8 +54,12 @@ export 'src/bottom_nav/by_bottom_nav.dart';
 export 'src/sidebar/by_sidebar.dart';
 export 'src/tab_bar/by_tab_bar.dart';
 
+// Tooltip & Popover Component
+export 'src/tooltip/by_tooltip.dart';
+export 'src/tooltip/by_tooltip_enums.dart';
+
 /// Package metadata and library version constants.
 abstract final class ByUI {
   /// Current semantic version of the ByUI component library.
-  static const String version = '0.1.8';
+  static const String version = '0.1.9';
 }

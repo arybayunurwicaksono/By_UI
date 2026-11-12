@@ -766,7 +766,9 @@ class _BottomNavShowcaseScreenState extends State<BottomNavShowcaseScreen> {
     if (_enableSelectionPulse) {
       buffer.writeln('  enableSelectionPulse: true,');
     }
-    buffer.writeln('  maxMagnification: ${_maxMagnification.toStringAsFixed(2)},');
+    buffer.writeln(
+      '  maxMagnification: ${_maxMagnification.toStringAsFixed(2)},',
+    );
     buffer.writeln('  proximityRange: ${_proximityRange.toStringAsFixed(1)},');
     buffer.writeln('  itemSize: ${_itemSize.toStringAsFixed(1)},');
     buffer.writeln('  borderWidth: ${_borderWidth.toStringAsFixed(1)},');

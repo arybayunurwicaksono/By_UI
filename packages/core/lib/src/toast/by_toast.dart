@@ -31,6 +31,17 @@ abstract class ByToast {
   /// Vertical spacing between stacked cards in logical pixels.
   static double itemSpacing = 10.0;
 
+  /// Optional global resolver to determine the default [ByToastPosition] based on [BuildContext].
+  ///
+  /// Useful for multiplatform and responsive applications (e.g. returning [ByToastPosition.bottomRight]
+  /// for desktop/web viewports and [ByToastPosition.top] for mobile viewports).
+  static ByToastPosition Function(BuildContext context)?
+      defaultPositionResolver;
+
+  /// Default global position fallback when [defaultPositionResolver] is null.
+  /// Defaults to [ByToastPosition.top].
+  static ByToastPosition defaultPosition = ByToastPosition.top;
+
   /// Displays a customized toast banner.
   static void show(
     BuildContext context, {
@@ -68,13 +79,15 @@ abstract class ByToast {
     Duration animationDuration = const Duration(milliseconds: 380),
     Curve enterCurve = Curves.easeOutCubic,
     Curve exitCurve = Curves.easeInCubic,
-    ByToastPosition position = ByToastPosition.top,
+    ByToastPosition? position,
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
     Color? closeButtonColor,
     EdgeInsetsGeometry? padding,
     double horizontalMargin = 16.0,
+    double? width,
+    double? maxWidth,
 
     // Tap-to-Dialog Morphing fields
     String? detailTitle,
@@ -92,10 +105,13 @@ abstract class ByToast {
         Overlay.maybeOf(context, rootOverlay: true) ?? Overlay.maybeOf(context);
     if (overlay == null) return;
 
+    final effectivePosition =
+        position ?? defaultPositionResolver?.call(context) ?? defaultPosition;
+
     // Resolve default slide direction based on screen anchor position
     final effectiveSlideDirection = slideDirection ??
         () {
-          switch (position) {
+          switch (effectivePosition) {
             case ByToastPosition.topLeft:
             case ByToastPosition.bottomLeft:
               return ByToastSlideDirection.fromLeft;
@@ -147,13 +163,15 @@ abstract class ByToast {
       animationDuration: animationDuration,
       enterCurve: enterCurve,
       exitCurve: exitCurve,
-      position: position,
+      position: effectivePosition,
       slideDirection: effectiveSlideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
       closeButtonColor: closeButtonColor,
       padding: padding,
       horizontalMargin: horizontalMargin,
+      width: width,
+      maxWidth: maxWidth,
       detailTitle: detailTitle,
       detailMessage: detailMessage,
       detailBuilder: detailBuilder,
@@ -221,10 +239,15 @@ abstract class ByToast {
     Duration animationDuration = const Duration(milliseconds: 380),
     Curve enterCurve = Curves.easeOutCubic,
     Curve exitCurve = Curves.easeInCubic,
-    ByToastPosition position = ByToastPosition.top,
+    ByToastPosition? position,
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    Color? closeButtonColor,
+    EdgeInsetsGeometry? padding,
+    double horizontalMargin = 16.0,
+    double? width,
+    double? maxWidth,
     int? maxLines = 3,
     TextOverflow? overflow = TextOverflow.ellipsis,
     int? titleMaxLines,
@@ -268,6 +291,11 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      closeButtonColor: closeButtonColor,
+      padding: padding,
+      horizontalMargin: horizontalMargin,
+      width: width,
+      maxWidth: maxWidth,
       maxLines: maxLines,
       overflow: overflow,
       titleMaxLines: titleMaxLines,
@@ -309,10 +337,15 @@ abstract class ByToast {
     Duration animationDuration = const Duration(milliseconds: 380),
     Curve enterCurve = Curves.easeOutCubic,
     Curve exitCurve = Curves.easeInCubic,
-    ByToastPosition position = ByToastPosition.top,
+    ByToastPosition? position,
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    Color? closeButtonColor,
+    EdgeInsetsGeometry? padding,
+    double horizontalMargin = 16.0,
+    double? width,
+    double? maxWidth,
     int? maxLines = 3,
     TextOverflow? overflow = TextOverflow.ellipsis,
     int? titleMaxLines,
@@ -356,6 +389,11 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      closeButtonColor: closeButtonColor,
+      padding: padding,
+      horizontalMargin: horizontalMargin,
+      width: width,
+      maxWidth: maxWidth,
       maxLines: maxLines,
       overflow: overflow,
       titleMaxLines: titleMaxLines,
@@ -397,10 +435,15 @@ abstract class ByToast {
     Duration animationDuration = const Duration(milliseconds: 380),
     Curve enterCurve = Curves.easeOutCubic,
     Curve exitCurve = Curves.easeInCubic,
-    ByToastPosition position = ByToastPosition.top,
+    ByToastPosition? position,
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    Color? closeButtonColor,
+    EdgeInsetsGeometry? padding,
+    double horizontalMargin = 16.0,
+    double? width,
+    double? maxWidth,
     int? maxLines = 3,
     TextOverflow? overflow = TextOverflow.ellipsis,
     int? titleMaxLines,
@@ -444,6 +487,11 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      closeButtonColor: closeButtonColor,
+      padding: padding,
+      horizontalMargin: horizontalMargin,
+      width: width,
+      maxWidth: maxWidth,
       maxLines: maxLines,
       overflow: overflow,
       titleMaxLines: titleMaxLines,
@@ -485,10 +533,15 @@ abstract class ByToast {
     Duration animationDuration = const Duration(milliseconds: 380),
     Curve enterCurve = Curves.easeOutCubic,
     Curve exitCurve = Curves.easeInCubic,
-    ByToastPosition position = ByToastPosition.top,
+    ByToastPosition? position,
     ByToastSlideDirection? slideDirection,
     ByToastAnimationType animationType = ByToastAnimationType.slideAndFade,
     bool showCloseButton = true,
+    Color? closeButtonColor,
+    EdgeInsetsGeometry? padding,
+    double horizontalMargin = 16.0,
+    double? width,
+    double? maxWidth,
     int? maxLines = 3,
     TextOverflow? overflow = TextOverflow.ellipsis,
     int? titleMaxLines,
@@ -532,6 +585,11 @@ abstract class ByToast {
       slideDirection: slideDirection,
       animationType: animationType,
       showCloseButton: showCloseButton,
+      closeButtonColor: closeButtonColor,
+      padding: padding,
+      horizontalMargin: horizontalMargin,
+      width: width,
+      maxWidth: maxWidth,
       maxLines: maxLines,
       overflow: overflow,
       titleMaxLines: titleMaxLines,

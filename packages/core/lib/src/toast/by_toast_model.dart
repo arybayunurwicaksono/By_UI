@@ -122,6 +122,14 @@ class ByToastModel {
   /// Horizontal margin of the card from screen edges. Defaults to 16px.
   final double horizontalMargin;
 
+  /// Explicit width for the toast card.
+  /// If null, width defaults according to [position] and [maxWidth].
+  final double? width;
+
+  /// Maximum constrained width for the toast card.
+  /// Defaults to 400.0 for corner positions.
+  final double? maxWidth;
+
   /// Optional header title displayed inside the expanded detail dialog.
   final String? detailTitle;
 
@@ -258,6 +266,8 @@ class ByToastModel {
     this.closeButtonColor,
     this.padding,
     this.horizontalMargin = 16.0,
+    this.width,
+    this.maxWidth,
     this.detailTitle,
     this.detailMessage,
     this.detailBuilder,
